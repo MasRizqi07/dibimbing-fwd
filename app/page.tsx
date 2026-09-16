@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import ContactForm from "@/components/ContactForm";
 
 export const dynamic = "force-dynamic";
 
@@ -222,8 +223,16 @@ export default async function Home() {
       </section>
 
       <section className="contact section-shell" id="contact">
-        <div><p className="eyebrow">Ready when you are</p><h2>Bisnis besar dimulai dari <em>langkah kecil.</em></h2></div>
-        <div><p>Gak perlu menunggu semuanya sempurna. Ceritakan idemu, kita cari cara terbaik untuk mewujudkannya.</p><a className="button button-lime" href="https://wa.me/6281234567890" target="_blank" rel="noreferrer">Mulai ngobrol <ArrowIcon /></a></div>
+        <div>
+          <p className="eyebrow">Ready when you are</p>
+          <h2>Bisnis besar dimulai dari <em>langkah kecil.</em></h2>
+          <p style={{ marginTop: "20px", color: "#b4c5c3", fontSize: "14px", lineHeight: "1.65" }}>
+            Gak perlu menunggu semuanya sempurna. Ceritakan idemu, kita cari cara terbaik untuk mewujudkannya.
+          </p>
+        </div>
+        <div>
+          <ContactForm />
+        </div>
       </section>
 
       <footer className="site-footer section-shell">
