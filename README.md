@@ -1,36 +1,170 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Nexa Studio — Full-Stack Digital Agency Web Platform
 
-## Getting Started
+Platform web full-stack modern untuk agency fiktif **Nexa Studio**, dibangun dengan **Next.js 16 (App Router)**, **TypeScript**, **PostgreSQL (Neon)** via **Prisma ORM**, **Zod**, **Resend**, dan **Vitest**.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚀 Tech Stack
+
+- **Framework:** [Next.js 16.3.5](https://nextjs.org) (App Router, Server Components & Server Actions, Next.js Proxy)
+- **Language:** TypeScript (Strict mode enabled)
+- **Database:** PostgreSQL via [Neon](https://neon.tech) (Serverless Database)
+- **ORM:** [Prisma ORM 6](https://www.prisma.io)
+- **Validation:** [Zod](https://zod.dev) (Double-layer client & API validation)
+- **Email:** [Resend](https://resend.com)
+- **Authentication:** Admin session signed cookie (HMAC-SHA256 Web Crypto) + Bcrypt
+- **Testing:** [Vitest](https://vitest.dev)
+- **Styling:** Vanilla CSS + Tailwind CSS 4
+
+---
+
+## 📁 Struktur Arsitektur
+
+```
+dibimbing-fwd/
+├── app/
+│   ├── layout.tsx              # Root layout, Geist font, SEO metadata, JSON-LD
+│   ├── page.tsx                # Homepage RSC (Dynamic fetch project dari Neon DB)
+│   ├── sitemap.ts              # Dynamic sitemap.xml generator
+│   ├── robots.ts               # Dynamic robots.txt generator
+│   ├── api/
+│   │   └── contact/
+│   │       └── route.ts        # POST endpoint: Zod validation, anti-spam, Neon DB, Resend
+│   ├── admin/
+│   │   ├── layout.tsx          # Admin shell & navigation header
+│   │   ├── page.tsx            # Admin dashboard: Portfolio & submission management
+│   │   └── login/
+│   │       └── page.tsx        # Single-password login form
+│   └── actions/
+│       ├── auth.ts             # Server actions untuk login & logout admin
+│       └── projects.ts         # Server actions untuk CRUD project (revalidatePath)
+├── components/
+│   ├── ContactForm.tsx         # Interactive client form dengan honeypot anti-spam
+│   └── admin/
+│       └── ProjectManager.tsx  # CMS UI untuk CRUD project & monitoring pesan masuk
+├── lib/
+│   ├── prisma.ts               # Singleton Prisma client
+│   ├── resend.ts               # Resend client wrapper
+│   ├── validation.ts           # Zod schema validasi form kontak
+│   └── admin-session.ts        # HMAC session token signing & verification
+├── prisma/
+│   ├── schema.prisma           # Prisma schema (Project & ContactSubmission)
+│   ├── seed.ts                 # Database seed script (Kopi Koma, Sora Studio, Ruang Pulih)
+│   └── migrations/             # SQL migrations PostgreSQL
+├── proxy.ts                    # Next.js 16 Proxy untuk proteksi route /admin
+├── public/
+│   └── projects/               # Aset gambar portfolio teroptimasi (< 500KB)
+└── __tests__/                  # Vitest unit & integration test suites
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 🛠️ Panduan Setup Lokal
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1. Prasyarat
+- **Node.js:** Versi 20.6.0+ (disarankan Node.js 22+)
+- **NPM:** Versi 10+
+- **Akun Neon:** Database PostgreSQL
 
-## Learn More
+### 2. Kloning & Branch
+```bash
+git clone https://github.com/MasRizqi07/dibimbing-fwd.git
+cd dibimbing-fwd
+git checkout feature/fullstack-backend
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 3. Install Dependencies
+```bash
+npm install
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4. Konfigurasi Environment Variables
+Salin file `.env.example` menjadi `.env.local`:
+```bash
+cp .env.example .env.local
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Isi variabel pada `.env.local`:
+```env
+# Database Neon PostgreSQL (Pooler connection string)
+DATABASE_URL="postgresql://[user]:[password]@[endpoint-pooler].neon.tech/neondb?sslmode=require"
 
-## Deploy on Vercel
+# Resend Email Service
+RESEND_API_KEY="re_your_api_key"
+CONTACT_EMAIL_TO="email-anda@domain.com"
+RESEND_FROM_EMAIL="onboarding@resend.dev"
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Admin CMS Credentials
+ADMIN_PASSWORD="password-admin-anda"
+ADMIN_SESSION_SECRET="string-acak-panjang-minimal-32-karakter"
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Public URL & Kontak
+NEXT_PUBLIC_WHATSAPP_NUMBER="6281234567890"
+NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+```
+
+### 5. Migrasi & Seed Database
+Jalankan migrasi Prisma untuk membuat tabel di database Neon:
+```bash
+node --env-file=.env.local ./node_modules/prisma/build/index.js migrate dev --name init
+```
+
+Jalankan script seed untuk mengisi 3 data project awal:
+```bash
+node --env-file=.env.local --experimental-strip-types prisma/seed.ts
+```
+
+### 6. Jalankan Server Development
+```bash
+npm run dev
+```
+Buka [http://localhost:3000](http://localhost:3000) di browser.
+
+---
+
+## 🧪 Pengujian & Linting
+
+Jalankan seluruh test suite unit & integrasi (Vitest):
+```bash
+npm test
+```
+
+Jalankan type-check dan linting:
+```bash
+npx tsc --noEmit
+npm run lint
+```
+
+Jalankan build produksi:
+```bash
+npm run build
+```
+
+---
+
+## 🔐 Akses Admin CMS
+
+1. Buka [http://localhost:3000/admin](http://localhost:3000/admin).
+2. Jika belum login, Anda akan otomatis dialihkan ke `/admin/login`.
+3. Masukkan password admin sesuai konfigurasi `ADMIN_PASSWORD` pada `.env.local`.
+4. Di dashboard `/admin`, Anda dapat:
+   - Melihat daftar project aktif.
+   - Menambahkan project baru.
+   - Mengedit data project yang sudah ada.
+   - Menghapus project.
+   - Memantau pesan kontak yang dikirim oleh pengunjung melalui website.
+
+---
+
+## 🚢 Panduan Deployment ke Vercel
+
+1. Push branch `feature/fullstack-backend` ke GitHub.
+2. Buka dashboard [Vercel](https://vercel.com) dan buat proyek baru yang mengarah ke repositori ini.
+3. Di tab **Settings > Environment Variables**, tambahkan:
+   - `DATABASE_URL` (dari Neon)
+   - `ADMIN_PASSWORD`
+   - `ADMIN_SESSION_SECRET`
+   - `RESEND_API_KEY`
+   - `CONTACT_EMAIL_TO`
+   - `NEXT_PUBLIC_SITE_URL` (contoh: `https://nexa-studio.vercel.app`)
+4. Jalankan Deploy.
