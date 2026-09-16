@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import {
   verifyAdminPassword,
   setAdminSessionCookie,
@@ -11,10 +12,23 @@ export async function loginAdminAction(
   _prevState: { error?: string } | null,
   formData: FormData
 ) {
-  const password = formData.get("password") as string;
+  const passwordValue = formData.get("password");
+  const password = typeof passwordValue === "string" ? passwordValue : "";
 
   if (!password) {
     return { error: "Password tidak boleh kosong." };
+  }
+
+  const requestHeaders = await headers();
+  const clientKey =
+    requestHeaders.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    requestHeaders.get("x-real-ip") ||
+    "unknown";
+  const { consumeRateLimit } = await import("@/lib/rate-limit");
+  const rateLimit = consumeRateLimit(`admin-login:${clientKey}`, 5, 15 * 60 * 1000);
+
+  if (!rateLimit.allowed) {
+    return { error: "Terlalu banyak percobaan login. Coba lagi beberapa menit lagi." };
   }
 
   const isValid = await verifyAdminPassword(password);

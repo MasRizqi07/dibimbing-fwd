@@ -138,7 +138,7 @@ export default function ProjectManager({
           }}
         >
           <h2 style={{ fontSize: "18px", margin: "0 0 18px" }}>Tambah Project Baru</h2>
-          <form onSubmit={handleCreate} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+          <form className="admin-project-form" onSubmit={handleCreate} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <div>
               <label style={{ display: "block", fontSize: "11px", fontWeight: 700, marginBottom: "6px" }}>
                 Nama Project / Brand *
@@ -237,7 +237,7 @@ export default function ProjectManager({
           }}
         >
           <h2 style={{ fontSize: "18px", margin: "0 0 18px" }}>Edit Project: {editingProject.title}</h2>
-          <form onSubmit={handleUpdate} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+          <form className="admin-project-form" onSubmit={handleUpdate} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <div>
               <label style={{ display: "block", fontSize: "11px", fontWeight: 700, marginBottom: "6px" }}>
                 Nama Project / Brand *
@@ -325,6 +325,7 @@ export default function ProjectManager({
 
       {/* Projects List */}
       <div
+        className="admin-project-table"
         style={{
           background: "#fff",
           borderRadius: "16px",

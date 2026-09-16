@@ -32,10 +32,30 @@ describe("POST /api/contact Route Handler", () => {
     expect(data.success).toBe(false);
   });
 
-  it("should return 400 if validation fails", async () => {
+  it("should return 413 when the actual request body exceeds the limit", async () => {
+    const oversizedBody = JSON.stringify({
+      name: "Large Request",
+      email: "large@test.com",
+      message: "x".repeat(33_000),
+    });
     const req = new Request("http://localhost/api/contact", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      body: oversizedBody,
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(413);
+    expect((await res.json()).success).toBe(false);
+  });
+
+  it("should return 400 if validation fails", async () => {
+    const req = new Request("http://localhost/api/contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-forwarded-for": "203.0.113.200",
+      },
       body: JSON.stringify({
         name: "A",
         email: "invalid-email",
@@ -97,7 +117,10 @@ describe("POST /api/contact Route Handler", () => {
 
     const req = new Request("http://localhost/api/contact", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-forwarded-for": "203.0.113.200",
+      },
       body: JSON.stringify({
         name: "Rizqi Pratama",
         email: "rizqi@test.com",

@@ -17,6 +17,8 @@ model Project {
   order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([order])
 }
 
 model ContactSubmission {
@@ -26,4 +28,6 @@ model ContactSubmission {
   message   String
   emailSent Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }

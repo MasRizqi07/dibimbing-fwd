@@ -2,20 +2,60 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { resend } from "@/lib/resend";
 import { contactFormSchema } from "@/lib/validation";
+import { consumeRateLimit, getClientIdentifier } from "@/lib/rate-limit";
+
+const MAX_BODY_BYTES = 32 * 1024;
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json().catch(() => null);
+    const contentLength = Number(request.headers.get("content-length") || 0);
+    if (contentLength > MAX_BODY_BYTES) {
+      return NextResponse.json(
+        { success: false, error: "Payload terlalu besar." },
+        { status: 413 }
+      );
+    }
 
-    if (!body) {
+    const rateLimit = consumeRateLimit(
+      `contact:${getClientIdentifier(request)}`,
+      5,
+      15 * 60 * 1000
+    );
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { success: false, error: "Terlalu banyak percobaan. Coba lagi nanti." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
+        }
+      );
+    }
+
+    const bodyBuffer = await request.arrayBuffer();
+    if (bodyBuffer.byteLength > MAX_BODY_BYTES) {
+      return NextResponse.json(
+        { success: false, error: "Payload terlalu besar." },
+        { status: 413 }
+      );
+    }
+
+    let body: unknown;
+    try {
+      body = JSON.parse(new TextDecoder().decode(bodyBuffer));
+    } catch {
       return NextResponse.json(
         { success: false, error: "Invalid JSON payload" },
         { status: 400 }
       );
     }
 
-    // Anti-spam Check 1: Honeypot field must be empty
-    if (body.honeypot && typeof body.honeypot === "string" && body.honeypot.trim().length > 0) {
+    if (
+      typeof body === "object" &&
+      body !== null &&
+      "honeypot" in body &&
+      typeof body.honeypot === "string" &&
+      body.honeypot.trim().length > 0
+    ) {
       return NextResponse.json(
         { success: false, error: "Bot submission detected." },
         { status: 400 }
@@ -38,7 +78,6 @@ export async function POST(request: Request) {
 
     const { name, email, message, honeypot, renderTime } = validationResult.data;
 
-    // Anti-spam Check 1: Honeypot field must be empty
     if (honeypot && honeypot.length > 0) {
       return NextResponse.json(
         { success: false, error: "Bot submission detected." },

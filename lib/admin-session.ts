@@ -3,13 +3,20 @@ import bcrypt from "bcryptjs";
 
 const COOKIE_NAME = "nexa_admin_session";
 const SESSION_MAX_AGE = 7 * 24 * 60 * 60; // 7 days in seconds
+const developmentSecret = `nexa-dev-${crypto.randomUUID()}`;
 
 function getSecretKey(): string {
-  return (
-    process.env.ADMIN_SESSION_SECRET ||
-    process.env.ADMIN_PASSWORD ||
-    "nexa-studio-admin-fallback-session-secret-key"
-  );
+  const configuredSecret = process.env.ADMIN_SESSION_SECRET?.trim();
+
+  if (configuredSecret) {
+    return configuredSecret;
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("ADMIN_SESSION_SECRET must be configured in production.");
+  }
+
+  return developmentSecret;
 }
 
 // Universal Web Crypto HMAC-SHA256 (supported on Edge and Node)
@@ -45,8 +52,10 @@ export async function verifySessionToken(token: string): Promise<boolean> {
 
   if (isNaN(timestamp)) return false;
 
-  // Check 7-day expiration
-  if (Date.now() - timestamp > SESSION_MAX_AGE * 1000) {
+  const now = Date.now();
+  const maxAgeMs = SESSION_MAX_AGE * 1000;
+
+  if (timestamp > now || now - timestamp > maxAgeMs) {
     return false;
   }
 
@@ -58,8 +67,12 @@ export async function verifyAdminPassword(passwordInput: string): Promise<boolea
   const adminPassword = process.env.ADMIN_PASSWORD;
   if (!adminPassword || !passwordInput) return false;
 
-  if (adminPassword.startsWith("$2a$") || adminPassword.startsWith("$2b$")) {
+  if (/^\$2[aby]\$\d{2}\$/.test(adminPassword)) {
     return bcrypt.compare(passwordInput, adminPassword);
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("ADMIN_PASSWORD must be a bcrypt hash in production.");
   }
 
   return passwordInput === adminPassword;

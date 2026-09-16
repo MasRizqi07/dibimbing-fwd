@@ -34,12 +34,16 @@ export default function ContactForm() {
     setErrorMessage("");
     setFieldErrors({});
 
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 15_000);
+
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        signal: controller.signal,
         body: JSON.stringify({
           ...formData,
           renderTime,
@@ -59,9 +63,15 @@ export default function ContactForm() {
 
       setStatus("success");
       setFormData({ name: "", email: "", message: "", honeypot: "" });
-    } catch {
+    } catch (error) {
       setStatus("error");
-      setErrorMessage("Terjadi masalah jaringan. Silakan periksa koneksi Anda.");
+      setErrorMessage(
+        error instanceof DOMException && error.name === "AbortError"
+          ? "Permintaan terlalu lama. Silakan coba lagi."
+          : "Terjadi masalah jaringan. Silakan periksa koneksi Anda."
+      );
+    } finally {
+      window.clearTimeout(timeoutId);
     }
   };
 

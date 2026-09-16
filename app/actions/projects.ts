@@ -3,6 +3,24 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { isAuthenticatedAdmin } from "@/lib/admin-session";
+import { projectFormSchema } from "@/lib/project-validation";
+
+function parseProjectFormData(formData: FormData) {
+  const result = projectFormSchema.safeParse({
+    title: formData.get("title"),
+    type: formData.get("type"),
+    result: formData.get("result"),
+    className: formData.get("className") || null,
+    imagePath: formData.get("imagePath") || null,
+    order: Number(formData.get("order") || 0),
+  });
+
+  if (!result.success) {
+    throw new Error("Data project tidak valid. Periksa kembali semua field.");
+  }
+
+  return result.data;
+}
 
 export async function createProjectAction(formData: FormData) {
   const isAuth = await isAuthenticatedAdmin();
@@ -10,26 +28,10 @@ export async function createProjectAction(formData: FormData) {
     throw new Error("Unauthorized: Anda harus login sebagai admin.");
   }
 
-  const title = (formData.get("title") as string)?.trim();
-  const type = (formData.get("type") as string)?.trim();
-  const result = (formData.get("result") as string)?.trim();
-  const className = (formData.get("className") as string)?.trim() || "project-coffee";
-  const imagePath = (formData.get("imagePath") as string)?.trim() || null;
-  const order = parseInt((formData.get("order") as string) || "0", 10);
-
-  if (!title || !type || !result) {
-    throw new Error("Judul, tipe, dan hasil harus diisi.");
-  }
+  const data = parseProjectFormData(formData);
 
   await prisma.project.create({
-    data: {
-      title,
-      type,
-      result,
-      className,
-      imagePath,
-      order: isNaN(order) ? 0 : order,
-    },
+    data,
   });
 
   revalidatePath("/");
@@ -42,27 +44,11 @@ export async function updateProjectAction(id: string, formData: FormData) {
     throw new Error("Unauthorized: Anda harus login sebagai admin.");
   }
 
-  const title = (formData.get("title") as string)?.trim();
-  const type = (formData.get("type") as string)?.trim();
-  const result = (formData.get("result") as string)?.trim();
-  const className = (formData.get("className") as string)?.trim() || null;
-  const imagePath = (formData.get("imagePath") as string)?.trim() || null;
-  const order = parseInt((formData.get("order") as string) || "0", 10);
-
-  if (!title || !type || !result) {
-    throw new Error("Judul, tipe, dan hasil harus diisi.");
-  }
+  const data = parseProjectFormData(formData);
 
   await prisma.project.update({
     where: { id },
-    data: {
-      title,
-      type,
-      result,
-      className,
-      imagePath,
-      order: isNaN(order) ? 0 : order,
-    },
+    data,
   });
 
   revalidatePath("/");

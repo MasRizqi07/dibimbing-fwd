@@ -30,8 +30,5 @@
     "tailwindcss": "^4",
     "typescript": "^6.0.3",
     "vitest": "^5.0.1"
-  },
-  "prisma": {
-    "seed": "node --env-file=.env.local --experimental-strip-types prisma/seed.ts"
   }
 }

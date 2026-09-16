@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import ContactForm from "@/components/ContactForm";
+import ServiceCatalog from "@/components/ServiceCatalog";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,7 @@ interface Service {
   title: string;
   description: string;
   icon: string;
+  category: string;
 }
 
 interface Plan {
@@ -26,6 +28,7 @@ const services: Service[] = [
     description:
       "Landing page dan company profile yang cepat, mudah dipahami, dan dibuat untuk mengubah pengunjung menjadi pelanggan.",
     icon: "↗",
+    category: "Website",
   },
   {
     number: "02",
@@ -33,6 +36,7 @@ const services: Service[] = [
     description:
       "Identitas visual yang rapi dan konsisten agar bisnis kamu terlihat lebih dipercaya sejak first impression.",
     icon: "✦",
+    category: "Branding",
   },
   {
     number: "03",
@@ -40,6 +44,7 @@ const services: Service[] = [
     description:
       "Strategi dan template konten yang membantu kamu tampil rutin tanpa harus mulai dari halaman kosong.",
     icon: "◌",
+    category: "Konten",
   },
 ];
 
@@ -148,22 +153,13 @@ export default async function Home() {
           <h2>Semua yang kamu butuhkan untuk <em>naik level.</em></h2>
           <p>Tanpa jargon ribet. Tanpa proses berbelit. Hanya strategi dan eksekusi yang benar-benar relevan buat bisnismu.</p>
         </div>
-        <div className="service-grid">
-          {services.map((service) => (
-            <article className="service-card" key={service.number}>
-              <div className="service-number">{service.number}<span className="service-icon">{service.icon}</span></div>
-              <h3>{service.title}</h3>
-              <p>{service.description}</p>
-              <a href="#contact" aria-label={`Pelajari ${service.title}`}>Pelajari lebih lanjut <ArrowIcon /></a>
-            </article>
-          ))}
-        </div>
+        <ServiceCatalog services={services} whatsappUrl={whatsappUrl} />
       </section>
 
       <section className="work section-shell" id="work">
         <div className="section-heading work-heading">
           <div><p className="eyebrow">Selected work</p><h2>Kerja bagus berbicara <em>lebih keras.</em></h2></div>
-          <a className="text-link" href="#contact">Lihat semua project <ArrowIcon /></a>
+          <a className="text-link" href="#work">Lihat semua project <ArrowIcon /></a>
         </div>
         <div className="project-grid">
           {projects.length === 0 ? (
