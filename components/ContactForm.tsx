@@ -193,7 +193,7 @@ export default function ContactForm() {
       <div className="whatsapp-fallback">
         <span>Atau lebih suka chat langsung? </span>
         <a
-          href="https://wa.me/6281234567890"
+          href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "6285745717075"}`}
           target="_blank"
           rel="noreferrer"
           className="wa-link"

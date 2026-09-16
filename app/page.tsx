@@ -74,6 +74,10 @@ export default async function Home() {
     orderBy: { order: "asc" },
   });
 
+  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "6285745717075";
+  const whatsappUrl = `https://wa.me/${whatsappNumber}`;
+  const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "achmadriskim07@gmail.com";
+
   return (
     <main>
       <nav className="site-nav" aria-label="Navigasi utama">
@@ -87,7 +91,7 @@ export default async function Home() {
           <a href="#process">Proses</a>
           <a href="#pricing">Harga</a>
         </div>
-        <a className="nav-cta" href="https://wa.me/6281234567890" target="_blank" rel="noreferrer">
+        <a className="nav-cta" href={whatsappUrl} target="_blank" rel="noreferrer">
           Ngobrol yuk <ArrowIcon />
         </a>
       </nav>
@@ -101,7 +105,7 @@ export default async function Home() {
             bukan cuma cantik, tapi juga menghasilkan.
           </p>
           <div className="hero-actions">
-            <a className="button button-primary" href="https://wa.me/6281234567890" target="_blank" rel="noreferrer">
+            <a className="button button-primary" href={whatsappUrl} target="_blank" rel="noreferrer">
               Mulai konsultasi <ArrowIcon />
             </a>
             <a className="text-link" href="#work">Lihat hasil kerja <span aria-hidden="true">↓</span></a>
@@ -252,7 +256,11 @@ export default async function Home() {
       <footer className="site-footer section-shell">
         <a className="brand" href="#top"><span className="brand-mark">N</span><span>Nexa<span className="brand-dot">.</span></span></a>
         <p>Designing digital experiences<br />that move businesses forward.</p>
-        <div className="footer-links"><a href="mailto:hello@nexa.studio">hello@nexa.studio</a><a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram ↗</a><a href="https://wa.me/6281234567890" target="_blank" rel="noreferrer">WhatsApp ↗</a></div>
+        <div className="footer-links">
+          <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
+          <a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram ↗</a>
+          <a href={whatsappUrl} target="_blank" rel="noreferrer">WhatsApp ↗</a>
+        </div>
         <small>© 2025 Nexa Studio. Made with intention.</small>
       </footer>
     </main>

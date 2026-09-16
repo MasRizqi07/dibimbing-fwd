@@ -99,7 +99,8 @@ ADMIN_PASSWORD="password-admin-anda"
 ADMIN_SESSION_SECRET="string-acak-panjang-minimal-32-karakter"
 
 # Public URL & Kontak
-NEXT_PUBLIC_WHATSAPP_NUMBER="6281234567890"
+NEXT_PUBLIC_WHATSAPP_NUMBER="628xxxxxxxxxx"
+NEXT_PUBLIC_CONTACT_EMAIL="contact@yourbusiness.com"
 NEXT_PUBLIC_SITE_URL="http://localhost:3000"
 ```
 
