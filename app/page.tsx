@@ -1,15 +1,12 @@
+import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
+
 interface Service {
   number: string;
   title: string;
   description: string;
   icon: string;
-}
-
-interface ProjectItem {
-  type: string;
-  title: string;
-  result: string;
-  className: string;
 }
 
 interface Plan {
@@ -44,27 +41,6 @@ const services: Service[] = [
   },
 ];
 
-const projects: ProjectItem[] = [
-  {
-    type: "F&B · Branding + Website",
-    title: "Kopi Koma",
-    result: "+38% online orders",
-    className: "project-coffee",
-  },
-  {
-    type: "Fashion · E-commerce",
-    title: "Sora Studio",
-    result: "2.4x conversion rate",
-    className: "project-fashion",
-  },
-  {
-    type: "Wellness · Landing page",
-    title: "Ruang Pulih",
-    result: "Booked out in 12 days",
-    className: "project-wellness",
-  },
-];
-
 const plans: Plan[] = [
   {
     name: "Starter",
@@ -91,7 +67,11 @@ function ArrowIcon() {
   return <span aria-hidden="true" className="arrow-icon">↗</span>;
 }
 
-export default function Home() {
+export default async function Home() {
+  const projects = await prisma.project.findMany({
+    orderBy: { order: "asc" },
+  });
+
   return (
     <main>
       <nav className="site-nav" aria-label="Navigasi utama">
@@ -180,12 +160,40 @@ export default function Home() {
           <a className="text-link" href="#contact">Lihat semua project <ArrowIcon /></a>
         </div>
         <div className="project-grid">
-          {projects.map((project) => (
-            <article className={`project-card ${project.className}`} key={project.title}>
-              <div className="project-visual"><div className="visual-window"><span /><span /><span /></div><div className="visual-title">{project.title}</div><div className="visual-shape" /></div>
-              <p>{project.type}</p><h3>{project.title}</h3><strong>{project.result}</strong>
-            </article>
-          ))}
+          {projects.length === 0 ? (
+            <div
+              className="empty-projects-state"
+              style={{
+                gridColumn: "1 / -1",
+                padding: "60px 20px",
+                textAlign: "center",
+                background: "rgba(255, 255, 255, 0.5)",
+                borderRadius: "16px",
+                border: "1px dashed var(--line)",
+                color: "var(--muted)",
+                fontSize: "14px",
+              }}
+            >
+              Belum ada project yang ditampilkan.
+            </div>
+          ) : (
+            projects.map((project) => (
+              <article className={`project-card ${project.className || ""}`} key={project.id}>
+                <div className="project-visual">
+                  <div className="visual-window">
+                    <span />
+                    <span />
+                    <span />
+                  </div>
+                  <div className="visual-title">{project.title}</div>
+                  <div className="visual-shape" />
+                </div>
+                <p>{project.type}</p>
+                <h3>{project.title}</h3>
+                <strong>{project.result}</strong>
+              </article>
+            ))
+          )}
         </div>
       </section>
 
