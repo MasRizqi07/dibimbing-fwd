@@ -1,5 +1,19 @@
 # Nexa Studio — Full-Stack Digital Agency Web Platform
 
+Nexa Studio adalah website digital agency yang membantu UMKM dan brand lokal
+terlihat lebih profesional, dipercaya, dan menghasilkan. Repository ini
+menggabungkan landing page marketing, katalog layanan dengan search/filter,
+portfolio yang dikelola melalui CMS admin, serta contact pipeline berbasis
+PostgreSQL.
+
+## Documentation map
+
+- [PRD.md](./PRD.md) — tujuan produk, persona, scope, requirement, dan acceptance criteria.
+- [Design.md](./Design.md) — user flow, wireframe tekstual, interaction pattern, dan responsive behavior.
+- [Design_System.md](./Design_System.md) — visual token, component state, dan accessibility rules.
+- [Architecture.md](./Architecture.md) — boundary aplikasi, data flow, security, deployment, dan operational concerns.
+- [session_analysis_report.md](./session_analysis_report.md) — audit dan hardening yang sudah dilakukan.
+
 Platform web full-stack modern untuk agency fiktif **Nexa Studio**, dibangun dengan **Next.js 16 (App Router)**, **TypeScript**, **PostgreSQL (Neon)** via **Prisma ORM**, **Zod**, **Resend**, dan **Vitest**.
 
 ---
@@ -41,6 +55,7 @@ dibimbing-fwd/
 │       └── projects.ts         # Server actions untuk CRUD project (revalidatePath)
 ├── components/
 │   ├── ContactForm.tsx         # Interactive client form dengan honeypot anti-spam
+│   ├── ServiceCatalog.tsx      # Search/filter katalog layanan dan CTA konsultasi
 │   └── admin/
 │       └── ProjectManager.tsx  # CMS UI untuk CRUD project & monitoring pesan masuk
 ├── lib/
@@ -56,7 +71,11 @@ dibimbing-fwd/
 ├── proxy.ts                    # Next.js 16 Proxy untuk proteksi route /admin
 ├── public/
 │   └── projects/               # Aset gambar portfolio teroptimasi (< 500KB)
-└── __tests__/                  # Vitest unit & integration test suites
+├── __tests__/                  # Vitest unit & integration test suites
+├── PRD.md                      # Product requirements document
+├── Design.md                   # UX flow dan wireframe plan
+├── Design_System.md            # UI tokens dan component standards
+└── Architecture.md             # Technical architecture dan operational model
 ```
 
 ---
