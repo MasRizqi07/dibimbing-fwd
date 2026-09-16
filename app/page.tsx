@@ -1,4 +1,26 @@
-const services = [
+interface Service {
+  number: string;
+  title: string;
+  description: string;
+  icon: string;
+}
+
+interface ProjectItem {
+  type: string;
+  title: string;
+  result: string;
+  className: string;
+}
+
+interface Plan {
+  name: string;
+  price: string;
+  description: string;
+  features: string[];
+  featured?: boolean;
+}
+
+const services: Service[] = [
   {
     number: "01",
     title: "Website yang menjual",
@@ -22,7 +44,7 @@ const services = [
   },
 ];
 
-const projects = [
+const projects: ProjectItem[] = [
   {
     type: "F&B · Branding + Website",
     title: "Kopi Koma",
@@ -43,7 +65,7 @@ const projects = [
   },
 ];
 
-const plans = [
+const plans: Plan[] = [
   {
     name: "Starter",
     price: "3,5",
