@@ -8,6 +8,7 @@ const initialProjects = [
     type: "F&B · Branding + Website",
     result: "+38% online orders",
     className: "project-coffee",
+    imagePath: "/projects/kopi-koma.jpg",
     order: 1,
   },
   {
@@ -15,6 +16,7 @@ const initialProjects = [
     type: "Fashion · E-commerce",
     result: "2.4x conversion rate",
     className: "project-fashion",
+    imagePath: "/projects/sora-studio.jpg",
     order: 2,
   },
   {
@@ -22,6 +24,7 @@ const initialProjects = [
     type: "Wellness · Landing page",
     result: "Booked out in 12 days",
     className: "project-wellness",
+    imagePath: "/projects/ruang-pulih.jpg",
     order: 3,
   },
 ];

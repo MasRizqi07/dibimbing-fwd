@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import ContactForm from "@/components/ContactForm";
 
@@ -181,13 +182,26 @@ export default async function Home() {
             projects.map((project) => (
               <article className={`project-card ${project.className || ""}`} key={project.id}>
                 <div className="project-visual">
-                  <div className="visual-window">
-                    <span />
-                    <span />
-                    <span />
-                  </div>
-                  <div className="visual-title">{project.title}</div>
-                  <div className="visual-shape" />
+                  {project.imagePath ? (
+                    <Image
+                      src={project.imagePath}
+                      alt={`Showcase portfolio ${project.title} — ${project.type}`}
+                      fill
+                      sizes="(max-width: 800px) 100vw, 360px"
+                      style={{ objectFit: "cover" }}
+                      priority={project.order <= 2}
+                    />
+                  ) : (
+                    <>
+                      <div className="visual-window">
+                        <span />
+                        <span />
+                        <span />
+                      </div>
+                      <div className="visual-title">{project.title}</div>
+                      <div className="visual-shape" />
+                    </>
+                  )}
                 </div>
                 <p>{project.type}</p>
                 <h3>{project.title}</h3>
