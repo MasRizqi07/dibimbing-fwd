@@ -17,9 +17,12 @@ a { color: inherit; text-decoration: none; }
 .site-nav { width: min(1160px, calc(100% - 64px)); margin: 0 auto; height: 82px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .brand { display: inline-flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 800; letter-spacing: -.07em; }
 .brand-mark { display: grid; place-items: center; width: 31px; height: 31px; color: var(--navy); background: var(--lime); border-radius: 9px; font-size: 17px; letter-spacing: -.1em; }
-.brand-dot, em { color: #83a500; font-style: normal; }
-.nav-links { display: flex; gap: 31px; color: #6b797c; font-size: 13px; font-weight: 600; }
-.nav-links a:hover, .footer-links a:hover, .text-link:hover { color: #83a500; }
+.brand-dot, em { color: #668300; font-style: normal; }
+:focus-visible { outline: 2px solid #556e00; outline-offset: 3px; }
+.button:focus-visible, .nav-cta:focus-visible { outline: 3px solid #556e00; outline-offset: 3px; }
+.contact :focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+.nav-links { display: flex; gap: 31px; color: #5a686b; font-size: 13px; font-weight: 600; }
+.nav-links a:hover, .footer-links a:hover, .text-link:hover { color: #556e00; }
 .nav-cta { padding: 12px 17px; border: 1px solid var(--line); border-radius: 99px; font-size: 12px; font-weight: 700; transition: .2s; }
 .nav-cta:hover { background: var(--navy); color: white; border-color: var(--navy); }
 .arrow-icon { display: inline-block; margin-left: 7px; font-size: 1.1em; transition: transform .2s; }
