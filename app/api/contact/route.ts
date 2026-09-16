@@ -14,6 +14,14 @@ export async function POST(request: Request) {
       );
     }
 
+    // Anti-spam Check 1: Honeypot field must be empty
+    if (body.honeypot && typeof body.honeypot === "string" && body.honeypot.trim().length > 0) {
+      return NextResponse.json(
+        { success: false, error: "Bot submission detected." },
+        { status: 400 }
+      );
+    }
+
     const validationResult = contactFormSchema.safeParse(body);
 
     if (!validationResult.success) {
