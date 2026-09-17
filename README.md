@@ -1,5 +1,7 @@
 # Nexa Studio — Full-Stack Digital Agency Web Platform
 
+> 🌐 **Live Production URL:** [https://dibimbing-fwd.vercel.app](https://dibimbing-fwd.vercel.app)
+
 Nexa Studio adalah website digital agency yang membantu UMKM dan brand lokal
 terlihat lebih profesional, dipercaya, dan menghasilkan. Repository ini
 menggabungkan landing page marketing, katalog layanan dengan search/filter,
@@ -200,20 +202,24 @@ Catatan keamanan:
 
 ---
 
-## 🚢 Panduan Deployment ke Vercel
+## 🚢 Deployment ke Vercel (Production)
 
-1. Push branch `feature/fullstack-backend` ke GitHub.
-2. Buka dashboard [Vercel](https://vercel.com) dan buat proyek baru yang mengarah ke repositori ini.
-3. Di tab **Settings > Environment Variables**, tambahkan:
-   - `DATABASE_URL` (dari Neon)
-   - `ADMIN_PASSWORD` (bcrypt hash)
-   - `ADMIN_SESSION_SECRET`
-   - `RESEND_API_KEY`
-   - `CONTACT_EMAIL_TO`
-   - `NEXT_PUBLIC_SITE_URL` (contoh: `https://nexa-studio.vercel.app`)
-   - `NEXT_PUBLIC_WHATSAPP_NUMBER`
-   - `NEXT_PUBLIC_CONTACT_EMAIL`
-4. Jalankan Deploy.
+Website Nexa Studio telah aktif dan dideploy ke Vercel di domain:
+- **Live URL:** [https://dibimbing-fwd.vercel.app](https://dibimbing-fwd.vercel.app)
+- **Health Check Endpoint:** [https://dibimbing-fwd.vercel.app/api/health](https://dibimbing-fwd.vercel.app/api/health)
+- **Admin CMS:** [https://dibimbing-fwd.vercel.app/admin](https://dibimbing-fwd.vercel.app/admin) (terproteksi auth redirect ke `/admin/login`)
+
+Langkah setup environment variables di dashboard [Vercel](https://vercel.com) (Settings > Environment Variables):
+- `DATABASE_URL`: Connection string PostgreSQL Neon (dengan `sslmode=require`)
+- `ADMIN_PASSWORD`: Bcrypt hash dari password admin
+- `ADMIN_SESSION_SECRET`: String acak kriptografis (minimal 32 karakter)
+- `RESEND_API_KEY`: API key Resend untuk pengiriman email
+- `CONTACT_EMAIL_TO`: Alamat email penerima notifikasi pesan kontak (`sembarangananak@gmail.com`)
+- `RESEND_FROM_EMAIL`: Alamat sender Resend (`onboarding@resend.dev`)
+- `NEXT_PUBLIC_SITE_URL`: `https://dibimbing-fwd.vercel.app`
+- `NEXT_PUBLIC_WHATSAPP_NUMBER`: Nomor WhatsApp bisnis
+- `NEXT_PUBLIC_CONTACT_EMAIL`: Email kontak publik bisnis
+
 
 ---
 
