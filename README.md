@@ -206,9 +206,33 @@ Catatan keamanan:
 2. Buka dashboard [Vercel](https://vercel.com) dan buat proyek baru yang mengarah ke repositori ini.
 3. Di tab **Settings > Environment Variables**, tambahkan:
    - `DATABASE_URL` (dari Neon)
-   - `ADMIN_PASSWORD`
+   - `ADMIN_PASSWORD` (bcrypt hash)
    - `ADMIN_SESSION_SECRET`
    - `RESEND_API_KEY`
    - `CONTACT_EMAIL_TO`
    - `NEXT_PUBLIC_SITE_URL` (contoh: `https://nexa-studio.vercel.app`)
+   - `NEXT_PUBLIC_WHATSAPP_NUMBER`
+   - `NEXT_PUBLIC_CONTACT_EMAIL`
 4. Jalankan Deploy.
+
+---
+
+## 📸 Kredit Gambar
+
+Seluruh gambar mockup portfolio menggunakan stok foto fotografi asli berlisensi bebas royalti dari [Unsplash](https://unsplash.com) (Unsplash License — bebas digunakan untuk keperluan komersial dan non-komersial tanpa watermark AI):
+
+1. **Kopi Koma (`public/projects/kopi-koma.jpg`)**
+   - **Fotografer:** [Nathan Dumlao](https://unsplash.com/@nate_dumlao)
+   - **Sumber:** [Unsplash (zUNs99PGDg0)](https://unsplash.com/photos/zUNs99PGDg0)
+   - **Deskripsi:** Specialty coffee latte art di atas cangkir keramik pada meja kayu kedai kopi.
+
+2. **Sora Studio (`public/projects/sora-studio.jpg`)**
+   - **Fotografer:** [Alyssa Strohmann](https://unsplash.com/@anotherlovely)
+   - **Sumber:** [Unsplash (TS--uNw-JqE)](https://unsplash.com/photos/hanged-top-on-brown-and-white-clothes-horse-TS--uNw-JqE)
+   - **Deskripsi:** Minimalist apparel rack & clothing boutique studio display.
+
+3. **Ruang Pulih (`public/projects/ruang-pulih.jpg`)**
+   - **Fotografer:** [Engin Akyurt](https://unsplash.com/@enginakyurt)
+   - **Sumber:** [Unsplash (SMwCQZWayj0)](https://unsplash.com/photos/hot-stone-massage-in-spa-SMwCQZWayj0)
+   - **Deskripsi:** Hot stone spa treatment & holistic relaxation therapy setting.
+
