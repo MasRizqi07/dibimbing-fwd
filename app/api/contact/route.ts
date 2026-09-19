@@ -141,55 +141,80 @@ export async function POST(request: Request) {
           { status: 400 }
         );
       }
-    } else if (renderTime && Date.now() - renderTime < 2000) {
-      // Fallback for legacy clients / tests
+    } else if (typeof renderTime === "number") {
+      if (Date.now() - renderTime < 2000) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Formulir dikirim terlalu cepat. Mohon tunggu beberapa detik.",
+          },
+          { status: 400 }
+        );
+      }
+    } else {
       return NextResponse.json(
         {
           success: false,
-          error: "Formulir dikirim terlalu cepat. Mohon tunggu beberapa detik.",
+          error: "Validasi anti-spam gagal: token tidak ditemukan.",
         },
         { status: 400 }
       );
     }
 
-    // Idempotency: Check if this submission has already been processed
+    // Atomic Idempotency: Find or create with P2002 concurrent safety
+    let submission: { id: string; emailSent: boolean } | null = null;
+
     if (idempotencyKey) {
       const existing = await prisma.contactSubmission.findUnique({
         where: { idempotencyKey },
       });
       if (existing) {
-        return NextResponse.json(
-          {
-            success: true,
-            message: "Terima kasih! Pesan Anda telah kami terima dan akan segera kami balas.",
-            data: {
-              id: existing.id,
-              emailSent: existing.emailSent,
-            },
-          },
-          { status: 200 }
-        );
+        submission = existing;
       }
     }
 
-    // 1. Save submission to database with status 'new' and idempotencyKey
-    const submission = await prisma.contactSubmission.create({
-      data: {
-        name,
-        email,
-        message,
-        status: "new",
-        idempotencyKey: idempotencyKey || null,
-        emailSent: false,
-      },
-    });
+    if (!submission) {
+      try {
+        submission = await prisma.contactSubmission.create({
+          data: {
+            name,
+            email,
+            message,
+            status: "new",
+            idempotencyKey: idempotencyKey || null,
+            emailSent: false,
+          },
+        });
+      } catch (err: unknown) {
+        // Catch concurrent race condition where another request created row with same key
+        if (
+          typeof err === "object" &&
+          err !== null &&
+          "code" in err &&
+          err.code === "P2002" &&
+          idempotencyKey
+        ) {
+          const winner = await prisma.contactSubmission.findUnique({
+            where: { idempotencyKey },
+          });
+          if (winner) {
+            submission = winner;
+          } else {
+            throw err;
+          }
+        } else {
+          throw err;
+        }
+      }
+    }
 
-    // 2. Dispatch email notification via Resend if configured (with 3s timeout protection)
-    let emailSent = false;
+    // 2. Dispatch email notification via Resend if configured
+    // If a previous attempt timed out (emailSent === false), retry delivery on idempotent resubmission
+    let emailSent = submission.emailSent;
     const recipientEmail = process.env.CONTACT_EMAIL_TO;
     const senderEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
 
-    if (resend && recipientEmail) {
+    if (!emailSent && resend && recipientEmail) {
       const sendEmailPromise = resend.emails
         .send({
           from: senderEmail,
@@ -201,7 +226,7 @@ export async function POST(request: Request) {
         .then(async (result) => {
           if (!result.error) {
             await prisma.contactSubmission.update({
-              where: { id: submission.id },
+              where: { id: submission!.id },
               data: { emailSent: true },
             });
             return true;

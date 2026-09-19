@@ -127,10 +127,14 @@ export async function consumeDistributedRateLimit(
     const redisKey = `ratelimit:${key}`;
     const windowSec = Math.ceil(windowMs / 1000);
     const count = await redis.incr(redisKey);
-    if (count === 1) {
+    let ttl = await redis.ttl(redisKey);
+
+    // If key has no TTL (-1) or was newly created, restore the intended expiration
+    if (ttl < 0) {
       await redis.expire(redisKey, windowSec);
+      ttl = windowSec;
     }
-    const ttl = await redis.ttl(redisKey);
+
     const retryAfterSeconds = ttl > 0 ? ttl : windowSec;
 
     if (count > limit) {
