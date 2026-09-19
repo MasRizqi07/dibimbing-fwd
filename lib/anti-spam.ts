@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 
-const SECRET = process.env.ADMIN_SESSION_SECRET || "nexa-studio-anti-spam-secret-2026";
+const ephemeralSecret = crypto.randomBytes(32).toString("hex");
+const SECRET = process.env.ADMIN_SESSION_SECRET || ephemeralSecret;
 
 export function generateAntiSpamToken(): string {
   const timestamp = Date.now();

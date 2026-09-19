@@ -16,6 +16,18 @@ export default function ContactForm() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 
+  const fetchAntiSpamToken = async () => {
+    try {
+      const res = await fetch("/api/anti-spam");
+      const data = await res.json();
+      if (data.token) {
+        setAntiSpamToken(data.token);
+      }
+    } catch {
+      // Fallback to renderTime if anti-spam token fetch is interrupted
+    }
+  };
+
   useEffect(() => {
     // 1. Generate idempotency key for this form session
     const key =
@@ -25,16 +37,7 @@ export default function ContactForm() {
     setIdempotencyKey(key);
 
     // 2. Retrieve server-issued anti-spam token
-    fetch("/api/anti-spam")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.token) {
-          setAntiSpamToken(data.token);
-        }
-      })
-      .catch(() => {
-        // Fallback to renderTime if anti-spam token fetch is interrupted
-      });
+    fetchAntiSpamToken();
   }, []);
 
   const handleChange = (
@@ -83,6 +86,10 @@ export default function ContactForm() {
         if (data.details) {
           setFieldErrors(data.details);
         }
+        // If token was rejected or expired, immediately request a fresh token
+        if (data.error && /kedaluwarsa|anti-spam/i.test(data.error)) {
+          fetchAntiSpamToken();
+        }
         return;
       }
 
@@ -93,6 +100,7 @@ export default function ContactForm() {
           ? crypto.randomUUID()
           : `req-${Date.now()}-${Math.random()}`;
       setIdempotencyKey(nextKey);
+      fetchAntiSpamToken();
     } catch (error) {
       setStatus("error");
       setErrorMessage(
@@ -109,7 +117,14 @@ export default function ContactForm() {
     setStatus("idle");
     setErrorMessage("");
     setFieldErrors({});
+    setFormData({ name: "", email: "", message: "", honeypot: "" });
     setRenderTime(Date.now());
+    fetchAntiSpamToken();
+    const nextKey =
+      typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `req-${Date.now()}-${Math.random()}`;
+    setIdempotencyKey(nextKey);
   };
 
   if (status === "success") {

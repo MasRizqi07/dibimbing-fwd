@@ -23,7 +23,7 @@ export async function loginAdminAction(
   const { consumeDistributedRateLimit, getClientIp } = await import("@/lib/rate-limit");
   const clientKey = getClientIp(requestHeaders);
 
-  // Layer 1: Client IP rate limit (5 attempts / 15 minutes)
+  // Layer 1: Client IP rate limit (5 attempts / 15 minutes per client IP)
   const clientRateLimit = await consumeDistributedRateLimit(
     `admin-login:ip:${clientKey}`,
     5,
@@ -34,21 +34,15 @@ export async function loginAdminAction(
     return { error: "Terlalu banyak percobaan login dari perangkat ini. Coba lagi beberapa menit lagi." };
   }
 
-  // Layer 2: Global portal rate limit (25 attempts / 15 minutes across all IPs)
-  // Completely prevents bypass via IP rotation / proxy botnets
-  const portalRateLimit = await consumeDistributedRateLimit(
-    "admin-login:portal:global",
-    25,
-    15 * 60 * 1000
-  );
-
-  if (!portalRateLimit.allowed) {
-    return { error: "Portal login sementara dikunci untuk keamanan sistem. Silakan coba lagi nanti." };
-  }
-
   const isValid = await verifyAdminPassword(password);
 
   if (!isValid) {
+    // Track global failed attempts to protect against distributed brute-force without locking out valid admin
+    await consumeDistributedRateLimit(
+      "admin-login:portal:failed",
+      50,
+      15 * 60 * 1000
+    );
     return { error: "Password salah. Akses ditolak." };
   }
 

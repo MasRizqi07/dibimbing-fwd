@@ -18,16 +18,18 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   }
 
   const resolvedParams = searchParams ? await searchParams : {};
-  const page = Math.max(1, Number(resolvedParams.page) || 1);
+  const parsedPage = Number(resolvedParams.page);
+  const page = Number.isSafeInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
   const pageSize = 20;
   const statusFilter = resolvedParams.status;
 
+  const validStatuses = ["new", "read", "replied", "archived"];
   const whereClause =
-    statusFilter && ["new", "read", "replied", "archived"].includes(statusFilter)
+    statusFilter && validStatuses.includes(statusFilter)
       ? { status: statusFilter }
-      : {};
+      : undefined;
 
-  const [projects, submissions, totalSubmissions] = await Promise.all([
+  const [projects, rawSubmissions, totalSubmissions] = await Promise.all([
     prisma.project.findMany({
       orderBy: { order: "asc" },
     }),
@@ -41,6 +43,11 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
       where: whereClause,
     }),
   ]);
+
+  const submissions = rawSubmissions.map((sub) => ({
+    ...sub,
+    status: (sub as { status?: string }).status || "new",
+  }));
 
   return (
     <ProjectManager
