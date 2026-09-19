@@ -10,9 +10,32 @@ export default function ContactForm() {
     honeypot: "",
   });
   const [renderTime, setRenderTime] = useState<number>(() => Date.now());
+  const [antiSpamToken, setAntiSpamToken] = useState<string>("");
+  const [idempotencyKey, setIdempotencyKey] = useState<string>("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+
+  useEffect(() => {
+    // 1. Generate idempotency key for this form session
+    const key =
+      typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `req-${Date.now()}-${Math.random()}`;
+    setIdempotencyKey(key);
+
+    // 2. Retrieve server-issued anti-spam token
+    fetch("/api/anti-spam")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.token) {
+          setAntiSpamToken(data.token);
+        }
+      })
+      .catch(() => {
+        // Fallback to renderTime if anti-spam token fetch is interrupted
+      });
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -47,6 +70,8 @@ export default function ContactForm() {
         body: JSON.stringify({
           ...formData,
           renderTime,
+          antiSpamToken,
+          idempotencyKey,
         }),
       });
 
@@ -63,6 +88,11 @@ export default function ContactForm() {
 
       setStatus("success");
       setFormData({ name: "", email: "", message: "", honeypot: "" });
+      const nextKey =
+        typeof crypto !== "undefined" && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `req-${Date.now()}-${Math.random()}`;
+      setIdempotencyKey(nextKey);
     } catch (error) {
       setStatus("error");
       setErrorMessage(

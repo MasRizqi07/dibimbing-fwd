@@ -398,3 +398,21 @@ h1 { text-wrap: balance; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+.admin-header-inner {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-block: 10px;
+}
+
+@media (max-width: 480px) {
+  .admin-header-inner {
+    padding-inline: 16px;
+    gap: 10px;
+  }
+}
+

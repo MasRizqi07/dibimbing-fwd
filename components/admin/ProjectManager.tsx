@@ -6,6 +6,7 @@ import {
   updateProjectAction,
   deleteProjectAction,
 } from "@/app/actions/projects";
+import { updateSubmissionStatusAction } from "@/app/actions/submissions";
 
 interface Project {
   id: string;
@@ -23,15 +24,24 @@ interface Submission {
   email: string;
   message: string;
   emailSent: boolean;
+  status: string;
   createdAt: Date;
 }
 
 export default function ProjectManager({
   initialProjects,
   submissions,
+  totalSubmissions = 0,
+  currentPage = 1,
+  pageSize = 20,
+  currentStatusFilter = "all",
 }: {
   initialProjects: Project[];
   submissions: Submission[];
+  totalSubmissions?: number;
+  currentPage?: number;
+  pageSize?: number;
+  currentStatusFilter?: string;
 }) {
   const [isPending, startTransition] = useTransition();
   const [showAddForm, setShowAddForm] = useState(false);
@@ -87,6 +97,21 @@ export default function ProjectManager({
         await deleteProjectAction(id);
       } catch (err: unknown) {
         setActionError(err instanceof Error ? err.message : "Gagal menghapus project");
+      }
+    });
+  };
+
+  const handleStatusChange = (
+    id: string,
+    newStatus: "new" | "read" | "replied" | "archived"
+  ) => {
+    startTransition(async () => {
+      try {
+        await updateSubmissionStatusAction(id, newStatus);
+      } catch (err: unknown) {
+        setActionError(
+          err instanceof Error ? err.message : "Gagal mengupdate status pesan"
+        );
       }
     });
   };
@@ -434,57 +459,295 @@ export default function ProjectManager({
           overflow: "hidden",
         }}
       >
-        <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--line)", fontWeight: 700, fontSize: "14px" }}>
-          Pesan Kontak Masuk ({submissions.length})
+        <div
+          style={{
+            padding: "18px 24px",
+            borderBottom: "1px solid var(--line)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "12px",
+          }}
+        >
+          <div style={{ fontWeight: 700, fontSize: "14px" }}>
+            Pesan Kontak Masuk ({totalSubmissions})
+          </div>
+
+          <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+            {[
+              { id: "all", label: "Semua" },
+              { id: "new", label: "Baru" },
+              { id: "read", label: "Dibaca" },
+              { id: "replied", label: "Dibalas" },
+              { id: "archived", label: "Arsip" },
+            ].map((tab) => (
+              <a
+                key={tab.id}
+                href={`/admin?status=${tab.id}&page=1`}
+                style={{
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  padding: "4px 10px",
+                  borderRadius: "99px",
+                  background: currentStatusFilter === tab.id ? "var(--ink)" : "#fff",
+                  color: currentStatusFilter === tab.id ? "#fff" : "var(--muted)",
+                  border: "1px solid var(--line)",
+                }}
+              >
+                {tab.label}
+              </a>
+            ))}
+          </div>
         </div>
 
         {submissions.length === 0 ? (
           <div style={{ padding: "40px", textAlign: "center", color: "var(--muted)" }}>
-            Belum ada pesan yang masuk.
+            Belum ada pesan yang masuk untuk filter ini.
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column" }}>
-            {submissions.map((sub) => (
-              <div
-                key={sub.id}
-                style={{
-                  padding: "20px 24px",
-                  borderBottom: "1px solid var(--line)",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "8px",
-                }}
-              >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <strong style={{ fontSize: "15px" }}>{sub.name}</strong>
-                    <span style={{ marginLeft: "10px", color: "var(--muted)", fontSize: "13px" }}>
-                      &lt;{sub.email}&gt;
-                    </span>
+            {submissions.map((sub) => {
+              const statusMeta: Record<
+                string,
+                { bg: string; color: string; label: string }
+              > = {
+                new: { bg: "#dbeafe", color: "#1e40af", label: "Baru" },
+                read: { bg: "#f3f4f6", color: "#374151", label: "Dibaca" },
+                replied: { bg: "#dcfce7", color: "#166534", label: "Dibalas" },
+                archived: { bg: "#e2e8f0", color: "#475569", label: "Diarsipkan" },
+              };
+              const currentMeta = statusMeta[sub.status] || statusMeta.new;
+
+              return (
+                <div
+                  key={sub.id}
+                  style={{
+                    padding: "20px 24px",
+                    borderBottom: "1px solid var(--line)",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "10px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      flexWrap: "wrap",
+                      gap: "8px",
+                    }}
+                  >
+                    <div>
+                      <strong style={{ fontSize: "15px" }}>{sub.name}</strong>
+                      <span
+                        style={{
+                          marginLeft: "10px",
+                          color: "var(--muted)",
+                          fontSize: "13px",
+                        }}
+                      >
+                        &lt;{sub.email}&gt;
+                      </span>
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <span
+                        style={{
+                          fontSize: "10px",
+                          fontWeight: 700,
+                          padding: "3px 8px",
+                          borderRadius: "99px",
+                          background: currentMeta.bg,
+                          color: currentMeta.color,
+                        }}
+                      >
+                        Status: {currentMeta.label}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "10px",
+                          fontWeight: 700,
+                          padding: "3px 8px",
+                          borderRadius: "99px",
+                          background: sub.emailSent ? "#dcfce7" : "#fef3c7",
+                          color: sub.emailSent ? "#15803d" : "#b45309",
+                        }}
+                      >
+                        {sub.emailSent ? "✓ Email Terkirim" : "Belum Kirim Email"}
+                      </span>
+                      <small style={{ color: "var(--muted)", fontSize: "11px" }}>
+                        {new Date(sub.createdAt).toLocaleString("id-ID")}
+                      </small>
+                    </div>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <span
-                      style={{
-                        fontSize: "10px",
-                        fontWeight: 700,
-                        padding: "3px 8px",
-                        borderRadius: "99px",
-                        background: sub.emailSent ? "#dcfce7" : "#fef3c7",
-                        color: sub.emailSent ? "#15803d" : "#b45309",
-                      }}
-                    >
-                      {sub.emailSent ? "✓ Email Terkirim" : "Belum Kirim Email"}
+
+                  <p
+                    style={{
+                      margin: 0,
+                      color: "#374151",
+                      fontSize: "13px",
+                      lineHeight: "1.6",
+                      whiteSpace: "pre-wrap",
+                    }}
+                  >
+                    {sub.message}
+                  </p>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "8px",
+                      alignItems: "center",
+                      marginTop: "4px",
+                    }}
+                  >
+                    <span style={{ fontSize: "11px", color: "var(--muted)" }}>
+                      Ubah Status:
                     </span>
-                    <small style={{ color: "var(--muted)", fontSize: "11px" }}>
-                      {new Date(sub.createdAt).toLocaleString("id-ID")}
-                    </small>
+                    {sub.status !== "read" && (
+                      <button
+                        type="button"
+                        disabled={isPending}
+                        onClick={() => handleStatusChange(sub.id, "read")}
+                        style={{
+                          padding: "4px 8px",
+                          fontSize: "11px",
+                          borderRadius: "6px",
+                          border: "1px solid var(--line)",
+                          background: "#fff",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Tandai Dibaca
+                      </button>
+                    )}
+                    {sub.status !== "replied" && (
+                      <button
+                        type="button"
+                        disabled={isPending}
+                        onClick={() => handleStatusChange(sub.id, "replied")}
+                        style={{
+                          padding: "4px 8px",
+                          fontSize: "11px",
+                          borderRadius: "6px",
+                          border: "1px solid #86efac",
+                          background: "#f0fdf4",
+                          color: "#166534",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Tandai Dibalas
+                      </button>
+                    )}
+                    {sub.status !== "archived" ? (
+                      <button
+                        type="button"
+                        disabled={isPending}
+                        onClick={() => handleStatusChange(sub.id, "archived")}
+                        style={{
+                          padding: "4px 8px",
+                          fontSize: "11px",
+                          borderRadius: "6px",
+                          border: "1px solid var(--line)",
+                          background: "#f8fafc",
+                          color: "#64748b",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Arsipkan
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={isPending}
+                        onClick={() => handleStatusChange(sub.id, "new")}
+                        style={{
+                          padding: "4px 8px",
+                          fontSize: "11px",
+                          borderRadius: "6px",
+                          border: "1px solid var(--line)",
+                          background: "#fff",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Kembalikan ke Baru
+                      </button>
+                    )}
                   </div>
                 </div>
-                <p style={{ margin: 0, color: "#374151", fontSize: "13px", lineHeight: "1.6" }}>
-                  {sub.message}
-                </p>
-              </div>
-            ))}
+              );
+            })}
+          </div>
+        )}
+
+        {/* Pagination Footer */}
+        {totalSubmissions > 0 && (
+          <div
+            style={{
+              padding: "16px 24px",
+              borderTop: "1px solid var(--line)",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              fontSize: "12px",
+              color: "var(--muted)",
+              background: "rgba(0,0,0,0.01)",
+            }}
+          >
+            <span>
+              Halaman {currentPage} dari{" "}
+              {Math.max(1, Math.ceil(totalSubmissions / pageSize))} (Total:{" "}
+              {totalSubmissions} pesan)
+            </span>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <a
+                href={
+                  currentPage > 1
+                    ? `/admin?status=${currentStatusFilter}&page=${currentPage - 1}`
+                    : "#"
+                }
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  border: "1px solid var(--line)",
+                  background: "#fff",
+                  color: currentPage > 1 ? "var(--ink)" : "var(--muted)",
+                  textDecoration: "none",
+                  pointerEvents: currentPage > 1 ? "auto" : "none",
+                  opacity: currentPage > 1 ? 1 : 0.5,
+                  fontWeight: 600,
+                }}
+              >
+                ← Sebelumnya
+              </a>
+              <a
+                href={
+                  currentPage * pageSize < totalSubmissions
+                    ? `/admin?status=${currentStatusFilter}&page=${currentPage + 1}`
+                    : "#"
+                }
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  border: "1px solid var(--line)",
+                  background: "#fff",
+                  color:
+                    currentPage * pageSize < totalSubmissions
+                      ? "var(--ink)"
+                      : "var(--muted)",
+                  textDecoration: "none",
+                  pointerEvents:
+                    currentPage * pageSize < totalSubmissions ? "auto" : "none",
+                  opacity: currentPage * pageSize < totalSubmissions ? 1 : 0.5,
+                  fontWeight: 600,
+                }}
+              >
+                Selanjutnya →
+              </a>
+            </div>
           </div>
         )}
       </div>
