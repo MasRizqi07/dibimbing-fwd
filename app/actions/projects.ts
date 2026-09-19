@@ -44,7 +44,13 @@ export async function updateProjectAction(id: string, formData: FormData) {
     throw new Error("Unauthorized: Anda harus login sebagai admin.");
   }
 
-  const data = parseProjectFormData(formData);
+  const parsed = parseProjectFormData(formData);
+  const data: Partial<typeof parsed> = { ...parsed };
+
+  // If imagePath was not provided in formData, preserve existing imagePath
+  if (!formData.has("imagePath")) {
+    delete data.imagePath;
+  }
 
   await prisma.project.update({
     where: { id },

@@ -38,6 +38,11 @@ export default function ProjectManager({
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [actionError, setActionError] = useState<string>("");
 
+  const nextOrder =
+    initialProjects.length > 0
+      ? Math.max(...initialProjects.map((p) => p.order), 0) + 1
+      : 1;
+
   const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setActionError("");
@@ -197,7 +202,7 @@ export default function ProjectManager({
               <input
                 name="order"
                 type="number"
-                defaultValue={initialProjects.length + 1}
+                defaultValue={nextOrder}
                 style={{ width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1px solid var(--line)" }}
               />
             </div>
@@ -238,6 +243,15 @@ export default function ProjectManager({
         >
           <h2 style={{ fontSize: "18px", margin: "0 0 18px" }}>Edit Project: {editingProject.title}</h2>
           <form className="admin-project-form" onSubmit={handleUpdate} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+            <input
+              type="hidden"
+              name="imagePath"
+              value={editingProject.imagePath || ""}
+            />
+            <div style={{ gridColumn: "1 / -1", padding: "8px 12px", background: "var(--cream, #f9fbf9)", borderRadius: "8px", border: "1px solid var(--line)", fontSize: "12px", color: "var(--muted)" }}>
+              <span>Gambar saat ini: </span>
+              <strong style={{ color: "var(--ink)" }}>{editingProject.imagePath || "Tidak ada file gambar (menggunakan CSS placeholder)"}</strong>
+            </div>
             <div>
               <label style={{ display: "block", fontSize: "11px", fontWeight: 700, marginBottom: "6px" }}>
                 Nama Project / Brand *

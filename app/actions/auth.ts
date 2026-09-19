@@ -20,11 +20,8 @@ export async function loginAdminAction(
   }
 
   const requestHeaders = await headers();
-  const clientKey =
-    requestHeaders.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    requestHeaders.get("x-real-ip") ||
-    "unknown";
-  const { consumeRateLimit } = await import("@/lib/rate-limit");
+  const { consumeRateLimit, getClientIp } = await import("@/lib/rate-limit");
+  const clientKey = getClientIp(requestHeaders);
   const rateLimit = consumeRateLimit(`admin-login:${clientKey}`, 5, 15 * 60 * 1000);
 
   if (!rateLimit.allowed) {
