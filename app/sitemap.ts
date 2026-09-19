@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nexa.studio";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://dibimbing-fwd.vercel.app";
 
   return [
     {

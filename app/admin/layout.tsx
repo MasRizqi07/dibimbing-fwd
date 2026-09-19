@@ -25,13 +25,7 @@ export default function AdminLayout({
         }}
       >
         <div
-          className="section-shell"
-          style={{
-            height: "64px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
+          className="section-shell admin-header-inner"
         >
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             <Link href="/admin" className="brand">

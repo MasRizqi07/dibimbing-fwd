@@ -12,7 +12,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nexa.studio";
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://dibimbing-fwd.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

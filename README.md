@@ -83,7 +83,7 @@ dibimbing-fwd/
 ## 🛠️ Panduan Setup Lokal
 
 ### 1. Prasyarat
-- **Node.js:** Versi 20.6.0+ (disarankan Node.js 22+)
+- **Node.js:** Versi 22.12.0+ (diperlukan untuk native strip-types, Next.js Turbopack, dan Prisma deploy)
 - **NPM:** Versi 10+
 - **Akun Neon:** Database PostgreSQL
 

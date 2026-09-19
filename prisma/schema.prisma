@@ -22,12 +22,16 @@ model Project {
 }
 
 model ContactSubmission {
-  id        String   @id @default(cuid())
-  name      String
-  email     String
-  message   String
-  emailSent Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id             String   @id @default(cuid())
+  name           String
+  email          String
+  message        String
+  emailSent      Boolean  @default(false)
+  status         String   @default("new")
+  idempotencyKey String?  @unique
+  createdAt      DateTime @default(now())
 
   @@index([createdAt])
+  @@index([status])
 }
+
