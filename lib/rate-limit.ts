@@ -24,10 +24,41 @@ function pruneExpiredEntries(now: number): void {
   }
 }
 
+export type HeaderSource =
+  | Headers
+  | { get(name: string): string | null }
+  | Request;
+
+export function getClientIp(source: HeaderSource): string {
+  const headers =
+    "headers" in source && source.headers
+      ? source.headers
+      : (source as { get(name: string): string | null });
+
+  // 1. x-real-ip is set by edge proxy (e.g. Vercel) and cannot be spoofed by client
+  const realIp = headers.get("x-real-ip");
+  if (realIp && realIp.trim()) {
+    return realIp.trim();
+  }
+
+  // 2. Fallback to rightmost (last) IP in x-forwarded-for
+  // Client can prepend spoofed IPs, but edge/proxies append the verified client IP
+  const forwardedFor = headers.get("x-forwarded-for");
+  if (forwardedFor && forwardedFor.trim()) {
+    const parts = forwardedFor
+      .split(",")
+      .map((p) => p.trim())
+      .filter(Boolean);
+    if (parts.length > 0) {
+      return parts[parts.length - 1];
+    }
+  }
+
+  return "unknown";
+}
+
 export function getClientIdentifier(request: Request): string {
-  const forwardedFor = request.headers.get("x-forwarded-for");
-  const realIp = request.headers.get("x-real-ip");
-  return forwardedFor?.split(",")[0]?.trim() || realIp?.trim() || "unknown";
+  return getClientIp(request);
 }
 
 export function consumeRateLimit(
