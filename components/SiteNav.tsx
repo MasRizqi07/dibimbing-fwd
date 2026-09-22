@@ -2,20 +2,21 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-
-const links = [
-  { href: "#services", label: "Layanan" },
-  { href: "#work", label: "Portfolio" },
-  { href: "#process", label: "Proses" },
-  { href: "#pricing", label: "Paket" },
-  { href: "#contact", label: "Kontak" },
-];
+import { useLanguage } from "@/lib/i18n/context";
 
 export default function SiteNav({ whatsappUrl }: { whatsappUrl: string | null }) {
   const [open, setOpen] = useState(false);
-  const [lang, setLang] = useState<"ID" | "EN">("ID");
+  const { lang, setLang, t } = useLanguage();
   const navPanelRef = useRef<HTMLDivElement>(null);
   const toggleBtnRef = useRef<HTMLButtonElement>(null);
+
+  const links = [
+    { href: "#services", label: t.nav.services },
+    { href: "#work", label: t.nav.portfolio },
+    { href: "#process", label: t.nav.process },
+    { href: "#pricing", label: t.nav.pricing },
+    { href: "#contact", label: t.nav.contact },
+  ];
 
   // Close on Escape & trap focus
   useEffect(() => {
@@ -83,7 +84,7 @@ export default function SiteNav({ whatsappUrl }: { whatsappUrl: string | null })
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
         <div
           role="group"
-          aria-label="Pilihan bahasa"
+          aria-label={t.nav.selectLanguage}
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -131,7 +132,7 @@ export default function SiteNav({ whatsappUrl }: { whatsappUrl: string | null })
         </div>
 
         <Link className="nav-cta" href="/start">
-          Mulai Proyek <span aria-hidden="true">↗</span>
+          {t.nav.startProject} <span aria-hidden="true">↗</span>
         </Link>
 
         <button
@@ -142,7 +143,7 @@ export default function SiteNav({ whatsappUrl }: { whatsappUrl: string | null })
           aria-controls="mobile-navigation"
           onClick={() => setOpen((current) => !current)}
         >
-          {open ? "Tutup menu" : "Menu"}
+          {open ? t.nav.closeMenu : t.nav.menu}
         </button>
       </div>
 
@@ -170,7 +171,7 @@ export default function SiteNav({ whatsappUrl }: { whatsappUrl: string | null })
             textAlign: "center",
           }}
         >
-          Mulai Proyek ↗
+          {t.nav.startProject} ↗
         </Link>
         {whatsappUrl && (
           <a
@@ -188,7 +189,7 @@ export default function SiteNav({ whatsappUrl }: { whatsappUrl: string | null })
               textAlign: "center",
             }}
           >
-            WhatsApp Konsultasi ↗
+            {t.nav.consultWhatsapp} ↗
           </a>
         )}
       </div>

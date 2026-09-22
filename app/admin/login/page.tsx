@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { loginAdminAction } from "@/app/actions/auth";
 
 export default function AdminLoginPage() {
@@ -124,6 +125,43 @@ export default function AdminLoginPage() {
             />
           </div>
 
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+              <label
+                htmlFor="totpCode"
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  color: "#a9bcba",
+                  textTransform: "uppercase",
+                  letterSpacing: ".06em",
+                }}
+              >
+                Kode 2FA / TOTP (Jika Diaktifkan)
+              </label>
+              <span style={{ fontSize: "10px", color: "#a9bcba" }}>Opsional</span>
+            </div>
+            <input
+              id="totpCode"
+              name="totpCode"
+              type="text"
+              maxLength={6}
+              placeholder="Contoh: 123456"
+              autoComplete="one-time-code"
+              style={{
+                width: "100%",
+                padding: "13px 16px",
+                borderRadius: "12px",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                background: "rgba(255, 255, 255, 0.08)",
+                color: "#fff",
+                fontSize: "14px",
+                letterSpacing: ".1em",
+                outline: "none",
+              }}
+            />
+          </div>
+
           {state?.error && (
             <div
               role="alert"
@@ -173,7 +211,7 @@ export default function AdminLoginPage() {
           <p style={{ margin: 0, fontSize: "11px", color: "#8b9c9b", lineHeight: 1.5 }}>
             Akses terbatas untuk administrator resmi Nexa Studio. Sesi diamankan dengan cookie bertanda tangan HMAC.
           </p>
-          <a
+          <Link
             href="/"
             style={{
               color: "var(--accent-lime)",
@@ -186,7 +224,7 @@ export default function AdminLoginPage() {
             }}
           >
             ← Kembali ke Situs Publik
-          </a>
+          </Link>
         </div>
       </div>
 

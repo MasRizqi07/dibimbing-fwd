@@ -51,6 +51,15 @@ export async function loginAdminAction(
     return { error: "Password salah. Akses ditolak." };
   }
 
+  const totpSecret = process.env.ADMIN_TOTP_SECRET;
+  if (totpSecret) {
+    const totpCode = formData.get("totpCode");
+    const { verifyTOTP } = await import("@/lib/totp");
+    if (typeof totpCode !== "string" || !verifyTOTP(totpCode, totpSecret)) {
+      return { error: "Kode autentikasi 2FA tidak valid atau kedaluwarsa." };
+    }
+  }
+
   await setAdminSessionCookie();
   redirect("/admin");
 }
