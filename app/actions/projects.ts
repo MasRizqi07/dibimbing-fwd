@@ -4,6 +4,9 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { isAuthenticatedAdmin } from "@/lib/admin-session";
 import { projectFormSchema } from "@/lib/project-validation";
+import { z } from "zod";
+
+const projectIdSchema = z.string().min(1).max(128);
 
 function parseProjectFormData(formData: FormData) {
   const result = projectFormSchema.safeParse({
@@ -45,6 +48,7 @@ export async function updateProjectAction(id: string, formData: FormData) {
   }
 
   const parsed = parseProjectFormData(formData);
+  const validId = projectIdSchema.parse(id);
   const data: Partial<typeof parsed> = { ...parsed };
 
   // If imagePath was not provided in formData, preserve existing imagePath
@@ -53,7 +57,7 @@ export async function updateProjectAction(id: string, formData: FormData) {
   }
 
   await prisma.project.update({
-    where: { id },
+    where: { id: validId },
     data,
   });
 
@@ -68,7 +72,7 @@ export async function deleteProjectAction(id: string) {
   }
 
   await prisma.project.delete({
-    where: { id },
+    where: { id: projectIdSchema.parse(id) },
   });
 
   revalidatePath("/");

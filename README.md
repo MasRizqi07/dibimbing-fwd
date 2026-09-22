@@ -1,238 +1,72 @@
-# Nexa Studio — Full-Stack Digital Agency Web Platform
+# Nexa Studio
 
-Nexa Studio adalah website digital agency yang membantu UMKM dan brand lokal
-terlihat lebih profesional, dipercaya, dan menghasilkan. Repository ini
-menggabungkan landing page marketing, katalog layanan dengan search/filter,
-portfolio yang dikelola melalui CMS admin, serta contact pipeline berbasis
-PostgreSQL.
+Website **studi konsep agency**, dibangun dengan Next.js 16 App Router, React 19, TypeScript, Prisma 6/PostgreSQL, Zod, Resend opsional, dan Upstash Redis opsional. Portofolio, proses, dan paket adalah contoh; situs ini belum membuktikan hasil bisnis atau mewakili agency yang beroperasi. Form kontak menyimpan data nyata bila database dikonfigurasi, sehingga halaman `/privacy` harus dibaca sebelum mengirim pesan.
 
-## Documentation map
+## Fitur dan batas produk
 
-- [PRD.md](./PRD.md) — tujuan produk, persona, scope, requirement, dan acceptance criteria.
-- [Design.md](./Design.md) — user flow, wireframe tekstual, interaction pattern, dan responsive behavior.
-- [Design_System.md](./Design_System.md) — visual token, component state, dan accessibility rules.
-- [Architecture.md](./Architecture.md) — boundary aplikasi, data flow, security, deployment, dan operational concerns.
-- [session_analysis_report.md](./session_analysis_report.md) — audit dan hardening yang sudah dilakukan.
+- Beranda responsif dengan menu mobile, pencarian layanan, portofolio dari database, contoh cakupan paket, dan form kontak.
+- CMS `/admin` untuk satu owner: proyek dengan pilihan aset lokal yang direview, inbox kontak, filter, pagination, dan status. Sesi memakai cookie bertanda tangan; ini belum menyediakan identitas operator individual atau pencabutan per sesi.
+- Kontak memakai token anti-spam bertanda tangan, batas ukuran, rate limit, kunci idempotensi, fingerprint payload, serta penyimpanan database sebelum notifikasi email. Key yang sama dengan payload berbeda menghasilkan `409`.
+- Notifikasi email memakai claim/lease database, retry terjadwal, dan kunci idempotensi Resend. `vercel.json` menjadwalkan cron sekali per hari; email tidak memiliki SLA segera. Bila Resend tidak dikonfigurasi, pesan tetap tersimpan dan dapat dilihat admin.
+- `/api/live` adalah liveness; `/api/health` menguji kesiapan database. Sitemap memuat beranda dan halaman pemrosesan data, tanpa tanggal perubahan fiktif. Gambar Open Graph dan Twitter memakai identitas konsep saat ini.
 
-Platform web full-stack modern untuk agency fiktif **Nexa Studio**, dibangun dengan **Next.js 16 (App Router)**, **TypeScript**, **PostgreSQL (Neon)** via **Prisma ORM**, **Zod**, **Resend**, dan **Vitest**.
+## Menjalankan lokal
 
----
+Prasyarat: Node.js 22.12+, npm 10+, PostgreSQL yang **khusus untuk lingkungan lokal**. Periksa tujuan `DATABASE_URL` sebelum menjalankan migrasi atau seed.
 
-## 🚀 Tech Stack
-
-- **Framework:** [Next.js 16.3.5](https://nextjs.org) (App Router, Server Components & Server Actions, Next.js Proxy)
-- **Language:** TypeScript (Strict mode enabled)
-- **Database:** PostgreSQL via [Neon](https://neon.tech) (Serverless Database)
-- **ORM:** [Prisma ORM 6](https://www.prisma.io)
-- **Validation:** [Zod](https://zod.dev) (Double-layer client & API validation)
-- **Email:** [Resend](https://resend.com)
-- **Authentication:** Admin session signed cookie (HMAC-SHA256 Web Crypto) + Bcrypt
-- **Operations:** Database readiness endpoint at `/api/health`
-- **Testing:** [Vitest](https://vitest.dev)
-- **Styling:** Vanilla CSS + Tailwind CSS 4
-
----
-
-## 📁 Struktur Arsitektur
-
-```
-dibimbing-fwd/
-├── app/
-│   ├── layout.tsx              # Root layout, Geist font, SEO metadata, JSON-LD
-│   ├── page.tsx                # Homepage RSC (Dynamic fetch project dari Neon DB)
-│   ├── sitemap.ts              # Dynamic sitemap.xml generator
-│   ├── robots.ts               # Dynamic robots.txt generator
-│   ├── api/
-│   │   └── contact/
-│   │       └── route.ts        # POST endpoint: Zod validation, anti-spam, Neon DB, Resend
-│   ├── admin/
-│   │   ├── layout.tsx          # Admin shell & navigation header
-│   │   ├── page.tsx            # Admin dashboard: Portfolio & submission management
-│   │   └── login/
-│   │       └── page.tsx        # Single-password login form
-│   └── actions/
-│       ├── auth.ts             # Server actions untuk login & logout admin
-│       └── projects.ts         # Server actions untuk CRUD project (revalidatePath)
-├── components/
-│   ├── ContactForm.tsx         # Interactive client form dengan honeypot anti-spam
-│   ├── ServiceCatalog.tsx      # Search/filter katalog layanan dan CTA konsultasi
-│   └── admin/
-│       └── ProjectManager.tsx  # CMS UI untuk CRUD project & monitoring pesan masuk
-├── lib/
-│   ├── prisma.ts               # Singleton Prisma client
-│   ├── resend.ts               # Resend client wrapper
-│   ├── validation.ts           # Zod schema validasi form kontak
-│   └── admin-session.ts        # HMAC session token signing & verification
-├── prisma/
-│   ├── schema.prisma           # Prisma schema (Project & ContactSubmission)
-│   ├── prisma.config.ts        # Prisma CLI schema, migration, and seed configuration
-│   ├── seed.ts                 # Database seed script (Kopi Koma, Sora Studio, Ruang Pulih)
-│   └── migrations/             # SQL migrations PostgreSQL
-├── proxy.ts                    # Next.js 16 Proxy untuk proteksi route /admin
-├── public/
-│   └── projects/               # Aset gambar portfolio teroptimasi (< 500KB)
-├── __tests__/                  # Vitest unit & integration test suites
-├── PRD.md                      # Product requirements document
-├── Design.md                   # UX flow dan wireframe plan
-├── Design_System.md            # UI tokens dan component standards
-└── Architecture.md             # Technical architecture dan operational model
-```
-
----
-
-## 🛠️ Panduan Setup Lokal
-
-### 1. Prasyarat
-- **Node.js:** Versi 22.12.0+ (diperlukan untuk native strip-types, Next.js Turbopack, dan Prisma deploy)
-- **NPM:** Versi 10+
-- **Akun Neon:** Database PostgreSQL
-
-### 2. Kloning & Branch
 ```bash
-git clone https://github.com/MasRizqi07/dibimbing-fwd.git
-cd dibimbing-fwd
-git checkout feature/fullstack-backend
-```
-
-### 3. Install Dependencies
-```bash
-npm install
-```
-
-### 4. Konfigurasi Environment Variables
-Salin file `.env.example` menjadi `.env.local`:
-```bash
-cp .env.example .env.local
-```
-
-Isi variabel pada `.env.local`:
-```env
-# Database Neon PostgreSQL (Pooler connection string)
-DATABASE_URL="postgresql://[user]:[password]@[endpoint-pooler].neon.tech/neondb?sslmode=require"
-
-# Resend Email Service
-RESEND_API_KEY="re_your_api_key"
-CONTACT_EMAIL_TO="email-anda@domain.com"
-RESEND_FROM_EMAIL="onboarding@resend.dev"
-
-# Admin CMS Credentials
-ADMIN_PASSWORD="bcrypt-hash-password-admin-anda"
-ADMIN_SESSION_SECRET="string-acak-unik-minimal-32-karakter"
-
-# Public URL & Kontak
-NEXT_PUBLIC_WHATSAPP_NUMBER="628xxxxxxxxxx"
-NEXT_PUBLIC_CONTACT_EMAIL="contact@yourbusiness.com"
-NEXT_PUBLIC_SITE_URL="http://localhost:3000"
-```
-
-### 5. Migrasi & Seed Database
-Jalankan migrasi Prisma untuk membuat tabel di database Neon:
-```bash
-node --env-file=.env.local ./node_modules/prisma/build/index.js migrate dev --name init
-```
-
-Jalankan script seed untuk mengisi 3 data project awal:
-```bash
-node --env-file=.env.local --experimental-strip-types prisma/seed.ts
-```
-
-Untuk environment staging/production, jalankan migration yang sudah direview:
-```bash
-node --env-file=.env.local ./node_modules/prisma/build/index.js migrate deploy
-```
-
-Konfigurasi Prisma CLI berada di `prisma.config.ts`; environment variable `DATABASE_URL`
-tetap harus tersedia ketika command Prisma dijalankan.
-
-Generate bcrypt hash untuk password admin sebelum production:
-```bash
-node -e "require('bcryptjs').hash(process.argv[1], 12).then(console.log)" "password-kuat-anda"
-```
-
-### 6. Jalankan Server Development
-```bash
+npm ci
+# Salin .env.example ke .env.local dan isi DATABASE_URL lokal serta secret yang diperlukan.
+npm run db:migrate
+node --experimental-strip-types prisma/seed.ts
 npm run dev
 ```
-Buka [http://localhost:3000](http://localhost:3000) di browser.
 
----
+`npm run build` hanya menjalankan `prisma generate && next build` dan tidak mengubah database. `npm run db:migrate` adalah langkah eksplisit. Seed berisi tiga proyek studi konsep; jalankan sekali pada database yang memang disiapkan untuk demo. `prisma.config.ts` membaca `.env.local` saat `DATABASE_URL` belum tersedia; override environment eksplisit untuk CI/staging.
 
-## 🧪 Pengujian & Linting
+### Variabel lingkungan
 
-Jalankan seluruh test suite unit & integrasi (Vitest):
+| Variabel | Kegunaan |
+| --- | --- |
+| `DATABASE_URL` | PostgreSQL untuk runtime dan perintah Prisma. |
+| `ADMIN_PASSWORD` | Hash bcrypt password owner; wajib berbentuk hash di production. |
+| `ADMIN_SESSION_SECRET` | Secret acak untuk cookie sesi dan token anti-spam, sama di semua instance. |
+| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Rate limit terdistribusi. Tanpanya atau saat gagal, fallback memori per proses. |
+| `TRUSTED_PROXY_IP_HEADER` | Header IP yang **ditimpa oleh reverse proxy tepercaya**. Biarkan kosong di Vercel; aplikasi memakai `x-vercel-forwarded-for`. |
+| `RESEND_API_KEY`, `CONTACT_EMAIL_TO`, `RESEND_FROM_EMAIL` | Notifikasi email opsional. Gunakan identitas pengirim yang diverifikasi provider untuk operasi nyata. |
+| `CRON_SECRET` | Bearer secret untuk `/api/cron/notifications` di Vercel. |
+| `NEXT_PUBLIC_SITE_URL` | URL canonical untuk metadata/sitemap; wajib diisi dengan domain yang disetujui sebelum promosi production. Tanpanya aplikasi memakai `VERCEL_URL` atau localhost. |
+| `NEXT_PUBLIC_WHATSAPP_NUMBER`, `NEXT_PUBLIC_CONTACT_EMAIL`, `NEXT_PUBLIC_INSTAGRAM_URL` | Link publik opsional; CTA kontak internal tetap berfungsi bila kosong. |
+| `CONTACT_RETENTION_DAYS` | Hanya untuk skrip purge manual setelah kebijakan disetujui. |
+
+Jangan taruh secret di variabel `NEXT_PUBLIC_*`. Contoh konfigurasi ada di [.env.example](./.env.example). Buat hash bcrypt dengan alat yang aman dan simpan hanya hasil hash pada environment deployment.
+
+## Verifikasi
+
 ```bash
-npm test
-```
-
-Jalankan type-check dan linting:
-```bash
-npx tsc --noEmit
 npm run lint
-```
-
-Jalankan build produksi:
-```bash
+npm run typecheck
+npm test
 npm run build
+npm audit --audit-level=high
+git diff --check
 ```
 
----
+Browser E2E memakai database PostgreSQL **terisolasi pada host lokal** yang sudah dimigrasi. Set `TEST_DATABASE_URL` ke database itu dan `E2E_TEST_MODE=1`, lalu jalankan `npm run test:e2e`. Harness menolak host database remote, membangun aplikasi dengan konfigurasi uji, menonaktifkan email keluar, dan membuat hash password uji sementara. Jangan mengarahkannya ke database bersama atau production. CI di [.github/workflows/verify.yml](./.github/workflows/verify.yml) menjalankan lint, typecheck, Vitest, build, serta Playwright pada service PostgreSQL sementara.
 
-## 🔐 Akses Admin CMS
+Verifikasi lokal tidak membuktikan CI pada SHA yang akan dipush, staging, provider email/Redis sungguhan, backup/restore, maupun production. Langkah promosi dan insiden ada di [OPERATIONS.md](./OPERATIONS.md).
 
-1. Buka [http://localhost:3000/admin](http://localhost:3000/admin).
-2. Jika belum login, Anda akan otomatis dialihkan ke `/admin/login`.
-3. Masukkan password admin sesuai konfigurasi `ADMIN_PASSWORD` pada `.env.local`.
-4. Di dashboard `/admin`, Anda dapat:
-   - Melihat daftar project aktif.
-   - Menambahkan project baru.
-   - Mengedit data project yang sudah ada.
-   - Menghapus project.
-   - Memantau pesan kontak yang dikirim oleh pengunjung melalui website.
+`package.json` sementara meng-override `deepmerge-ts` ke versi 8.0.1+ untuk menutup advisory pada dependensi loader konfigurasi Prisma. Lepas override hanya setelah rilis Prisma yang dipakai sudah membawa versi perbaikan, lalu ulangi audit dan semua gate.
 
-Health check deployment:
-- `GET /api/health` mengembalikan `200` jika aplikasi dan database siap.
-- Endpoint mengembalikan `503` jika koneksi database sedang tidak tersedia dan tidak menyimpan response di cache.
+## Dokumentasi
 
-Catatan keamanan:
-- Production menolak `ADMIN_SESSION_SECRET` yang tidak dikonfigurasi.
-- Production mengharuskan `ADMIN_PASSWORD` berupa bcrypt hash.
-- Login dan contact submission memiliki bounded in-memory rate limiting. Untuk deployment multi-instance, ganti limiter ini dengan provider terdistribusi seperti Redis/Upstash.
+- [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md): temuan F01–F16, keputusan produk, fase, dan acceptance.
+- [PRD.md](./PRD.md): tujuan dan kontrak produk.
+- [Design.md](./Design.md) dan [Design_System.md](./Design_System.md): interaksi, responsivitas, dan token visual.
+- [Architecture.md](./Architecture.md): arsitektur, alur data, dan batas keamanan.
+- [OPERATIONS.md](./OPERATIONS.md): release, observability, backup, restore, retensi, dan respons insiden.
+- [session_analysis_report.md](./session_analysis_report.md): analisis sesi sebelumnya, terpisah dari perubahan implementasi ini.
 
----
+## Kredit aset
 
-## 🚢 Panduan Deployment ke Vercel
-
-1. Push branch `feature/fullstack-backend` ke GitHub.
-2. Buka dashboard [Vercel](https://vercel.com) dan buat proyek baru yang mengarah ke repositori ini.
-3. Di tab **Settings > Environment Variables**, tambahkan:
-   - `DATABASE_URL` (dari Neon)
-   - `ADMIN_PASSWORD` (bcrypt hash)
-   - `ADMIN_SESSION_SECRET`
-   - `RESEND_API_KEY`
-   - `CONTACT_EMAIL_TO`
-   - `NEXT_PUBLIC_SITE_URL` (contoh: `https://nexa-studio.vercel.app`)
-   - `NEXT_PUBLIC_WHATSAPP_NUMBER`
-   - `NEXT_PUBLIC_CONTACT_EMAIL`
-4. Jalankan Deploy.
-
----
-
-## 📸 Kredit Gambar
-
-Seluruh gambar mockup portfolio menggunakan stok foto fotografi asli berlisensi bebas royalti dari [Unsplash](https://unsplash.com) (Unsplash License — bebas digunakan untuk keperluan komersial dan non-komersial tanpa watermark AI):
-
-1. **Kopi Koma (`public/projects/kopi-koma.jpg`)**
-   - **Fotografer:** [Nathan Dumlao](https://unsplash.com/@nate_dumlao)
-   - **Sumber:** [Unsplash (zUNs99PGDg0)](https://unsplash.com/photos/zUNs99PGDg0)
-   - **Deskripsi:** Specialty coffee latte art di atas cangkir keramik pada meja kayu kedai kopi.
-
-2. **Sora Studio (`public/projects/sora-studio.jpg`)**
-   - **Fotografer:** [Alyssa Strohmann](https://unsplash.com/@anotherlovely)
-   - **Sumber:** [Unsplash (TS--uNw-JqE)](https://unsplash.com/photos/hanged-top-on-brown-and-white-clothes-horse-TS--uNw-JqE)
-   - **Deskripsi:** Minimalist apparel rack & clothing boutique studio display.
-
-3. **Ruang Pulih (`public/projects/ruang-pulih.jpg`)**
-   - **Fotografer:** [Engin Akyurt](https://unsplash.com/@enginakyurt)
-   - **Sumber:** [Unsplash (SMwCQZWayj0)](https://unsplash.com/photos/hot-stone-massage-in-spa-SMwCQZWayj0)
-   - **Deskripsi:** Hot stone spa treatment & holistic relaxation therapy setting.
-
+Tiga gambar portofolio adalah foto stok dari Unsplash dan **bukan bukti proyek klien**. Sumber: [Kopi Koma, Nathan Dumlao](https://unsplash.com/photos/zUNs99PGDg0), [Sora Studio, Alyssa Strohmann](https://unsplash.com/photos/hanged-top-on-brown-and-white-clothes-horse-TS--uNw-JqE), dan [Ruang Pulih, Engin Akyurt](https://unsplash.com/photos/hot-stone-massage-in-spa-SMwCQZWayj0). Verifikasi izin penggunaan dan kesesuaian identitas sebelum memakai situs sebagai bisnis nyata.

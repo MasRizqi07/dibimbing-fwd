@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { getSiteUrl } from "@/lib/site-url";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,8 +13,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://dibimbing-fwd.vercel.app";
+const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s | Nexa Studio",
   },
   description:
-    "Nexa Studio membantu UMKM dan brand lokal membangun identitas digital yang terlihat, dipercaya, dan menghasilkan lewat landing page, branding, dan strategi konten.",
+    "Studi konsep Nexa Studio: contoh website agency untuk layanan website, branding, dan strategi konten.",
   keywords: [
     "Nexa Studio",
     "Digital Agency Indonesia",
@@ -42,8 +42,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Nexa Studio — Digital Partner untuk Bisnis Ambisius",
-    description:
-      "Bikin bisnis kamu terlihat dan dipilih. Kami membantu UMKM dan brand lokal membangun identitas digital yang menghasilkan.",
+    description: "Studi konsep website agency untuk layanan website, branding, dan strategi konten.",
     url: siteUrl,
     siteName: "Nexa Studio",
     locale: "id_ID",
@@ -52,31 +51,16 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Nexa Studio — Digital Partner untuk Bisnis Ambisius",
-    description:
-      "Bikin bisnis kamu terlihat dan dipilih. Kami membantu UMKM dan brand lokal membangun identitas digital yang menghasilkan.",
+    description: "Studi konsep website agency untuk layanan website, branding, dan strategi konten.",
   },
 };
 
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "ProfessionalService",
+  "@type": "WebSite",
   name: "Nexa Studio",
-  description:
-    "Digital partner untuk bisnis ambisius. Membantu UMKM dan brand lokal membangun identitas digital yang terlihat, dipercaya, dan menghasilkan.",
+  description: "Studi konsep website digital agency Nexa Studio.",
   url: siteUrl,
-  sameAs: [
-    "https://instagram.com",
-  ],
-  serviceType: [
-    "Website Development",
-    "Brand Identity Design",
-    "Content Strategy",
-  ],
-  priceRange: "Rp 3.500.000 - Rp 15.000.000",
-  address: {
-    "@type": "PostalAddress",
-    addressCountry: "ID",
-  },
 };
 
 export default function RootLayout({

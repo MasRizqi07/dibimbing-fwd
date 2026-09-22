@@ -34,16 +34,17 @@ export async function loginAdminAction(
     return { error: "Terlalu banyak percobaan login dari perangkat ini. Coba lagi beberapa menit lagi." };
   }
 
+  // A short global cap protects the single owner account when requests come
+  // from many addresses. Existing authenticated sessions remain usable.
+  const portalRateLimit = await consumeDistributedRateLimit(
+    "admin-login:portal:attempts",
+    100,
+    15 * 60 * 1000
+  );
   const isValid = await verifyAdminPassword(password);
 
   if (!isValid) {
-    // Track global failed attempts to protect against distributed brute-force without locking out valid admin
-    await consumeDistributedRateLimit(
-      "admin-login:portal:failed",
-      50,
-      15 * 60 * 1000
-    );
-    return { error: "Password salah. Akses ditolak." };
+    return { error: portalRateLimit.allowed ? "Password salah. Akses ditolak." : "Portal sedang membatasi percobaan login. Coba lagi nanti." };
   }
 
   await setAdminSessionCookie();

@@ -1,13 +1,13 @@
 # Product Requirements Document — Nexa Studio
 
-**Status:** Implemented baseline  
+**Status:** Studi konsep; implementasi lokal diperbarui, release eksternal belum diverifikasi
 **Product type:** Marketing website + service catalog + lightweight admin CMS  
 **Primary market:** UMKM dan brand lokal Indonesia  
-**Last updated:** 2026-09-16
+**Last updated:** 2026-09-21
 
 ## 1. Product summary
 
-Nexa Studio membantu pemilik bisnis yang membutuhkan website, branding, atau
+Konsep Nexa Studio membantu pemilik bisnis yang membutuhkan website, branding, atau
 konten untuk bergerak dari “ingin terlihat profesional” menjadi lead yang siap
 berkonsultasi. Conversion utama adalah percakapan konsultasi melalui form
 kontak dan WhatsApp, bukan checkout otomatis.
@@ -27,7 +27,7 @@ jenis layanan, dan mempercayai vendor baru. Website harus menjawab dengan cepat:
 
 - Menjelaskan positioning dan value proposition dalam beberapa detik.
 - Membantu user menemukan layanan melalui search dan category filter.
-- Menampilkan bukti kerja melalui portfolio yang dikelola admin.
+- Menampilkan studi konsep melalui portfolio yang dikelola admin. Klaim hasil nyata memerlukan bukti dan persetujuan pemilik.
 - Mengubah intent menjadi lead melalui contact form atau WhatsApp.
 - Memberikan owner/admin workflow minimal untuk mengelola portfolio dan membaca
   submission.
@@ -46,8 +46,8 @@ jenis layanan, dan mempercayai vendor baru. Website harus menjawab dengan cepat:
 | --- | --- | --- |
 | Pemilik UMKM | Website dan branding yang mudah dipahami | Mengirim brief yang cukup detail |
 | Brand lokal yang tumbuh | Portfolio dan positioning lebih premium | Memilih paket Growth atau Custom |
-| Owner Nexa | Mengelola proof of work tanpa deploy ulang | CRUD project berhasil dari `/admin` |
-| Admin/operator | Memantau inquiry yang masuk | Submission tersimpan dan email optional terkirim |
+| Owner demo | Mengelola studi konsep tanpa deploy ulang | CRUD project berhasil dari `/admin` |
+| Owner demo | Memantau inquiry yang masuk | Submission tersimpan; status email terlihat terpisah |
 
 ## 5. User journeys
 
@@ -75,22 +75,27 @@ Admin login -> dashboard -> create/update/delete project
 - Search layanan bekerja real-time pada title, description, dan category.
 - Category filter menyediakan `Semua`, `Website`, `Branding`, dan `Konten`.
 - Empty search state menyediakan reset action.
-- Portfolio membaca `Project` dari database berdasarkan `order`.
-- Contact form memvalidasi nama, email, message, honeypot, dan render time.
+- Portfolio membaca `Project` dari database berdasarkan `order`, lalu `id` sebagai tie-breaker.
+- Contact form memvalidasi nama, email, pesan, honeypot, token anti-spam server, dan UUID idempotensi.
+- Data demo, paket, dan hasil proyek harus dilabeli sebagai studi konsep. Form menjelaskan pemrosesan data dan menuju `/privacy`.
 - CTA eksternal membuka WhatsApp dengan `rel="noreferrer"`.
 
 ### Admin experience
 
 - `/admin` hanya dapat dibuka setelah signed session tervalidasi.
 - Admin dapat create, read, update, dan delete project.
+- Admin memilih gambar dari katalog aset lokal yang direview; upload belum tersedia.
 - Admin dapat melihat contact submissions yang tersimpan.
+- Admin dapat mengubah status `new`, `read`, `replied`, `archived` dengan validasi server.
 - Mutation harus melewati auth guard dan shared validation.
 
 ### Operations
 
 - `GET /api/health` mengembalikan readiness database.
+- `GET /api/live` mengembalikan liveness tanpa query database.
 - Invalid payload menghasilkan error yang aman dan dapat ditampilkan ke user.
-- Rate limit diterapkan pada login dan contact submission.
+- Rate limit diterapkan pada login dan contact submission. Redis opsional; fallback memori per proses harus dipantau.
+- Email adalah proses terpisah; pesan sukses hanya menjamin penyimpanan database. Cron mengulang notifikasi sesuai kapasitas/frekuensi hosting.
 
 ## 7. Non-functional requirements
 
@@ -100,8 +105,7 @@ Admin login -> dashboard -> create/update/delete project
 - Password production menggunakan bcrypt hash.
 - Session cookie HTTP-only, secure di production, dan SameSite Lax.
 - Database mutation tidak boleh dipanggil tanpa authorization.
-- Build, tests, Prisma validation, dan migration status harus pass sebelum
-  release.
+- Build, tests, migrasi pada database terisolasi, CI exact commit, staging, dan smoke production adalah gerbang terpisah sebelum klaim release.
 
 ## 8. Success metrics
 
@@ -126,7 +130,4 @@ Admin login -> dashboard -> create/update/delete project
 
 ## 10. Future backlog
 
-Prioritas berikutnya adalah distributed rate limiting, browser E2E tests, lead
-status workflow, observability, dan optional client account architecture.
-Setiap item harus dirancang terpisah agar tidak memperluas shared admin password
-model secara tidak aman.
+Keputusan produk berikutnya: identitas bisnis/izin klaim, kebijakan retensi dan SLA respons, serta kebutuhan multi-operator. Jika operasi nyata membutuhkan banyak admin, ganti shared password dengan akun per orang, sesi yang dapat dicabut, peran, dan audit. Uji provider Redis/Resend, backup/restore, aksesibilitas, performa, dan release di staging sebelum promosi production.

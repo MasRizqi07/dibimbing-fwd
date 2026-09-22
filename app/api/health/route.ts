@@ -23,7 +23,7 @@ export async function GET() {
       }
     );
   } catch (error) {
-    console.error("Health check failed:", error);
+    console.error("readiness_failed", { type: error instanceof Error ? error.name : "unknown" });
 
     return NextResponse.json(
       {

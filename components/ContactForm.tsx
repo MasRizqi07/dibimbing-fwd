@@ -1,43 +1,37 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 
-export default function ContactForm() {
+async function fetchAntiSpamToken(): Promise<string> {
+  try {
+    const res = await fetch("/api/anti-spam");
+    const data = await res.json();
+    return typeof data.token === "string" ? data.token : "";
+  } catch {
+    return "";
+  }
+}
+
+export default function ContactForm({ whatsappUrl }: { whatsappUrl: string | null }) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: "",
     honeypot: "",
   });
-  const [renderTime, setRenderTime] = useState<number>(() => Date.now());
   const [antiSpamToken, setAntiSpamToken] = useState<string>("");
-  const [idempotencyKey, setIdempotencyKey] = useState<string>("");
+  const idempotencyKey = useRef<string | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 
-  const fetchAntiSpamToken = async () => {
-    try {
-      const res = await fetch("/api/anti-spam");
-      const data = await res.json();
-      if (data.token) {
-        setAntiSpamToken(data.token);
-      }
-    } catch {
-      // Fallback to renderTime if anti-spam token fetch is interrupted
-    }
-  };
-
   useEffect(() => {
-    // 1. Generate idempotency key for this form session
-    const key =
-      typeof crypto !== "undefined" && crypto.randomUUID
-        ? crypto.randomUUID()
-        : `req-${Date.now()}-${Math.random()}`;
-    setIdempotencyKey(key);
-
-    // 2. Retrieve server-issued anti-spam token
-    fetchAntiSpamToken();
+    let active = true;
+    void fetchAntiSpamToken().then((token) => {
+      if (active) setAntiSpamToken(token);
+    });
+    return () => { active = false; };
   }, []);
 
   const handleChange = (
@@ -56,6 +50,7 @@ export default function ContactForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    idempotencyKey.current ??= crypto.randomUUID();
     setStatus("loading");
     setErrorMessage("");
     setFieldErrors({});
@@ -64,6 +59,13 @@ export default function ContactForm() {
     const timeoutId = window.setTimeout(() => controller.abort(), 15_000);
 
     try {
+      const token = antiSpamToken || await fetchAntiSpamToken();
+      if (!token) {
+        setStatus("error");
+        setErrorMessage("Validasi formulir belum siap. Periksa koneksi lalu coba lagi.");
+        return;
+      }
+      setAntiSpamToken(token);
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: {
@@ -72,9 +74,8 @@ export default function ContactForm() {
         signal: controller.signal,
         body: JSON.stringify({
           ...formData,
-          renderTime,
-          antiSpamToken,
-          idempotencyKey,
+          antiSpamToken: token,
+          idempotencyKey: idempotencyKey.current,
         }),
       });
 
@@ -88,19 +89,15 @@ export default function ContactForm() {
         }
         // If token was rejected or expired, immediately request a fresh token
         if (data.error && /kedaluwarsa|anti-spam/i.test(data.error)) {
-          fetchAntiSpamToken();
+          void fetchAntiSpamToken().then(setAntiSpamToken);
         }
         return;
       }
 
       setStatus("success");
       setFormData({ name: "", email: "", message: "", honeypot: "" });
-      const nextKey =
-        typeof crypto !== "undefined" && crypto.randomUUID
-          ? crypto.randomUUID()
-          : `req-${Date.now()}-${Math.random()}`;
-      setIdempotencyKey(nextKey);
-      fetchAntiSpamToken();
+      idempotencyKey.current = null;
+      void fetchAntiSpamToken().then(setAntiSpamToken);
     } catch (error) {
       setStatus("error");
       setErrorMessage(
@@ -118,23 +115,17 @@ export default function ContactForm() {
     setErrorMessage("");
     setFieldErrors({});
     setFormData({ name: "", email: "", message: "", honeypot: "" });
-    setRenderTime(Date.now());
-    fetchAntiSpamToken();
-    const nextKey =
-      typeof crypto !== "undefined" && crypto.randomUUID
-        ? crypto.randomUUID()
-        : `req-${Date.now()}-${Math.random()}`;
-    setIdempotencyKey(nextKey);
+    void fetchAntiSpamToken().then(setAntiSpamToken);
+    idempotencyKey.current = null;
   };
 
   if (status === "success") {
     return (
       <div className="contact-form-success" role="status">
         <div className="success-icon" aria-hidden="true">✓</div>
-        <h3>Pesan Terkirim!</h3>
+        <h3>Pesan Tersimpan!</h3>
         <p>
-          Terima kasih sudah menghubungi kami. Tim Nexa Studio akan meninjau pesan kamu
-          dan merespon secepatnya.
+          Pesan kamu telah tersimpan. Nexa Studio adalah studi konsep; respons pribadi tidak dijanjikan.
         </p>
         <button
           type="button"
@@ -149,7 +140,7 @@ export default function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="contact-form" noValidate>
+    <form onSubmit={handleSubmit} className="contact-form">
       {/* Anti-spam honeypot */}
       <div style={{ display: "none" }} aria-hidden="true">
         <label htmlFor="website">Leave this field blank</label>
@@ -171,6 +162,8 @@ export default function ContactForm() {
           name="name"
           type="text"
           required
+          minLength={2}
+          maxLength={100}
           placeholder="Nama Anda atau Brand"
           value={formData.name}
           onChange={handleChange}
@@ -193,6 +186,7 @@ export default function ContactForm() {
           name="email"
           type="email"
           required
+          maxLength={255}
           placeholder="email@bisnis.com"
           value={formData.email}
           onChange={handleChange}
@@ -215,6 +209,8 @@ export default function ContactForm() {
           name="message"
           rows={4}
           required
+          minLength={10}
+          maxLength={2000}
           placeholder="Ceritakan tentang bisnis kamu, tantangan yang dihadapi, atau hasil yang ingin dicapai..."
           value={formData.message}
           onChange={handleChange}
@@ -245,17 +241,19 @@ export default function ContactForm() {
         {status === "loading" ? "Mengirim pesan..." : "Kirim Pesan Sekarang ↗"}
       </button>
 
-      <div className="whatsapp-fallback">
+      <p className="form-disclosure">Ini formulir studi konsep. Nama, email, dan pesan disimpan untuk demonstrasi alur kontak. Jangan kirim informasi sensitif. <Link href="/privacy">Cara data diproses</Link>.</p>
+
+      {whatsappUrl && <div className="whatsapp-fallback">
         <span>Atau lebih suka chat langsung? </span>
         <a
-          href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "6285745717075"}`}
+          href={whatsappUrl}
           target="_blank"
           rel="noreferrer"
           className="wa-link"
         >
           Hubungi via WhatsApp ↗
         </a>
-      </div>
+      </div>}
     </form>
   );
 }

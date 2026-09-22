@@ -98,7 +98,7 @@ export default function ServiceCatalog({ services, whatsappUrl }: ServiceCatalog
               <span className="service-category">{service.category}</span>
               <h3>{service.title}</h3>
               <p>{service.description}</p>
-              <a href={whatsappUrl} target="_blank" rel="noreferrer">
+              <a href={whatsappUrl} target={whatsappUrl.startsWith("https://") ? "_blank" : undefined} rel={whatsappUrl.startsWith("https://") ? "noreferrer" : undefined}>
                 Diskusikan kebutuhan <ArrowIcon />
               </a>
             </article>

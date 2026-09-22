@@ -251,6 +251,7 @@ h1 { text-wrap: balance; }
 .pricing-card:hover { transform: translateY(-6px); box-shadow: 0 22px 50px rgba(31, 71, 70, .1); }
 .pricing-card.featured { box-shadow: 0 22px 50px rgba(16, 42, 49, .18); }
 .contact { position: relative; overflow: hidden; box-shadow: 0 26px 60px rgba(16, 42, 49, .14); }
+.contact .eyebrow { color: #c4d6d3; }
 .contact::before {
   position: absolute;
   top: -120px;
@@ -415,4 +416,57 @@ h1 { text-wrap: balance; }
     gap: 10px;
   }
 }
+
+.admin-dashboard { display: grid; gap: 24px; }
+.admin-dashboard-header, .admin-panel-header, .admin-submission-header, .admin-pagination { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.admin-dashboard-header h1 { margin: 0; font-size: 28px; }
+.admin-dashboard-header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+.admin-panel { min-width: 0; padding: 24px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+.admin-panel h2 { margin: 0 0 18px; font-size: 19px; }
+.admin-error { margin: 0; padding: 14px 18px; border: 1px solid #f87171; border-radius: 12px; background: #fee2e2; color: #991b1b; }
+.admin-project-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.admin-field { display: grid; align-content: start; gap: 7px; min-width: 0; }
+.admin-field label { font-size: 12px; font-weight: 700; }
+.admin-field input, .admin-field select { width: 100%; min-width: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.admin-field small { color: var(--muted); }
+.admin-image-preview { height: 100px; width: 160px; max-width: 100%; object-fit: cover; border-radius: 8px; }
+.admin-form-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 12px; }
+.admin-project-list, .admin-submission-list { margin: 0; padding: 0; list-style: none; }
+.admin-project-list li, .admin-submission-list li { padding: 16px 0; border-top: 1px solid var(--line); }
+.admin-project-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.admin-project-list li > div:first-child { display: grid; gap: 4px; }
+.admin-project-list span, .admin-project-list small, .admin-submission-list small { color: var(--muted); }
+.admin-row-actions, .admin-filters, .admin-pagination > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.admin-row-actions button, .admin-filters a, .admin-pagination a { padding: 7px 11px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); font-size: 12px; font-weight: 700; text-decoration: none; cursor: pointer; }
+.admin-row-actions button:disabled { cursor: not-allowed; opacity: .55; }
+.admin-row-actions .danger { color: #a32222; border-color: #f6b9b9; }
+.admin-filters a[aria-current="page"] { background: var(--ink); color: #fff; }
+.admin-submission-list p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.admin-submission-header a, .admin-submission-header strong { overflow-wrap: anywhere; }
+.admin-status { padding: 3px 8px; border-radius: 99px; background: #e8f0ec; font-size: 11px; }
+.admin-submission-list .admin-row-actions { margin-top: 10px; }
+.admin-pagination { padding-top: 16px; border-top: 1px solid var(--line); font-size: 12px; }
+@media (max-width: 640px) {
+  .admin-project-form { grid-template-columns: 1fr; }
+  .admin-panel { padding: 18px; }
+  .admin-dashboard-header { align-items: flex-start; }
+}
+
+.site-nav { position: relative; }
+.mobile-menu-toggle, .mobile-nav-panel { display: none; }
+@media (max-width: 800px) {
+  .mobile-menu-toggle { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--ink); font-weight: 700; cursor: pointer; }
+  .mobile-nav-panel:not([hidden]) { position: absolute; z-index: 30; top: calc(100% + 8px); left: 0; right: 0; display: grid; padding: 10px; border: 1px solid var(--line); border-radius: 14px; background: #fff; box-shadow: 0 16px 35px rgba(31, 71, 70, .12); }
+  .mobile-nav-panel a { display: block; padding: 11px 12px; border-radius: 8px; font-size: 14px; font-weight: 700; }
+  .mobile-nav-panel a:hover { background: var(--cream); }
+}
+@media (max-width: 640px) {
+  .site-nav .nav-cta { display: none; }
+}
+
+.form-disclosure { margin: 8px 0 0; color: #b4c5c3; font-size: 12px; line-height: 1.6; }
+.form-disclosure a { color: var(--lime); text-decoration: underline; text-underline-offset: 3px; }
+.privacy-page { padding-block: 70px; max-width: 760px; }
+.privacy-page h1 { margin-top: 32px; }
+.privacy-page p { color: var(--muted); line-height: 1.75; }
 

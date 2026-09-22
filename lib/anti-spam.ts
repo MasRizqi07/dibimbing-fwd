@@ -1,13 +1,21 @@
 import crypto from "node:crypto";
 
 const ephemeralSecret = crypto.randomBytes(32).toString("hex");
-const SECRET = process.env.ADMIN_SESSION_SECRET || ephemeralSecret;
+
+function tokenSecret(): string {
+  const configured = process.env.ADMIN_SESSION_SECRET?.trim();
+  if (configured) return configured;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("ADMIN_SESSION_SECRET must be configured in production.");
+  }
+  return ephemeralSecret;
+}
 
 export function generateAntiSpamToken(): string {
   const timestamp = Date.now();
   const payload = Buffer.from(JSON.stringify({ t: timestamp })).toString("base64url");
   const signature = crypto
-    .createHmac("sha256", SECRET)
+    .createHmac("sha256", tokenSecret())
     .update(payload)
     .digest("base64url");
   return `${payload}.${signature}`;
@@ -29,11 +37,13 @@ export function verifyAntiSpamToken(
 
   const [payload, signature] = parts;
   const expectedSig = crypto
-    .createHmac("sha256", SECRET)
+    .createHmac("sha256", tokenSecret())
     .update(payload)
     .digest("base64url");
 
-  if (signature !== expectedSig) {
+  const providedSig = Buffer.from(signature);
+  const expectedSigBuffer = Buffer.from(expectedSig);
+  if (providedSig.length !== expectedSigBuffer.length || !crypto.timingSafeEqual(providedSig, expectedSigBuffer)) {
     return { valid: false, reason: "Tanda tangan token anti-spam tidak valid." };
   }
 

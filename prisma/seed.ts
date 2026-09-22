@@ -6,7 +6,7 @@ const initialProjects = [
   {
     title: "Kopi Koma",
     type: "F&B · Branding + Website",
-    result: "+38% online orders",
+    result: "Studi konsep identitas dan website untuk kedai kopi",
     className: "project-coffee",
     imagePath: "/projects/kopi-koma.jpg",
     order: 1,
@@ -14,7 +14,7 @@ const initialProjects = [
   {
     title: "Sora Studio",
     type: "Fashion · E-commerce",
-    result: "2.4x conversion rate",
+    result: "Studi konsep katalog digital untuk brand fashion",
     className: "project-fashion",
     imagePath: "/projects/sora-studio.jpg",
     order: 2,
@@ -22,7 +22,7 @@ const initialProjects = [
   {
     title: "Ruang Pulih",
     type: "Wellness · Landing page",
-    result: "Booked out in 12 days",
+    result: "Studi konsep landing page untuk layanan wellness",
     className: "project-wellness",
     imagePath: "/projects/ruang-pulih.jpg",
     order: 3,
@@ -43,11 +43,7 @@ async function main() {
       });
       console.log(`Created project: ${project.title}`);
     } else {
-      await prisma.project.update({
-        where: { id: existing.id },
-        data: project,
-      });
-      console.log(`Updated project: ${project.title}`);
+      console.log(`Skipped existing project: ${project.title}`);
     }
   }
 

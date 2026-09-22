@@ -31,7 +31,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
   const [projects, rawSubmissions, totalSubmissions] = await Promise.all([
     prisma.project.findMany({
-      orderBy: { order: "asc" },
+      orderBy: [{ order: "asc" }, { id: "asc" }],
     }),
     prisma.contactSubmission.findMany({
       where: whereClause,

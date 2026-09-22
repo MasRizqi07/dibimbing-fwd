@@ -1,140 +1,116 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { POST } from "@/app/api/contact/route";
 import { prisma } from "@/lib/prisma";
+import { sendContactNotification } from "@/lib/contact-notification";
+import { verifyAntiSpamToken } from "@/lib/anti-spam";
+import { createHash } from "node:crypto";
 
 vi.mock("@/lib/prisma", () => ({
-  prisma: {
-    contactSubmission: {
-      create: vi.fn(),
-      update: vi.fn(),
-    },
-  },
+  prisma: { contactSubmission: { findUnique: vi.fn(), create: vi.fn() } },
 }));
-
-vi.mock("@/lib/resend", () => ({
-  resend: null,
+vi.mock("@/lib/rate-limit", () => ({
+  getClientIdentifier: () => "test-client",
+  consumeDistributedRateLimit: vi.fn().mockResolvedValue({ allowed: true, retryAfterSeconds: 0 }),
 }));
+vi.mock("@/lib/anti-spam", () => ({ verifyAntiSpamToken: vi.fn() }));
+vi.mock("@/lib/contact-notification", () => ({ sendContactNotification: vi.fn() }));
 
-describe("POST /api/contact Route Handler", () => {
+const input = {
+  name: "Rizqi Pratama",
+  email: "rizqi@test.com",
+  message: "Halo kami ingin membuat website baru bersama Nexa Studio.",
+  honeypot: "",
+  antiSpamToken: "test-token",
+  idempotencyKey: "dfb321a0-0a3b-42d4-bf32-7bda8bbaf73b",
+};
+
+function request(body: unknown): Request {
+  return new Request("http://localhost/api/contact", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+describe("POST /api/contact", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(verifyAntiSpamToken).mockReturnValue({ valid: true });
+    vi.mocked(sendContactNotification).mockResolvedValue(false);
   });
 
-  it("should return 400 if body is invalid JSON", async () => {
-    const req = new Request("http://localhost/api/contact", {
-      method: "POST",
-      body: "not a json",
-    });
-
-    const res = await POST(req);
-    expect(res.status).toBe(400);
-    const data = await res.json();
-    expect(data.success).toBe(false);
+  it("rejects invalid JSON and oversized bodies", async () => {
+    const invalid = await POST(new Request("http://localhost/api/contact", { method: "POST", body: "not json" }));
+    expect(invalid.status).toBe(400);
+    const large = await POST(request({ ...input, message: "x".repeat(33_000) }));
+    expect(large.status).toBe(413);
   });
 
-  it("should return 413 when the actual request body exceeds the limit", async () => {
-    const oversizedBody = JSON.stringify({
-      name: "Large Request",
-      email: "large@test.com",
-      message: "x".repeat(33_000),
-    });
-    const req = new Request("http://localhost/api/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: oversizedBody,
-    });
-
-    const res = await POST(req);
-    expect(res.status).toBe(413);
-    expect((await res.json()).success).toBe(false);
+  it("rejects malformed data, honeypot, and missing signed token", async () => {
+    expect((await POST(request({ ...input, email: "invalid" }))).status).toBe(400);
+    expect((await POST(request({ ...input, honeypot: "spam" }))).status).toBe(400);
+    expect((await POST(request({ ...input, antiSpamToken: undefined, renderTime: Date.now() - 5000 }))).status).toBe(400);
+    expect(prisma.contactSubmission.create).not.toHaveBeenCalled();
   });
 
-  it("should return 400 if validation fails", async () => {
-    const req = new Request("http://localhost/api/contact", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-forwarded-for": "203.0.113.200",
-      },
-      body: JSON.stringify({
-        name: "A",
-        email: "invalid-email",
-        message: "short",
-      }),
-    });
-
-    const res = await POST(req);
-    expect(res.status).toBe(400);
-    const data = await res.json();
-    expect(data.success).toBe(false);
-    expect(data.details).toBeDefined();
+  it("rejects an invalid server token before persistence", async () => {
+    vi.mocked(verifyAntiSpamToken).mockReturnValue({ valid: false, reason: "Formulir dikirim terlalu cepat." });
+    const response = await POST(request(input));
+    expect(response.status).toBe(400);
+    expect(prisma.contactSubmission.create).not.toHaveBeenCalled();
   });
 
-  it("should return 400 if honeypot is filled by bot", async () => {
-    const req = new Request("http://localhost/api/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: "Bot Name",
-        email: "bot@test.com",
-        message: "Valid looking message longer than 10 chars.",
-        honeypot: "spam content",
-      }),
-    });
-
-    const res = await POST(req);
-    expect(res.status).toBe(400);
-    const data = await res.json();
-    expect(data.error).toBe("Bot submission detected.");
-  });
-
-  it("should return 400 if submitted in less than 2 seconds", async () => {
-    const req = new Request("http://localhost/api/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: "Fast Submitter",
-        email: "fast@test.com",
-        message: "Valid looking message longer than 10 chars.",
-        renderTime: Date.now() - 500, // only 0.5s ago
-      }),
-    });
-
-    const res = await POST(req);
-    expect(res.status).toBe(400);
-    const data = await res.json();
-    expect(data.error).toContain("terlalu cepat");
-  });
-
-  it("should save submission to DB and return 200 on valid submission", async () => {
-    (prisma.contactSubmission.create as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
-      id: "mock-id-123",
-      name: "Rizqi Pratama",
-      email: "rizqi@test.com",
-      message: "Halo kami ingin membuat website baru bersama Nexa Studio.",
+  it("persists one submission and reports database acceptance even without email", async () => {
+    vi.mocked(prisma.contactSubmission.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.contactSubmission.create).mockResolvedValue({
+      id: "saved-1",
+      payloadHash: createHash("sha256").update(JSON.stringify({ name: input.name, email: input.email, message: input.message })).digest("hex"),
       emailSent: false,
-    });
-
-    const req = new Request("http://localhost/api/contact", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-forwarded-for": "203.0.113.200",
-      },
-      body: JSON.stringify({
-        name: "Rizqi Pratama",
-        email: "rizqi@test.com",
-        message: "Halo kami ingin membuat website baru bersama Nexa Studio.",
-        renderTime: Date.now() - 4000,
-        honeypot: "",
-      }),
-    });
-
-    const res = await POST(req);
-    expect(res.status).toBe(200);
-    const data = await res.json();
-    expect(data.success).toBe(true);
-    expect(data.data.id).toBe("mock-id-123");
+    } as never);
+    const response = await POST(request(input));
+    expect(response.status).toBe(200);
+    expect((await response.json()).data).toEqual({ id: "saved-1", emailSent: false });
     expect(prisma.contactSubmission.create).toHaveBeenCalledTimes(1);
+    expect(sendContactNotification).toHaveBeenCalledWith("saved-1");
+  });
+
+  it("rejects reuse of a key for a different payload without notification", async () => {
+    vi.mocked(prisma.contactSubmission.findUnique).mockResolvedValue({
+      id: "saved-1", payloadHash: "other-payload", emailSent: false,
+    } as never);
+    const response = await POST(request(input));
+    expect(response.status).toBe(409);
+    expect(sendContactNotification).not.toHaveBeenCalled();
+  });
+
+  it("keeps database acceptance successful when notification rejects", async () => {
+    vi.mocked(prisma.contactSubmission.findUnique).mockResolvedValue({
+      id: "saved-1",
+      payloadHash: createHash("sha256").update(JSON.stringify({ name: input.name, email: input.email, message: input.message })).digest("hex"),
+      emailSent: false,
+    } as never);
+    vi.mocked(sendContactNotification).mockRejectedValue(new Error("temporary transport failure"));
+    const response = await POST(request(input));
+    expect(response.status).toBe(200);
+    expect((await response.json()).data.emailSent).toBe(false);
+  });
+
+  it("returns stored response after notification timeout", async () => {
+    vi.useFakeTimers();
+    try {
+      vi.mocked(prisma.contactSubmission.findUnique).mockResolvedValue({
+        id: "saved-1",
+        payloadHash: createHash("sha256").update(JSON.stringify({ name: input.name, email: input.email, message: input.message })).digest("hex"),
+        emailSent: false,
+      } as never);
+      vi.mocked(sendContactNotification).mockReturnValue(new Promise<boolean>(() => {}));
+      const pendingResponse = POST(request(input));
+      await vi.advanceTimersByTimeAsync(3100);
+      const response = await pendingResponse;
+      expect(response.status).toBe(200);
+      expect((await response.json()).data.emailSent).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
