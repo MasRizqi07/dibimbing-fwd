@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
+import { isIsolatedE2ERuntime } from "@/lib/e2e-runtime";
 
 const COOKIE_NAME = "nexa_admin_session";
 const SESSION_MAX_AGE = 7 * 24 * 60 * 60; // 7 days in seconds
@@ -64,7 +65,9 @@ export async function verifySessionToken(token: string): Promise<boolean> {
 }
 
 export async function verifyAdminPassword(passwordInput: string): Promise<boolean> {
-  const adminPassword = process.env.ADMIN_PASSWORD;
+  const adminPassword = isIsolatedE2ERuntime()
+    ? process.env.E2E_ADMIN_PASSWORD_HASH
+    : process.env.ADMIN_PASSWORD;
   if (!adminPassword || !passwordInput) return false;
 
   if (/^\$2[aby]\$\d{2}\$/.test(adminPassword)) {

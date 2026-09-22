@@ -43,11 +43,7 @@ async function main() {
       });
       console.log(`Created project: ${project.title}`);
     } else {
-      await prisma.project.update({
-        where: { id: existing.id },
-        data: project,
-      });
-      console.log(`Updated project: ${project.title}`);
+      console.log(`Skipped existing project: ${project.title}`);
     }
   }
 

@@ -94,4 +94,9 @@ describe("P3.2 — Contact Submission Lifecycle Action", () => {
       "Unauthorized"
     );
   });
+
+  it("rejects a forged runtime status before database mutation", async () => {
+    await expect(updateSubmissionStatusAction("sub-1", "owner" as "read")).rejects.toThrow();
+    expect(prisma.contactSubmission.update).not.toHaveBeenCalled();
+  });
 });

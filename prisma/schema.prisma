@@ -29,9 +29,15 @@ model ContactSubmission {
   emailSent      Boolean  @default(false)
   status         String   @default("new")
   idempotencyKey String?  @unique
+  payloadHash    String?
+  notificationStatus      String   @default("pending")
+  notificationAttempts    Int      @default(0)
+  notificationLeaseUntil  DateTime?
+  notificationNextAttempt DateTime?
   createdAt      DateTime @default(now())
 
   @@index([createdAt])
   @@index([status])
+  @@index([notificationStatus, notificationNextAttempt])
 }
 

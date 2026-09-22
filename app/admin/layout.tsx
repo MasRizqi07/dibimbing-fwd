@@ -1,5 +1,8 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { logoutAdminAction } from "@/app/actions/auth";
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default function AdminLayout({
   children,

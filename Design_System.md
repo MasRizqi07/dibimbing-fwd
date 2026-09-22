@@ -2,7 +2,7 @@
 
 **Version:** 1.0  
 **Style:** Editorial minimalism / flat UI with soft depth  
-**Source of truth:** `app/globals.css`, `app/page.tsx`, dan `components/ServiceCatalog.tsx`
+**Source of truth:** `app/globals.css`, `app/page.tsx`, `components/SiteNav.tsx`, dan `components/ServiceCatalog.tsx`
 
 ## 1. Brand principles
 
@@ -52,7 +52,7 @@ bukan warna untuk paragraf panjang.
 
 - Sticky, translucent surface.
 - Brand left, section anchors center, primary contact CTA right.
-- Mobile menyembunyikan secondary links tetapi mempertahankan primary CTA.
+- Mobile memakai tombol Menu dengan `aria-expanded`; link dapat dibuka/tutup melalui keyboard, dan pilihan link menutup menu.
 
 ### Button
 
@@ -88,6 +88,7 @@ bukan warna untuk paragraf panjang.
 - Inline field errors.
 - Loading menonaktifkan controls.
 - Success dan error states explicit serta diumumkan.
+- Success berbunyi “pesan tersimpan”; status email terpisah. Berikan tautan informasi pemrosesan data.
 
 ## 6. Interaction states
 

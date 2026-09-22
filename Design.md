@@ -35,6 +35,8 @@ flowchart TD
 | `/admin` | Content and lead operations | ProjectManager, project CRUD, submissions |
 | `/api/contact` | Lead intake | JSON validation, anti-spam, persistence, email |
 | `/api/health` | Readiness | Database probe and safe status response |
+| `/api/live` | Liveness | Process response without database dependency |
+| `/privacy` | Data handling disclosure | Explains contact data collection and pending retention decision |
 
 ## 4. Homepage wireframe
 
@@ -42,10 +44,10 @@ flowchart TD
 ┌──────────────────────────────────────────────────────────┐
 │ Sticky nav: logo | layanan portfolio proses harga | CTA │
 ├──────────────────────────────────────────────────────────┤
-│ Hero copy + primary CTA       Growth dashboard visual   │
-│ proof / trust signal                                    │
+│ Hero copy + primary CTA       Growth dashboard art      │
+│ Trust proof: 40+ businesses and performance figures      │
 ├──────────────────────────────────────────────────────────┤
-│ Client/logo strip                                      │
+│ Client logos: PARAS / ruang. / MONO / elara / BRIK      │
 ├──────────────────────────────────────────────────────────┤
 │ Services heading + supporting copy                     │
 │ Search input + category pills                          │
@@ -55,7 +57,7 @@ flowchart TD
 ├──────────────────────────────────────────────────────────┤
 │ Process introduction       01 / 02 / 03 / 04 list     │
 ├──────────────────────────────────────────────────────────┤
-│ Pricing heading + Starter / Growth / Custom cards     │
+│ Package prices: Starter / Growth / Custom               │
 ├──────────────────────────────────────────────────────────┤
 │ Dark contact CTA + form                               │
 ├──────────────────────────────────────────────────────────┤
@@ -99,13 +101,15 @@ Idle -> user input -> submit
 ```
 
 Form memiliki timeout client 15 detik, network error message, honeypot tersembunyi,
-dan tidak menampilkan detail internal database/email.
+token server wajib, dan kunci idempotensi yang dipertahankan saat retry. Success
+berarti pesan tersimpan di database, bukan email terkirim. Tautan `/privacy`
+menjelaskan pengolahan data; form tidak menampilkan detail internal database/email.
 
 ## 7. Responsive behavior
 
 | Breakpoint | Behavior |
 | --- | --- |
-| 320–639px | Single-column sections, compact nav, horizontal-scroll filter pills |
+| 320–639px | Single-column sections, menu mobile buka/tutup, horizontal-scroll filter pills |
 | 640–900px | Two-column card grids bila ruang cukup, hero stack |
 | 901–1160px | Desktop grid dan two-column hero |
 | 1161px+ | Content tetap max-width 1160px untuk readability |
@@ -121,6 +125,7 @@ boleh memperluas layout viewport.
 - Focus state harus terlihat pada keyboard navigation.
 - Hindari placeholder sebagai pengganti label.
 - Hormati `prefers-reduced-motion`.
+- Jangan menyajikan angka hasil, logo klien, harga, atau “populer” sebagai klaim nyata tanpa bukti dan persetujuan.
 
 ## 9. Usability testing plan
 

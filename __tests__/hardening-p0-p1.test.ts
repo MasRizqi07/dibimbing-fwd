@@ -17,27 +17,30 @@ vi.mock("next/cache", () => ({
 }));
 
 describe("P0.2 — Anti-Spoofing Client IP & Rate Limiter", () => {
-  it("should prioritize x-real-ip over spoofed x-forwarded-for header", () => {
+  beforeEach(() => { delete process.env.TRUSTED_PROXY_IP_HEADER; delete process.env.VERCEL; });
+
+  it("ignores caller supplied IP headers without a trusted proxy", () => {
     const headers = new Headers({
       "x-forwarded-for": "198.51.100.1, 198.51.100.2",
       "x-real-ip": "203.0.113.50",
     });
 
-    const resolvedIp = getClientIp(headers);
-    expect(resolvedIp).toBe("203.0.113.50");
+    expect(getClientIp(headers)).toBe("unknown");
   });
 
-  it("should select the rightmost (trusted edge) IP when only x-forwarded-for is present", () => {
-    // Attackers prepend their spoofed IP, but proxies append the true client IP
+  it("uses only the configured proxy header after validating IP syntax", () => {
+    process.env.TRUSTED_PROXY_IP_HEADER = "x-real-ip";
     const headers = new Headers({
-      "x-forwarded-for": "attacker.spoofed.ip, 203.0.113.99",
+      "x-forwarded-for": "203.0.113.99",
+      "x-real-ip": "203.0.113.50",
     });
-
-    const resolvedIp = getClientIp(headers);
-    expect(resolvedIp).toBe("203.0.113.99");
+    expect(getClientIp(headers)).toBe("203.0.113.50");
+    headers.set("x-real-ip", "spoofed.invalid");
+    expect(getClientIp(headers)).toBe("unknown");
   });
 
   it("should block brute-force attempts even when attacker rotates first x-forwarded-for hop", () => {
+    process.env.TRUSTED_PROXY_IP_HEADER = "x-real-ip";
     const trueClientIp = "198.51.100.88";
     const keyPrefix = "test-admin-login";
 

@@ -2,6 +2,8 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import ContactForm from "@/components/ContactForm";
 import ServiceCatalog from "@/components/ServiceCatalog";
+import SiteNav from "@/components/SiteNav";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -76,30 +78,17 @@ function ArrowIcon() {
 
 export default async function Home() {
   const projects = await prisma.project.findMany({
-    orderBy: { order: "asc" },
+    orderBy: [{ order: "asc" }, { id: "asc" }],
   });
 
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "6285745717075";
-  const whatsappUrl = `https://wa.me/${whatsappNumber}`;
-  const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "achmadriskim07@gmail.com";
+  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/\D/g, "");
+  const whatsappUrl = whatsappNumber ? `https://wa.me/${whatsappNumber}` : null;
+  const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
+  const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM_URL;
 
   return (
     <main>
-      <nav className="site-nav" aria-label="Navigasi utama">
-        <a className="brand" href="#top" aria-label="Nexa Studio, kembali ke atas">
-          <span className="brand-mark">N</span>
-          <span>Nexa<span className="brand-dot">.</span></span>
-        </a>
-        <div className="nav-links">
-          <a href="#services">Layanan</a>
-          <a href="#work">Portfolio</a>
-          <a href="#process">Proses</a>
-          <a href="#pricing">Harga</a>
-        </div>
-        <a className="nav-cta" href={whatsappUrl} target="_blank" rel="noreferrer">
-          Ngobrol yuk <ArrowIcon />
-        </a>
-      </nav>
+      <SiteNav whatsappUrl={whatsappUrl} />
 
       <section className="hero section-shell" id="top">
         <div className="hero-copy">
@@ -110,7 +99,7 @@ export default async function Home() {
             bukan cuma cantik, tapi juga menghasilkan.
           </p>
           <div className="hero-actions">
-            <a className="button button-primary" href={whatsappUrl} target="_blank" rel="noreferrer">
+            <a className="button button-primary" href={whatsappUrl || "#contact"} target={whatsappUrl ? "_blank" : undefined} rel={whatsappUrl ? "noreferrer" : undefined}>
               Mulai konsultasi <ArrowIcon />
             </a>
             <a className="text-link" href="#work">Lihat hasil kerja <span aria-hidden="true">↓</span></a>
@@ -153,13 +142,13 @@ export default async function Home() {
           <h2>Semua yang kamu butuhkan untuk <em>naik level.</em></h2>
           <p>Tanpa jargon ribet. Tanpa proses berbelit. Hanya strategi dan eksekusi yang benar-benar relevan buat bisnismu.</p>
         </div>
-        <ServiceCatalog services={services} whatsappUrl={whatsappUrl} />
+        <ServiceCatalog services={services} whatsappUrl={whatsappUrl || "#contact"} />
       </section>
 
       <section className="work section-shell" id="work">
         <div className="section-heading work-heading">
           <div><p className="eyebrow">Selected work</p><h2>Kerja bagus berbicara <em>lebih keras.</em></h2></div>
-          <a className="text-link" href="#work">Lihat semua project <ArrowIcon /></a>
+          <a className="text-link" href="#contact">Ceritakan projectmu <ArrowIcon /></a>
         </div>
         <div className="project-grid">
           {projects.length === 0 ? (
@@ -245,7 +234,7 @@ export default async function Home() {
           </p>
         </div>
         <div>
-          <ContactForm />
+          <ContactForm whatsappUrl={whatsappUrl} />
         </div>
       </section>
 
@@ -253,11 +242,12 @@ export default async function Home() {
         <a className="brand" href="#top"><span className="brand-mark">N</span><span>Nexa<span className="brand-dot">.</span></span></a>
         <p>Designing digital experiences<br />that move businesses forward.</p>
         <div className="footer-links">
-          <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
-          <a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram ↗</a>
-          <a href={whatsappUrl} target="_blank" rel="noreferrer">WhatsApp ↗</a>
+          {contactEmail && <a href={`mailto:${contactEmail}`}>{contactEmail}</a>}
+          {instagramUrl && <a href={instagramUrl} target="_blank" rel="noreferrer">Instagram ↗</a>}
+          {whatsappUrl && <a href={whatsappUrl} target="_blank" rel="noreferrer">WhatsApp ↗</a>}
+          <Link href="/privacy">Pemrosesan data kontak</Link>
         </div>
-        <small>© 2025 Nexa Studio. Made with intention.</small>
+        <small>© {new Date().getFullYear()} Nexa Studio. Made with intention.</small>
       </footer>
     </main>
   );

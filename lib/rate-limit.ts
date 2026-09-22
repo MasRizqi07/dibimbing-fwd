@@ -1,4 +1,5 @@
 import { Redis } from "@upstash/redis";
+import { isIP } from "node:net";
 
 interface RateLimitEntry {
   count: number;
@@ -7,6 +8,7 @@ interface RateLimitEntry {
 
 const entries = new Map<string, RateLimitEntry>();
 const MAX_ENTRIES = 10_000;
+let lastPruneAt = 0;
 
 let redisClient: Redis | null = null;
 function getRedis(): Redis | null {
@@ -22,6 +24,8 @@ function getRedis(): Redis | null {
 }
 
 function pruneExpiredEntries(now: number): void {
+  if (now - lastPruneAt < 60_000 && entries.size < MAX_ENTRIES) return;
+  lastPruneAt = now;
   for (const [key, entry] of entries) {
     if (entry.resetAt <= now) {
       entries.delete(key);
@@ -30,12 +34,10 @@ function pruneExpiredEntries(now: number): void {
 
   if (entries.size <= MAX_ENTRIES) return;
 
-  const oldestEntries = [...entries.entries()]
-    .sort(([, left], [, right]) => left.resetAt - right.resetAt)
-    .slice(0, entries.size - MAX_ENTRIES);
-
-  for (const [key] of oldestEntries) {
-    entries.delete(key);
+  while (entries.size > MAX_ENTRIES) {
+    const oldest = entries.keys().next().value;
+    if (oldest === undefined) break;
+    entries.delete(oldest);
   }
 }
 
@@ -45,42 +47,17 @@ export type HeaderSource =
   | Request;
 
 export function getClientIp(source: HeaderSource): string {
-  const headers =
-    "headers" in source && source.headers
-      ? source.headers
-      : (source as { get(name: string): string | null });
+  const headers = source instanceof Request ? source.headers : source;
 
-  // 1. x-vercel-forwarded-for: set exclusively by Vercel edge
-  const vercelForwarded = headers.get("x-vercel-forwarded-for");
-  if (vercelForwarded && vercelForwarded.trim()) {
-    const parts = vercelForwarded
-      .split(",")
-      .map((p) => p.trim())
-      .filter(Boolean);
-    if (parts.length > 0) {
-      return parts[parts.length - 1];
-    }
+  // Only a deployment-controlled proxy header may identify a client. The
+  // default outside Vercel is a shared bucket, never an arbitrary client value.
+  const configuredHeader = process.env.TRUSTED_PROXY_IP_HEADER;
+  const trustedHeader = configuredHeader || (process.env.VERCEL === "1" ? "x-vercel-forwarded-for" : "");
+  if (!trustedHeader || !["x-vercel-forwarded-for", "x-real-ip", "x-forwarded-for"].includes(trustedHeader)) {
+    return "unknown";
   }
-
-  // 2. x-real-ip is set by edge proxy and cannot be spoofed by client
-  const realIp = headers.get("x-real-ip");
-  if (realIp && realIp.trim()) {
-    return realIp.trim();
-  }
-
-  // 3. Fallback to rightmost (last) IP in x-forwarded-for
-  // Client can prepend spoofed IPs, but edge/proxies append the verified client IP
-  const forwardedFor = headers.get("x-forwarded-for");
-  if (forwardedFor && forwardedFor.trim()) {
-    const parts = forwardedFor
-      .split(",")
-      .map((p) => p.trim())
-      .filter(Boolean);
-    if (parts.length > 0) {
-      return parts[parts.length - 1];
-    }
-  }
-
+  const candidate = headers.get(trustedHeader)?.split(",").at(-1)?.trim();
+  if (candidate && isIP(candidate)) return candidate;
   return "unknown";
 }
 
@@ -142,7 +119,7 @@ export async function consumeDistributedRateLimit(
     }
     return { allowed: true, retryAfterSeconds: 0 };
   } catch (err) {
-    console.error("Upstash rate limit fallback to memory:", err);
+    console.error("rate_limit_memory_fallback", { type: err instanceof Error ? err.name : "unknown" });
     return consumeRateLimit(key, limit, windowMs);
   }
 }

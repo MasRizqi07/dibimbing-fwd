@@ -18,12 +18,8 @@ export const contactFormSchema = z.object({
     .max(2000, { message: "Pesan maksimal 2000 karakter." }),
   // Anti-spam honeypot (should remain empty for humans)
   honeypot: z.string().max(0, { message: "Bot submission detected." }).optional().or(z.literal("")),
-  // Anti-spam render timestamp (in ms - legacy fallback)
-  renderTime: z.number().optional(),
-  // Server-issued anti-spam token
-  antiSpamToken: z.string().optional(),
-  // Client-generated idempotency key
-  idempotencyKey: z.string().max(64).optional(),
+  antiSpamToken: z.string().min(1).max(512),
+  idempotencyKey: z.uuid(),
 });
 
 export type ContactFormData = z.infer<typeof contactFormSchema>;

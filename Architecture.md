@@ -14,10 +14,12 @@ flowchart LR
   Browser --> Contact[POST /api/contact]
   Contact --> Validate[Zod + abuse checks]
   Validate --> Prisma
-  Validate --> Resend[Resend optional email]
+  Validate --> Outbox[Database notification state]
+  Cron[Authenticated scheduled retry] --> Outbox
+  Outbox --> Resend[Resend optional email]
   Admin[Admin browser] --> Proxy[Next.js proxy]
   Proxy --> Session[Signed session verification]
-  Admin --> Actions[Server Actions]
+  Admin --> Actions[Authorized Server Actions]
   Actions --> Prisma
 ```
 
@@ -64,6 +66,8 @@ Menyimpan lead brief:
 
 - `name`, `email`, `message` — validated user input.
 - `emailSent` — hasil delivery Resend optional.
+- `idempotencyKey` dan `payloadHash` — satu payload per key, konflik `409` untuk isi berbeda.
+- `notificationStatus`, `notificationAttempts`, lease, dan next-attempt — klaim atomik dan retry email.
 - `createdAt` — submission ordering dan indexed query.
 
 Tidak ada payment atau client-account entity pada scope produk sekarang.
@@ -74,13 +78,13 @@ Tidak ada payment atau client-account entity pada scope produk sekarang.
 
 ```text
 Browser JSON
- -> ArrayBuffer size check (32 KB)
+ -> stream size check (32 KB)
  -> JSON parse
  -> rate limit
- -> honeypot/render-time checks
- -> Zod validation
- -> Prisma create
- -> optional Resend notification
+ -> honeypot + signed server token (minimum wait dan expiry)
+ -> Zod validation + payload fingerprint
+ -> Prisma find/create dengan unique key
+ -> atomic email claim dan notifikasi opsional
  -> safe JSON response
 ```
 
@@ -105,17 +109,15 @@ Proxy adalah routing guard optimistis, bukan satu-satunya security boundary.
 - Production membutuhkan `ADMIN_PASSWORD` berformat bcrypt.
 - Session cookie HTTP-only, SameSite Lax, dan secure di production.
 - HMAC-SHA256 menandatangani timestamped session token.
-- Login dan contact request menggunakan bounded in-memory rate limiting.
+- Login dan contact request memakai Upstash Redis jika dikonfigurasi, dengan fallback memori terikat per proses. Header IP hanya dipercaya dari proxy yang dikonfigurasi.
 - Contact body size dicek dari actual bytes, bukan hanya `Content-Length`.
-- Project image path menolak external/protocol-relative path.
+- Project image path dibatasi ke katalog aset lokal yang direview.
 - Zod memvalidasi public dan admin mutation payload.
 - Internal error dilog server-side tetapi tidak dikembalikan ke client.
 
 ### Known scale limitation
 
-Rate limiter saat ini process-local. Deployment multi-instance atau serverless
-harus menggantinya dengan provider distributed seperti Redis/Upstash dan
-mendefinisikan failure behavior sebelum production rollout.
+Saat Redis tidak tersedia, limiter kembali ke memori per instance, sehingga batas global melemah. Cron harian dengan batch maksimal 20 row tidak menjamin notifikasi cepat. Sesi admin masih shared owner tanpa audit per operator atau revocation individual.
 
 ## 7. Error and readiness model
 
@@ -125,6 +127,7 @@ mendefinisikan failure behavior sebelum production rollout.
   oversized body, `429` untuk rate limit, dan `500` untuk unexpected failure.
 - `/api/health` mengembalikan `200` saat `SELECT 1` berhasil dan `503` saat
   database tidak tersedia.
+- `/api/live` hanya memeriksa proses hidup. `/api/cron/notifications` memerlukan Bearer `CRON_SECRET`.
 
 ## 8. Deployment topology
 
@@ -149,9 +152,13 @@ Next.js dan dioptimalkan melalui `next/image`.
 | `RESEND_FROM_EMAIL` | Server | Sender identity |
 | `ADMIN_PASSWORD` | Server | Bcrypt admin credential |
 | `ADMIN_SESSION_SECRET` | Server | Session signing secret |
+| `CRON_SECRET` | Server | Scheduled notification authorization |
+| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Server | Distributed limiter |
+| `TRUSTED_PROXY_IP_HEADER` | Server | Trusted reverse proxy IP header if applicable |
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | Public | WhatsApp CTA destination |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | Public | Footer contact |
 | `NEXT_PUBLIC_SITE_URL` | Public/build | Canonical URL and metadata |
+| `NEXT_PUBLIC_INSTAGRAM_URL` | Public | Optional social link |
 
 Jangan expose server-only secrets melalui `NEXT_PUBLIC_*`.
 
@@ -159,11 +166,11 @@ Jangan expose server-only secrets melalui `NEXT_PUBLIC_*`.
 
 ```bash
 npm test
-npx tsc --noEmit
+npm run typecheck
 npm run lint
 npm run build
-node --env-file=.env.local ./node_modules/prisma/build/index.js validate
-node --env-file=.env.local ./node_modules/prisma/build/index.js migrate status
+node ./node_modules/prisma/build/index.js validate
+node ./node_modules/prisma/build/index.js migrate status
 git diff --check
 ```
 
@@ -172,8 +179,8 @@ validation, dan responsive widths dari 320px sampai 1440px.
 
 ## 11. Evolution guidelines
 
-1. Extract service definitions ke domain/data module jika menjadi CMS-managed.
-2. Introduce lead status model sebelum CRM workflow.
-3. Add real identity provider sebelum client accounts.
-4. Add distributed rate limiting sebelum horizontal scaling.
-5. Add browser E2E tests sebelum mengubah conversion-critical flow.
+1. Ekstrak definisi layanan ke modul data bila masuk CMS.
+2. Pindahkan admin ke identitas per orang bila multi-operator disetujui.
+3. Ukur backlog notifikasi dan kapasitas cron; tingkatkan frekuensi/worker bila dibutuhkan.
+4. Terapkan cache portofolio hanya setelah pengukuran dan pengujian invalidasi mutation.
+5. Ikuti gerbang staging dan backup/restore pada `OPERATIONS.md`.

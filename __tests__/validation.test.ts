@@ -8,7 +8,8 @@ describe("Contact Form Validation Schema", () => {
       email: "rizqi@example.com",
       message: "Halo, kami ingin membuat website baru untuk brand lokal kami.",
       honeypot: "",
-      renderTime: Date.now() - 3000,
+      antiSpamToken: "signed-token",
+      idempotencyKey: "dfb321a0-0a3b-42d4-bf32-7bda8bbaf73b",
     };
 
     const result = contactFormSchema.safeParse(validData);

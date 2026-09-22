@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
+import { createHash } from "node:crypto";
 import { prisma } from "@/lib/prisma";
-import { resend } from "@/lib/resend";
 import { contactFormSchema } from "@/lib/validation";
 import { consumeDistributedRateLimit, getClientIdentifier } from "@/lib/rate-limit";
 import { verifyAntiSpamToken } from "@/lib/anti-spam";
+import { sendContactNotification } from "@/lib/contact-notification";
 
 const MAX_BODY_BYTES = 32 * 1024;
 
@@ -46,6 +47,7 @@ async function readBodyWithLimit(
 }
 
 export async function POST(request: Request) {
+  const startedAt = performance.now();
   try {
     const contentLength = Number(request.headers.get("content-length") || 0);
     if (contentLength > MAX_BODY_BYTES) {
@@ -119,7 +121,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email, message, honeypot, renderTime, antiSpamToken, idempotencyKey } =
+    const { name, email, message, honeypot, antiSpamToken, idempotencyKey } =
       validationResult.data;
 
     if (honeypot && honeypot.length > 0) {
@@ -129,49 +131,23 @@ export async function POST(request: Request) {
       );
     }
 
-    // Anti-spam Verification
-    if (antiSpamToken) {
-      const antiSpamCheck = verifyAntiSpamToken(antiSpamToken);
-      if (!antiSpamCheck.valid) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: antiSpamCheck.reason || "Validasi anti-spam gagal.",
-          },
-          { status: 400 }
-        );
-      }
-    } else if (typeof renderTime === "number") {
-      if (Date.now() - renderTime < 2000) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: "Formulir dikirim terlalu cepat. Mohon tunggu beberapa detik.",
-          },
-          { status: 400 }
-        );
-      }
-    } else {
+    const antiSpamCheck = verifyAntiSpamToken(antiSpamToken);
+    if (!antiSpamCheck.valid) {
       return NextResponse.json(
         {
           success: false,
-          error: "Validasi anti-spam gagal: token tidak ditemukan.",
+          error: antiSpamCheck.reason || "Validasi anti-spam gagal.",
         },
         { status: 400 }
       );
     }
 
-    // Atomic Idempotency: Find or create with P2002 concurrent safety
-    let submission: { id: string; emailSent: boolean } | null = null;
-
-    if (idempotencyKey) {
-      const existing = await prisma.contactSubmission.findUnique({
-        where: { idempotencyKey },
-      });
-      if (existing) {
-        submission = existing;
-      }
-    }
+    const payloadHash = createHash("sha256")
+      .update(JSON.stringify({ name, email, message }))
+      .digest("hex");
+    let submission = await prisma.contactSubmission.findUnique({
+      where: { idempotencyKey },
+    });
 
     if (!submission) {
       try {
@@ -181,7 +157,8 @@ export async function POST(request: Request) {
             email,
             message,
             status: "new",
-            idempotencyKey: idempotencyKey || null,
+            idempotencyKey,
+            payloadHash,
             emailSent: false,
           },
         });
@@ -208,48 +185,31 @@ export async function POST(request: Request) {
       }
     }
 
-    // 2. Dispatch email notification via Resend if configured
-    // If a previous attempt timed out (emailSent === false), retry delivery on idempotent resubmission
-    let emailSent = submission.emailSent;
-    const recipientEmail = process.env.CONTACT_EMAIL_TO;
-    const senderEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
-
-    if (!emailSent && resend && recipientEmail) {
-      const sendEmailPromise = resend.emails
-        .send({
-          from: senderEmail,
-          to: recipientEmail,
-          subject: `Pesan Baru dari ${name} — Nexa Studio`,
-          replyTo: email,
-          text: `Halo Tim Nexa Studio,\n\nAda pesan baru yang masuk melalui website:\n\nNama: ${name}\nEmail: ${email}\nPesan:\n${message}\n\nID Pengiriman: ${submission.id}\nWaktu: ${new Date().toISOString()}`,
-        })
-        .then(async (result) => {
-          if (!result.error) {
-            await prisma.contactSubmission.update({
-              where: { id: submission!.id },
-              data: { emailSent: true },
-            });
-            return true;
-          }
-          console.error("Resend API returned error:", result.error);
-          return false;
-        })
-        .catch((err) => {
-          console.error("Failed to send email via Resend:", err);
-          return false;
-        });
-
-      const timeoutPromise = new Promise<false>((resolve) =>
-        setTimeout(() => resolve(false), 3000)
+    if (submission.payloadHash !== payloadHash) {
+      return NextResponse.json(
+        { success: false, error: "Kunci pengiriman sudah dipakai untuk pesan yang berbeda." },
+        { status: 409 },
       );
-
-      emailSent = await Promise.race([sendEmailPromise, timeoutPromise]);
     }
+
+    // The database row is the source of truth for email content. The lease and
+    // provider idempotency key protect retries across concurrent requests.
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const emailSent = submission.emailSent || await Promise.race([
+      sendContactNotification(submission.id).catch((error: unknown) => {
+        console.error("contact_notification_failed", { type: error instanceof Error ? error.name : "unknown" });
+        return false;
+      }),
+      new Promise<false>((resolve) => {
+        timer = setTimeout(() => resolve(false), 3000);
+      }),
+    ]);
+    if (timer) clearTimeout(timer);
 
     return NextResponse.json(
       {
         success: true,
-        message: "Terima kasih! Pesan Anda telah kami terima dan akan segera kami balas.",
+        message: "Terima kasih! Pesan Anda telah kami terima.",
         data: {
           id: submission.id,
           emailSent,
@@ -258,10 +218,12 @@ export async function POST(request: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Contact API error:", error);
+    console.error("contact_request_failed", { type: error instanceof Error ? error.name : "unknown" });
     return NextResponse.json(
       { success: false, error: "Terjadi kesalahan pada server. Silakan coba lagi nanti." },
       { status: 500 }
     );
+  } finally {
+    console.info("contact_request_duration", { durationMs: Math.round(performance.now() - startedAt) });
   }
 }
