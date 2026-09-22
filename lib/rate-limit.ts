@@ -24,20 +24,12 @@ function getRedis(): Redis | null {
 }
 
 function pruneExpiredEntries(now: number): void {
-  if (now - lastPruneAt < 60_000 && entries.size < MAX_ENTRIES) return;
+  if (now - lastPruneAt < 60_000) return;
   lastPruneAt = now;
   for (const [key, entry] of entries) {
     if (entry.resetAt <= now) {
       entries.delete(key);
     }
-  }
-
-  if (entries.size <= MAX_ENTRIES) return;
-
-  while (entries.size > MAX_ENTRIES) {
-    const oldest = entries.keys().next().value;
-    if (oldest === undefined) break;
-    entries.delete(oldest);
   }
 }
 
@@ -76,6 +68,10 @@ export function consumeRateLimit(
   const existing = entries.get(key);
   if (!existing || existing.resetAt <= now) {
     entries.set(key, { count: 1, resetAt: now + windowMs });
+    if (entries.size > MAX_ENTRIES) {
+      const oldest = entries.keys().next().value;
+      if (oldest !== undefined) entries.delete(oldest);
+    }
     return { allowed: true, retryAfterSeconds: 0 };
   }
 

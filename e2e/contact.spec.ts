@@ -81,4 +81,37 @@ test.describe("E2E — Contact Form Flow", () => {
       await db.$disconnect();
     }
   });
+
+  test("editing after a lost response sends the new payload with a new key", async ({ page }) => {
+    test.skip(process.env.E2E_TEST_MODE !== "1", "Isolated test database required");
+    const db = new PrismaClient({ datasources: { db: { url: process.env.TEST_DATABASE_URL! } } });
+    const email = `edited-${crypto.randomUUID()}@example.test`;
+    let firstRequest = true;
+    await page.route("**/api/contact", async (route) => {
+      if (firstRequest) {
+        firstRequest = false;
+        const response = await route.fetch();
+        expect(response.status()).toBe(200);
+        await route.abort("failed");
+      } else {
+        await route.continue();
+      }
+    });
+    try {
+      await page.goto("/");
+      await page.getByLabel("Nama Lengkap").fill("Edited Response Visitor");
+      await page.getByLabel("Alamat Email").fill(email);
+      await page.getByLabel("Ceritakan Kebutuhan Proyek").fill("Pesan pertama yang tersimpan sebelum respons hilang.");
+      await page.waitForTimeout(2100);
+      await page.getByRole("button", { name: /Kirim Pesan Sekarang/ }).click();
+      await expect(page.getByRole("alert")).toContainText("masalah jaringan");
+
+      await page.getByLabel("Ceritakan Kebutuhan Proyek").fill("Pesan kedua setelah respons pertama hilang.");
+      await page.getByRole("button", { name: /Kirim Pesan Sekarang/ }).click();
+      await expect(page.getByRole("heading", { name: "Pesan Tersimpan!" })).toBeVisible();
+      expect(await db.contactSubmission.count({ where: { email } })).toBe(2);
+    } finally {
+      await db.$disconnect();
+    }
+  });
 });

@@ -17,12 +17,3 @@ WHERE "emailSent" = false;
 
 CREATE INDEX "ContactSubmission_notificationStatus_notificationNextAttempt_idx"
   ON "ContactSubmission"("notificationStatus", "notificationNextAttempt");
-
--- Replace only the three seeded example claims. Operator-authored projects
--- and any edited result are left untouched.
-UPDATE "Project" SET "result" = 'Studi konsep identitas dan website untuk kedai kopi'
-WHERE "title" = 'Kopi Koma' AND "result" = '+38% online orders';
-UPDATE "Project" SET "result" = 'Studi konsep katalog digital untuk brand fashion'
-WHERE "title" = 'Sora Studio' AND "result" = '2.4x conversion rate';
-UPDATE "Project" SET "result" = 'Studi konsep landing page untuk layanan wellness'
-WHERE "title" = 'Ruang Pulih' AND "result" = 'Booked out in 12 days';

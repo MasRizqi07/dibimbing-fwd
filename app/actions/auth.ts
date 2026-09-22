@@ -34,17 +34,21 @@ export async function loginAdminAction(
     return { error: "Terlalu banyak percobaan login dari perangkat ini. Coba lagi beberapa menit lagi." };
   }
 
-  // A short global cap protects the single owner account when requests come
-  // from many addresses. Existing authenticated sessions remain usable.
+  // A short global cap also blocks attempts spread across many source IPs.
+  // Existing authenticated sessions remain usable while login is limited.
   const portalRateLimit = await consumeDistributedRateLimit(
     "admin-login:portal:attempts",
     100,
     15 * 60 * 1000
   );
+  if (!portalRateLimit.allowed) {
+    return { error: "Portal sedang membatasi percobaan login. Coba lagi nanti." };
+  }
+
   const isValid = await verifyAdminPassword(password);
 
   if (!isValid) {
-    return { error: portalRateLimit.allowed ? "Password salah. Akses ditolak." : "Portal sedang membatasi percobaan login. Coba lagi nanti." };
+    return { error: "Password salah. Akses ditolak." };
   }
 
   await setAdminSessionCookie();

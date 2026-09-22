@@ -16,6 +16,8 @@ interface Props {
 export default function ProjectForm({ project, nextOrder, pending, onSubmit, onCancel }: Props) {
   const prefix = project ? "edit-project" : "new-project";
   const [selectedImage, setSelectedImage] = useState(project?.imagePath || "");
+  const originalImage = project?.imagePath || "";
+  const legacyImage = originalImage && !projectAssets.some((asset) => asset.path === originalImage);
   return (
     <section className="admin-panel" aria-labelledby={`${prefix}-heading`}>
       <h2 id={`${prefix}-heading`}>{project ? `Edit Project: ${project.title}` : "Tambah Project Baru"}</h2>
@@ -42,8 +44,9 @@ export default function ProjectForm({ project, nextOrder, pending, onSubmit, onC
         </div>
         <div className="admin-field">
           <label htmlFor={`${prefix}-image`}>Gambar portfolio yang disetujui</label>
-          <select id={`${prefix}-image`} name="imagePath" value={selectedImage} onChange={(event) => setSelectedImage(event.target.value)}>
+          <select id={`${prefix}-image`} name={!project || selectedImage !== originalImage ? "imagePath" : undefined} value={selectedImage} onChange={(event) => setSelectedImage(event.target.value)}>
             <option value="">Tanpa gambar</option>
+            {legacyImage && <option value={originalImage}>Gambar saat ini (di luar katalog)</option>}
             {projectAssets.map((asset) => (
               <option key={asset.path} value={asset.path}>{asset.label}</option>
             ))}

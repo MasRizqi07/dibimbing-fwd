@@ -70,7 +70,9 @@ export async function sendContactNotification(id: string): Promise<boolean> {
     return markedSent.count === 1;
   } catch (error) {
     console.error("Contact notification transport error:", error instanceof Error ? error.name : "unknown");
-    await scheduleRetry(id, submission.notificationAttempts);
+    // Delivery may have succeeded before the transport failed. Keep the
+    // sending lease so retries stay inside the provider-key window; stale
+    // ambiguous sends are moved to review by processPendingNotifications.
     return false;
   }
 }

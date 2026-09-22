@@ -20,7 +20,9 @@ export default function AdminLoginPage() {
     >
       <div
         style={{
-          width: "min(100%, 420px)",
+          position: "relative",
+          overflow: "hidden",
+          width: "min(100%, 440px)",
           padding: "36px 32px",
           borderRadius: "20px",
           background: "rgba(255, 255, 255, 0.05)",
@@ -29,22 +31,56 @@ export default function AdminLoginPage() {
           boxShadow: "0 20px 40px rgba(0, 0, 0, 0.25)",
         }}
       >
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: "4px",
+            background: "linear-gradient(90deg, var(--accent-lime), #8bab19, var(--surface-navy-elevated))",
+          }}
+        />
+
         <div style={{ textAlign: "center", marginBottom: "28px" }}>
           <div
             style={{
-              display: "inline-grid",
-              placeItems: "center",
-              width: "48px",
-              height: "48px",
-              borderRadius: "14px",
-              background: "var(--lime)",
-              color: "var(--navy)",
-              fontSize: "24px",
-              fontWeight: 900,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              background: "rgba(255, 255, 255, 0.07)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              padding: "4px 12px",
+              borderRadius: "99px",
               marginBottom: "16px",
+              fontSize: "10px",
+              fontWeight: 700,
+              letterSpacing: ".08em",
+              textTransform: "uppercase",
+              color: "var(--accent-lime)",
             }}
           >
-            N
+            <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--accent-lime)" }} />
+            CMS Management Portal
+          </div>
+
+          <div>
+            <div
+              style={{
+                display: "inline-grid",
+                placeItems: "center",
+                width: "48px",
+                height: "48px",
+                borderRadius: "14px",
+                background: "var(--lime)",
+                color: "var(--navy)",
+                fontSize: "24px",
+                fontWeight: 900,
+                marginBottom: "16px",
+              }}
+            >
+              N
+            </div>
           </div>
           <h1 style={{ fontSize: "22px", margin: "0 0 6px", fontWeight: 800 }}>
             Nexa Studio CMS
@@ -121,6 +157,57 @@ export default function AdminLoginPage() {
             {isPending ? "Memverifikasi..." : "Masuk ke Dashboard ↗"}
           </button>
         </form>
+
+        <div
+          style={{
+            marginTop: "28px",
+            paddingTop: "20px",
+            borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+            textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "12px",
+          }}
+        >
+          <p style={{ margin: 0, fontSize: "11px", color: "#8b9c9b", lineHeight: 1.5 }}>
+            Akses terbatas untuk administrator resmi Nexa Studio. Sesi diamankan dengan cookie bertanda tangan HMAC.
+          </p>
+          <a
+            href="/"
+            style={{
+              color: "var(--accent-lime)",
+              textDecoration: "none",
+              fontSize: "12px",
+              fontWeight: 600,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+            }}
+          >
+            ← Kembali ke Situs Publik
+          </a>
+        </div>
+      </div>
+
+      <div
+        style={{
+          marginTop: "20px",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          color: "#8b9c9b",
+          fontSize: "11px",
+        }}
+      >
+        <span>NEXA CMS v2.4.9</span>
+        <span>•</span>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}>
+          <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--accent-lime)" }} />
+          JKT01 Gateway
+        </span>
+        <span>•</span>
+        <span>TLS 1.3 / ECH</span>
       </div>
     </div>
   );

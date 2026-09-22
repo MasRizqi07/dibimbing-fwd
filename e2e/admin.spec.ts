@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { PrismaClient } from "@prisma/client";
 
 test.describe("E2E — Admin Login & CMS Protection", () => {
   test("should redirect unauthenticated user to login page when accessing /admin", async ({ page }) => {
@@ -60,5 +61,35 @@ test.describe("E2E — Admin Login & CMS Protection", () => {
     await expect(page.getByText("E2E Studio Updated")).toHaveCount(0);
     await page.reload();
     await expect(page.getByText("E2E Studio Updated")).toHaveCount(0);
+  });
+
+  test("editing a legacy project keeps an image outside the current catalog", async ({ page }) => {
+    test.skip(process.env.E2E_TEST_MODE !== "1", "Isolated test database required");
+    const db = new PrismaClient({ datasources: { db: { url: process.env.TEST_DATABASE_URL! } } });
+    const project = await db.project.create({
+      data: {
+        title: `Legacy E2E ${crypto.randomUUID().slice(0, 8)}`,
+        type: "Branding",
+        result: "Hasil lama",
+        imagePath: "/projects/legacy-approved.jpg",
+        className: "project-coffee",
+        order: 100,
+      },
+    });
+    try {
+      await page.goto("/admin/login");
+      await page.getByLabel("Password Admin").fill("ci-e2e-password");
+      await page.getByRole("button", { name: /Masuk ke Dashboard/ }).click();
+      const row = page.locator(".admin-project-list li").filter({ hasText: project.title });
+      await row.getByRole("button", { name: "Edit" }).click();
+      await expect(page.getByLabel("Gambar portfolio yang disetujui")).toHaveValue(project.imagePath!);
+      await page.getByLabel("Nama Project / Brand").fill(`${project.title} Updated`);
+      await page.getByRole("button", { name: "Simpan Perubahan" }).click();
+      await page.reload();
+      expect((await db.project.findUniqueOrThrow({ where: { id: project.id } })).imagePath).toBe(project.imagePath);
+    } finally {
+      await db.project.delete({ where: { id: project.id } });
+      await db.$disconnect();
+    }
   });
 });

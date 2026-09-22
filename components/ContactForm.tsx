@@ -22,6 +22,7 @@ export default function ContactForm({ whatsappUrl }: { whatsappUrl: string | nul
   });
   const [antiSpamToken, setAntiSpamToken] = useState<string>("");
   const idempotencyKey = useRef<string | null>(null);
+  const idempotencyPayload = useRef<string | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
@@ -50,7 +51,11 @@ export default function ContactForm({ whatsappUrl }: { whatsappUrl: string | nul
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    idempotencyKey.current ??= crypto.randomUUID();
+    const payload = JSON.stringify(formData);
+    if (!idempotencyKey.current || idempotencyPayload.current !== payload) {
+      idempotencyKey.current = crypto.randomUUID();
+      idempotencyPayload.current = payload;
+    }
     setStatus("loading");
     setErrorMessage("");
     setFieldErrors({});
@@ -97,6 +102,7 @@ export default function ContactForm({ whatsappUrl }: { whatsappUrl: string | nul
       setStatus("success");
       setFormData({ name: "", email: "", message: "", honeypot: "" });
       idempotencyKey.current = null;
+      idempotencyPayload.current = null;
       void fetchAntiSpamToken().then(setAntiSpamToken);
     } catch (error) {
       setStatus("error");
@@ -117,6 +123,7 @@ export default function ContactForm({ whatsappUrl }: { whatsappUrl: string | nul
     setFormData({ name: "", email: "", message: "", honeypot: "" });
     void fetchAntiSpamToken().then(setAntiSpamToken);
     idempotencyKey.current = null;
+    idempotencyPayload.current = null;
   };
 
   if (status === "success") {
