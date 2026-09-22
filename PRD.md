@@ -1,13 +1,13 @@
 # Product Requirements Document — Nexa Studio
 
-**Status:** Studi konsep; implementasi lokal diperbarui, release eksternal belum diverifikasi
+**Status:** Website agency; implementasi lokal diperbarui, release eksternal belum diverifikasi
 **Product type:** Marketing website + service catalog + lightweight admin CMS  
 **Primary market:** UMKM dan brand lokal Indonesia  
 **Last updated:** 2026-09-21
 
 ## 1. Product summary
 
-Konsep Nexa Studio membantu pemilik bisnis yang membutuhkan website, branding, atau
+Nexa Studio membantu pemilik bisnis yang membutuhkan website, branding, atau
 konten untuk bergerak dari “ingin terlihat profesional” menjadi lead yang siap
 berkonsultasi. Conversion utama adalah percakapan konsultasi melalui form
 kontak dan WhatsApp, bukan checkout otomatis.
@@ -27,7 +27,7 @@ jenis layanan, dan mempercayai vendor baru. Website harus menjawab dengan cepat:
 
 - Menjelaskan positioning dan value proposition dalam beberapa detik.
 - Membantu user menemukan layanan melalui search dan category filter.
-- Menampilkan studi konsep melalui portfolio yang dikelola admin. Klaim hasil nyata memerlukan bukti dan persetujuan pemilik.
+- Menampilkan portofolio dan hasil kerja melalui konten yang dikelola admin. Pemilik bertanggung jawab memvalidasi izin logo, angka performa, dan klaim hasil sebelum publikasi.
 - Mengubah intent menjadi lead melalui contact form atau WhatsApp.
 - Memberikan owner/admin workflow minimal untuk mengelola portfolio dan membaca
   submission.
@@ -46,8 +46,8 @@ jenis layanan, dan mempercayai vendor baru. Website harus menjawab dengan cepat:
 | --- | --- | --- |
 | Pemilik UMKM | Website dan branding yang mudah dipahami | Mengirim brief yang cukup detail |
 | Brand lokal yang tumbuh | Portfolio dan positioning lebih premium | Memilih paket Growth atau Custom |
-| Owner demo | Mengelola studi konsep tanpa deploy ulang | CRUD project berhasil dari `/admin` |
-| Owner demo | Memantau inquiry yang masuk | Submission tersimpan; status email terlihat terpisah |
+| Owner agency | Mengelola portofolio tanpa deploy ulang | CRUD project berhasil dari `/admin` |
+| Owner agency | Memantau inquiry yang masuk | Submission tersimpan; status email terlihat terpisah |
 
 ## 5. User journeys
 
@@ -77,7 +77,7 @@ Admin login -> dashboard -> create/update/delete project
 - Empty search state menyediakan reset action.
 - Portfolio membaca `Project` dari database berdasarkan `order`, lalu `id` sebagai tie-breaker.
 - Contact form memvalidasi nama, email, pesan, honeypot, token anti-spam server, dan UUID idempotensi.
-- Data demo, paket, dan hasil proyek harus dilabeli sebagai studi konsep. Form menjelaskan pemrosesan data dan menuju `/privacy`.
+- Beranda menampilkan logo klien, harga Starter/Growth/Custom, serta angka performa dan hasil proyek yang disetujui pemilik. Form menjelaskan pemrosesan data dan menuju `/privacy`.
 - CTA eksternal membuka WhatsApp dengan `rel="noreferrer"`.
 
 ### Admin experience

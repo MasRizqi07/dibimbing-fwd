@@ -36,7 +36,7 @@ flowchart TD
 | `/api/contact` | Lead intake | JSON validation, anti-spam, persistence, email |
 | `/api/health` | Readiness | Database probe and safe status response |
 | `/api/live` | Liveness | Process response without database dependency |
-| `/privacy` | Data handling disclosure | Explains demo collection and pending retention decision |
+| `/privacy` | Data handling disclosure | Explains contact data collection and pending retention decision |
 
 ## 4. Homepage wireframe
 
@@ -44,10 +44,10 @@ flowchart TD
 ┌──────────────────────────────────────────────────────────┐
 │ Sticky nav: logo | layanan portfolio proses harga | CTA │
 ├──────────────────────────────────────────────────────────┤
-│ Hero copy + primary CTA       Illustrative process art  │
-│ explicit study-concept label                             │
+│ Hero copy + primary CTA       Growth dashboard art      │
+│ Trust proof: 40+ businesses and performance figures      │
 ├──────────────────────────────────────────────────────────┤
-│ Four process steps                                      │
+│ Client logos: PARAS / ruang. / MONO / elara / BRIK      │
 ├──────────────────────────────────────────────────────────┤
 │ Services heading + supporting copy                     │
 │ Search input + category pills                          │
@@ -57,7 +57,7 @@ flowchart TD
 ├──────────────────────────────────────────────────────────┤
 │ Process introduction       01 / 02 / 03 / 04 list     │
 ├──────────────────────────────────────────────────────────┤
-│ Example package scope: Starter / Growth / Custom        │
+│ Package prices: Starter / Growth / Custom               │
 ├──────────────────────────────────────────────────────────┤
 │ Dark contact CTA + form                               │
 ├──────────────────────────────────────────────────────────┤

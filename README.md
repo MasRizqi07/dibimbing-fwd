@@ -1,14 +1,14 @@
 # Nexa Studio
 
-Website **studi konsep agency**, dibangun dengan Next.js 16 App Router, React 19, TypeScript, Prisma 6/PostgreSQL, Zod, Resend opsional, dan Upstash Redis opsional. Portofolio, proses, dan paket adalah contoh; situs ini belum membuktikan hasil bisnis atau mewakili agency yang beroperasi. Form kontak menyimpan data nyata bila database dikonfigurasi, sehingga halaman `/privacy` harus dibaca sebelum mengirim pesan.
+Website agency **Nexa Studio**, dibangun dengan Next.js 16 App Router, React 19, TypeScript, Prisma 6/PostgreSQL, Zod, Resend opsional, dan Upstash Redis opsional. Beranda menampilkan layanan, portofolio, hasil, dan harga paket. Form kontak menyimpan data nyata bila database dikonfigurasi; rincian pemrosesannya tersedia di `/privacy`.
 
 ## Fitur dan batas produk
 
-- Beranda responsif dengan menu mobile, pencarian layanan, portofolio dari database, contoh cakupan paket, dan form kontak.
+- Beranda responsif dengan menu mobile, pencarian layanan, portofolio dari database, harga paket, dan form kontak.
 - CMS `/admin` untuk satu owner: proyek dengan pilihan aset lokal yang direview, inbox kontak, filter, pagination, dan status. Sesi memakai cookie bertanda tangan; ini belum menyediakan identitas operator individual atau pencabutan per sesi.
 - Kontak memakai token anti-spam bertanda tangan, batas ukuran, rate limit, kunci idempotensi, fingerprint payload, serta penyimpanan database sebelum notifikasi email. Key yang sama dengan payload berbeda menghasilkan `409`.
 - Notifikasi email memakai claim/lease database, retry terjadwal, dan kunci idempotensi Resend. `vercel.json` menjadwalkan cron sekali per hari; email tidak memiliki SLA segera. Bila Resend tidak dikonfigurasi, pesan tetap tersimpan dan dapat dilihat admin.
-- `/api/live` adalah liveness; `/api/health` menguji kesiapan database. Sitemap memuat beranda dan halaman pemrosesan data, tanpa tanggal perubahan fiktif. Gambar Open Graph dan Twitter memakai identitas konsep saat ini.
+- `/api/live` adalah liveness; `/api/health` menguji kesiapan database. Sitemap memuat beranda dan halaman pemrosesan data, tanpa tanggal perubahan fiktif. Gambar Open Graph dan Twitter memakai identitas Nexa Studio.
 
 ## Menjalankan lokal
 
@@ -22,7 +22,7 @@ node --experimental-strip-types prisma/seed.ts
 npm run dev
 ```
 
-`npm run build` hanya menjalankan `prisma generate && next build` dan tidak mengubah database. `npm run db:migrate` adalah langkah eksplisit. Seed berisi tiga proyek studi konsep; jalankan sekali pada database yang memang disiapkan untuk demo. `prisma.config.ts` membaca `.env.local` saat `DATABASE_URL` belum tersedia; override environment eksplisit untuk CI/staging.
+`npm run build` hanya menjalankan `prisma generate && next build` dan tidak mengubah database. `npm run db:migrate` adalah langkah eksplisit. Seed berisi tiga proyek awal; jalankan hanya pada database yang memang disiapkan dan setelah meninjau datanya. `prisma.config.ts` membaca `.env.local` saat `DATABASE_URL` belum tersedia; override environment eksplisit untuk CI/staging.
 
 ### Variabel lingkungan
 

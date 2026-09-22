@@ -209,7 +209,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         success: true,
-        message: "Pesan Anda telah tersimpan dalam studi konsep Nexa Studio.",
+        message: "Terima kasih! Pesan Anda telah kami terima.",
         data: {
           id: submission.id,
           emailSent,

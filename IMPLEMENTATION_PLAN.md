@@ -1,6 +1,6 @@
 # Implementation Plan — Upgrade Nexa Studio
 
-**Status:** Disetujui pengguna dan diimplementasikan pada workspace lokal. Gerbang CI exact commit, staging, dan production belum diverifikasi; hasil rinci ada di `IMPLEMENTATION_PROGRESS.md`.
+**Status:** Disetujui pengguna dan diimplementasikan pada workspace lokal. Keputusan konten diperbarui 2026-09-22: situs ditampilkan sebagai agency dengan logo klien, harga, angka performa, dan hasil proyek semula. Gerbang CI exact commit, staging, dan production belum diverifikasi; hasil rinci ada di `IMPLEMENTATION_PROGRESS.md`.
 
 **Dibuat:** 2026-09-21 (Asia/Jakarta)
 
@@ -10,7 +10,7 @@
 
 ## 1. Tujuan dan batas keputusan
 
-Nexa Studio saat ini adalah website agency fiktif dengan satu landing page, katalog layanan kecil, portofolio dari PostgreSQL, contact form, dan CMS admin dengan satu password. Target upgrade adalah pengalaman yang jujur dan mudah dipakai, lead yang tidak hilang/duplikat, CMS yang aman, dan release yang bisa dibuktikan. Pertahankan Next.js App Router sebagai aplikasi modular; belum ada bukti kebutuhan microservices atau rewrite framework.
+Nexa Studio memiliki satu landing page agency, katalog layanan kecil, portofolio dari PostgreSQL, contact form, dan CMS admin dengan satu password. Target upgrade adalah pengalaman yang mudah dipakai, lead yang tidak hilang/duplikat, CMS yang aman, dan release yang bisa dibuktikan. Pertahankan Next.js App Router sebagai aplikasi modular; belum ada bukti kebutuhan microservices atau rewrite framework.
 
 Plan ini memisahkan **perbaikan yang dapat diputuskan dari kode** dari **keputusan produk yang harus disetujui pemilik**. Tidak menambahkan checkout, akun klien, CRM penuh, blog, analytics pihak ketiga, atau layanan AI secara otomatis. PRD saat ini menyebut checkout dan akun klien sebagai non-goal; perubahan arah perlu keputusan baru.
 
@@ -18,11 +18,11 @@ Plan ini memisahkan **perbaikan yang dapat diputuskan dari kode** dari **keputus
 
 | ID | Pertanyaan keputusan | Default sementara untuk perencanaan | Dampak jika diubah |
 |:---|:---|:---|:---|
-| D1 | Situs tetap portofolio/demo atau akan mewakili agency yang beroperasi? | Perlakukan data seed, logo klien, angka hasil, dan pricing sebagai konten demo yang perlu label jelas | Menentukan copy, klaim, identitas, kebijakan privasi, dan SEO. |
+| D1 | Posisi situs di publik | Agency Nexa Studio dengan logo klien, angka hasil, dan harga paket semula; keputusan pemilik 2026-09-22 | Copy, metadata, gambar sosial, dan seed mengikuti posisi ini. |
 | D2 | Admin hanya satu owner atau beberapa operator dengan audit per orang? | Pertahankan satu owner pada perbaikan segera; rancang migrasi ke identitas per pengguna jika operasi nyata | Menentukan auth provider, session revocation, role, dan audit log. |
 | D3 | Apakah notifikasi email wajib, dan apa SLA respons lead? | Database adalah penerimaan lead; email adalah proses terpisah yang dapat diulang | Menentukan outbox, retry, alert, serta pesan sukses. |
 | D4 | Gambar proyek berasal dari aset yang direview atau upload admin? | Pilih aset lokal yang sudah direview untuk fase awal | Jika upload, perlu storage, validasi MIME/ukuran, scanning, dan lifecycle. |
-| D5 | Apakah harga paket/hasil proyek publik sudah disetujui dan terbukti? | Jangan menganggap angka saat ini sebagai fakta bisnis | Menentukan konten pricing, bukti portofolio, dan struktur data CMS. |
+| D5 | Apakah harga paket/hasil proyek publik sudah disetujui dan terbukti? | Pemilik meminta angka semula tetap tampil; verifikasi klaim dan izin publikasi tetap menjadi tanggung jawab bisnis | Menentukan bukti portofolio dan struktur data CMS. |
 
 Keputusan D1–D5 adalah gerbang untuk konten/fitur terkait, bukan alasan menunda perbaikan lint, validasi server, dan test harness.
 
@@ -55,7 +55,7 @@ Panduan Next.js yang terpasang di `node_modules/next/dist/docs/` telah dibaca un
 | F10 | P1 | Form tambah proyek tidak menerima gambar, form edit menyimpan `imagePath` di hidden input; schema mengikat tiga CSS class (`ProjectManager.tsx`, `lib/project-validation.ts`) | CMS belum dapat mempublikasikan visual proyek baru secara mandiri | 2, tergantung D4 |
 | F11 | P1 | E2E hanya memeriksa elemen, token, login gagal, dan redirect; tidak ada submit sukses atau mutation → reload → persisted state. Test mobile `e2e/admin.spec.ts` mencari `.brand` pada `/admin/login`, padahal halaman login tidak merender class itu | Alur konversi dan CMS belum dibuktikan dari browser; setidaknya satu assertion tampak tidak cocok dengan UI saat ini | 0–2 |
 | F12 | P1 | Mobile menyembunyikan `.nav-links` tanpa menu pengganti; “Lihat semua project” menuju `#work` yang sama (`app/page.tsx`, `app/globals.css`) | Navigasi dan CTA tidak memenuhi janji yang ditampilkan | 3 |
-| F13 | P1 | README menyebut agency fiktif, sementara homepage menampilkan “40+ bisnis”, logo klien, angka growth, dan contoh hasil seed; Instagram menuju halaman umum (`app/page.tsx`, `prisma/seed.ts`) | Klaim kepercayaan dapat dibaca sebagai fakta yang belum memiliki bukti | 3, tergantung D1/D5 |
+| F13 | P1 | README lama tidak selaras dengan homepage yang menampilkan “40+ bisnis”, logo klien, angka growth, dan hasil seed; Instagram menuju halaman umum (`app/page.tsx`, `prisma/seed.ts`) | Copy dan tautan publik perlu mengikuti keputusan pemilik dan URL yang benar | 3, tergantung D1/D5 |
 | F14 | P2 | Homepage `force-dynamic` dan query proyek langsung di request (`app/page.tsx:6,76`); sitemap memakai `lastModified: new Date()` (`app/sitemap.ts`) | TTFB bergantung DB pada setiap kunjungan dan sinyal perubahan sitemap tidak merepresentasikan perubahan konten | 4 |
 | F15 | P2 | `ProjectManager.tsx` sekitar 720 baris dan `globals.css` sekitar 404 baris dengan banyak inline style dan aturan mobile tersebar | Perubahan UI/CMS mahal direview dan rentan regresi visual | 2–3 |
 | F16 | P2 | `.env.example`, README, PRD, Architecture masih menjelaskan beberapa perilaku lama dan belum menyertakan konfigurasi Redis yang dipakai kode | Setup/release bisa salah meski kode lolos unit test | 0 dan tiap fase |
@@ -81,10 +81,10 @@ Prioritas adalah penilaian audit, bukan bukti eksploitasi di production. F03–F
 
 | Aset/konten | Kondisi sekarang | Tindakan terencana |
 |:---|:---|:---|
-| Tiga JPEG `public/projects/*` | Dipakai seed; kredit Unsplash ada di README | Pertahankan kredit/sumber; verifikasi hak pakai dan kesesuaian dengan label demo sebelum publish nyata. |
+| Tiga JPEG `public/projects/*` | Dipakai seed; kredit Unsplash ada di README | Pertahankan kredit/sumber; verifikasi hak pakai sebelum publish nyata. |
 | SVG bawaan `public/{file,globe,next,vercel,window}.svg` | Tidak dirujuk dari UI yang diperiksa | Hapus hanya setelah pencarian referensi akhir dan review aset. |
 | Favicon/brand N | Ada, tetapi tidak mewakili paket identitas lengkap | Siapkan favicon/OG image dan ekspor ukuran yang disetujui di fase visual. |
-| Angka, logo, pricing, hasil proyek | Statis/contoh, tanpa bukti sumber bisnis di repo | Label demo atau ganti dengan konten yang disahkan; jangan menciptakan metrik. |
+| Angka, logo, pricing, hasil proyek | Konten semula dipulihkan sesuai keputusan pemilik; bukti sumber bisnis tidak ada di repo | Validasi klaim dan izin publikasi oleh pemilik sebelum promosi production; jangan menciptakan metrik baru. |
 
 ### Interaksi yang harus tetap bekerja
 
@@ -132,7 +132,7 @@ Setiap fase adalah PR/review terpisah. Setelah tiap fase, catat SHA, diff, comma
 
 ### Fase 2 — CMS dan model operasi
 
-**Scope:** F09, F10, F15 bagian admin. Pecah `ProjectManager` menjadi form, list, inbox, dan pagination dengan shared field components. Beri label `htmlFor`/`id` pada field. Pilih katalog aset yang direview atau upload aman sesuai D4; tambah preview dan validasi file/path yang sesuai. Stabilkan sort `order` dengan tie-breaker. Untuk operasi nyata dan multi-operator (D2), migrasikan ke identitas per pengguna, revocable session, role minimum, dan audit metadata; untuk demo owner tunggal, dokumentasikan batas serta rotasi secret.
+**Scope:** F09, F10, F15 bagian admin. Pecah `ProjectManager` menjadi form, list, inbox, dan pagination dengan shared field components. Beri label `htmlFor`/`id` pada field. Pilih katalog aset yang direview atau upload aman sesuai D4; tambah preview dan validasi file/path yang sesuai. Stabilkan sort `order` dengan tie-breaker. Untuk multi-operator (D2), migrasikan ke identitas per pengguna, revocable session, role minimum, dan audit metadata; untuk owner tunggal, dokumentasikan batas serta rotasi secret.
 
 **Acceptance:** create/edit/delete project dan update status terlihat sama setelah reload; image yang dipilih muncul di homepage; validasi server menolak ID/status/path tak sah; layout admin 320px tanpa horizontal scroll; keyboard dapat menyelesaikan form dan dialog. Migrasi data harus additive, diuji dengan data fixture, serta punya rollback yang mempertahankan data.
 
@@ -140,7 +140,7 @@ Setiap fase adalah PR/review terpisah. Setelah tiap fase, catat SHA, diff, comma
 
 **Scope:** F12, F13, F15 bagian publik. Bangun mobile navigation yang nyata, rapikan CTA “semua project” agar menuju route/daftar yang memang ada, dan putuskan apakah perlu halaman detail portofolio berdasarkan D1/D5. Audit hero, trust strip, pricing, kontak, metadata, dan JSON-LD terhadap konten yang disahkan. Pertahankan identitas visual cream/navy/lime hingga pemilik menyetujui arah baru. Konsolidasikan token/style bertahap tanpa mengubah alur kontak.
 
-**Acceptance:** matriks layar 320/375/768/1440px dan keyboard-only untuk semua CTA/form; uji screen reader dan automated accessibility terhadap target WCAG 2.2 AA yang relevan; reduced-motion bekerja; setiap tautan publik menuju tujuan yang nyata. Screenshot light/render setiap surface sebelum/sesudah dan bukti konten klaim/izin aset. Jangan mengganti angka demo dengan angka baru yang dikarang.
+**Acceptance:** matriks layar 320/375/768/1440px dan keyboard-only untuk semua CTA/form; uji screen reader dan automated accessibility terhadap target WCAG 2.2 AA yang relevan; reduced-motion bekerja; setiap tautan publik menuju tujuan yang nyata. Screenshot light/render setiap surface sebelum/sesudah dan bukti konten klaim/izin aset. Jangan mengganti angka yang dipilih pemilik dengan angka baru yang dikarang.
 
 ### Fase 4 — Kinerja, observability, dan release
 

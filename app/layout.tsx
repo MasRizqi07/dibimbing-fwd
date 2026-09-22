@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s | Nexa Studio",
   },
   description:
-    "Studi konsep Nexa Studio: contoh website agency untuk layanan website, branding, dan strategi konten.",
+    "Nexa Studio membantu UMKM dan brand lokal membangun identitas digital yang terlihat, dipercaya, dan menghasilkan lewat landing page, branding, dan strategi konten.",
   keywords: [
     "Nexa Studio",
     "Digital Agency Indonesia",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Nexa Studio — Digital Partner untuk Bisnis Ambisius",
-    description: "Studi konsep website agency untuk layanan website, branding, dan strategi konten.",
+    description: "Bikin bisnis kamu terlihat dan dipilih. Kami membantu UMKM dan brand lokal membangun identitas digital yang menghasilkan.",
     url: siteUrl,
     siteName: "Nexa Studio",
     locale: "id_ID",
@@ -51,16 +51,19 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Nexa Studio — Digital Partner untuk Bisnis Ambisius",
-    description: "Studi konsep website agency untuk layanan website, branding, dan strategi konten.",
+    description: "Bikin bisnis kamu terlihat dan dipilih. Kami membantu UMKM dan brand lokal membangun identitas digital yang menghasilkan.",
   },
 };
 
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "WebSite",
+  "@type": "ProfessionalService",
   name: "Nexa Studio",
-  description: "Studi konsep website digital agency Nexa Studio.",
+  description: "Digital partner untuk bisnis ambisius. Membantu UMKM dan brand lokal membangun identitas digital yang terlihat, dipercaya, dan menghasilkan.",
   url: siteUrl,
+  serviceType: ["Website Development", "Brand Identity Design", "Content Strategy"],
+  priceRange: "Rp 3.500.000 - Rp 15.000.000",
+  address: { "@type": "PostalAddress", addressCountry: "ID" },
 };
 
 export default function RootLayout({

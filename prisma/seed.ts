@@ -6,7 +6,7 @@ const initialProjects = [
   {
     title: "Kopi Koma",
     type: "F&B · Branding + Website",
-    result: "Studi konsep identitas dan website untuk kedai kopi",
+    result: "+38% online orders",
     className: "project-coffee",
     imagePath: "/projects/kopi-koma.jpg",
     order: 1,
@@ -14,7 +14,7 @@ const initialProjects = [
   {
     title: "Sora Studio",
     type: "Fashion · E-commerce",
-    result: "Studi konsep katalog digital untuk brand fashion",
+    result: "2.4x conversion rate",
     className: "project-fashion",
     imagePath: "/projects/sora-studio.jpg",
     order: 2,
@@ -22,7 +22,7 @@ const initialProjects = [
   {
     title: "Ruang Pulih",
     type: "Wellness · Landing page",
-    result: "Studi konsep landing page untuk layanan wellness",
+    result: "Booked out in 12 days",
     className: "project-wellness",
     imagePath: "/projects/ruang-pulih.jpg",
     order: 3,

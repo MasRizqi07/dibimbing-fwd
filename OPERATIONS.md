@@ -41,7 +41,7 @@ Perintah pertama hanya menghitung row. Perintah kedua menghapus row lebih tua da
 
 ## Keputusan yang masih diperlukan
 
-- Identitas agency nyata, izin klaim portofolio/harga, dan persetujuan aset sebelum situs dipakai sebagai representasi bisnis.
+- Bukti dan izin untuk logo klien, angka performa, hasil portofolio, harga paket, dan aset sebelum promosi production.
 - Apakah satu owner cukup. Jika multi-operator, migrasi ke akun per orang, sesi yang bisa dicabut, peran, dan audit perubahan.
 - Kebijakan retensi, alamat kontak untuk permintaan penghapusan, dan SLA notifikasi/respons lead.
 - Paket hosting dan frekuensi worker yang cukup untuk volume notifikasi aktual.

@@ -8,9 +8,9 @@ export default function PrivacyPage() {
     <main className="section-shell privacy-page">
       <Link href="/">← Kembali ke beranda</Link>
       <h1>Pemrosesan data kontak</h1>
-      <p>Nexa Studio pada situs ini adalah studi konsep. Jika Anda mengirim formulir, nama, alamat email, dan isi pesan disimpan dalam database untuk memperlihatkan alur kontak dan dapat dilihat oleh pemilik akses admin.</p>
+      <p>Saat Anda mengirim formulir kontak, nama, alamat email, dan isi pesan disimpan dalam database agar Nexa Studio dapat menindaklanjuti pertanyaan Anda. Data tersebut dapat dilihat oleh pemilik akses admin.</p>
       <p>Jika layanan email dikonfigurasi, isi pesan juga dikirim ke alamat notifikasi yang dikonfigurasi. Pengiriman email dapat gagal meskipun pesan sudah tersimpan. Situs ini tidak memakai data formulir untuk membuat akun atau transaksi.</p>
-      <p>Belum ada penghapusan otomatis karena jangka retensi belum ditetapkan. Pemilik situs perlu menetapkan dan menjalankan kebijakan retensi sebelum menerima data publik secara operasional. Jangan memasukkan data sensitif ke formulir demo.</p>
+      <p>Jangka penyimpanan belum ditetapkan dan penghapusan otomatis belum aktif. Anda dapat menghubungi Nexa Studio melalui kontak di beranda untuk menanyakan atau meminta penghapusan pesan Anda. Jangan memasukkan data sensitif ke formulir.</p>
       <p>Untuk pertanyaan mengenai pesan Anda, gunakan alamat kontak yang ditampilkan di beranda jika tersedia.</p>
     </main>
   );

@@ -125,7 +125,7 @@ export default function ContactForm({ whatsappUrl }: { whatsappUrl: string | nul
         <div className="success-icon" aria-hidden="true">✓</div>
         <h3>Pesan Tersimpan!</h3>
         <p>
-          Pesan kamu telah tersimpan. Nexa Studio adalah studi konsep; respons pribadi tidak dijanjikan.
+          Terima kasih sudah menghubungi Nexa Studio. Pesan kamu telah kami terima dan akan ditinjau oleh tim.
         </p>
         <button
           type="button"
@@ -241,7 +241,7 @@ export default function ContactForm({ whatsappUrl }: { whatsappUrl: string | nul
         {status === "loading" ? "Mengirim pesan..." : "Kirim Pesan Sekarang ↗"}
       </button>
 
-      <p className="form-disclosure">Ini formulir studi konsep. Nama, email, dan pesan disimpan untuk demonstrasi alur kontak. Jangan kirim informasi sensitif. <Link href="/privacy">Cara data diproses</Link>.</p>
+      <p className="form-disclosure">Nama, email, dan pesan kamu disimpan agar tim kami dapat menindaklanjuti pertanyaanmu. Jangan kirim informasi sensitif. <Link href="/privacy">Cara data diproses</Link>.</p>
 
       {whatsappUrl && <div className="whatsapp-fallback">
         <span>Atau lebih suka chat langsung? </span>

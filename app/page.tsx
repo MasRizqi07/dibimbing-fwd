@@ -53,20 +53,20 @@ const services: Service[] = [
 const plans: Plan[] = [
   {
     name: "Starter",
-    price: "Diskusi dulu",
+    price: "3,5",
     description: "Untuk bisnis yang baru mulai membangun eksistensi online.",
-    features: ["One-page website", "Copywriting dasar", "Mobile responsive", "Ruang lingkup disepakati"],
+    features: ["One-page website", "Copywriting dasar", "Mobile responsive", "7 hari pengerjaan"],
   },
   {
     name: "Growth",
-    price: "Diskusi dulu",
+    price: "7,5",
     description: "Untuk bisnis yang siap terlihat lebih serius dan profesional.",
-    features: ["Website multi-halaman", "Brand direction", "SEO basic setup", "Ruang lingkup disepakati"],
+    features: ["Website hingga 5 halaman", "Brand direction", "SEO basic setup", "14 hari pengerjaan"],
     featured: true,
   },
   {
     name: "Custom",
-    price: "Diskusi dulu",
+    price: "Let's talk",
     description: "Solusi yang disesuaikan dengan kebutuhan dan target bisnis kamu.",
     features: ["Strategi digital", "Fitur custom", "Support prioritas", "Timeline fleksibel"],
   },
@@ -104,33 +104,36 @@ export default async function Home() {
             </a>
             <a className="text-link" href="#work">Lihat hasil kerja <span aria-hidden="true">↓</span></a>
           </div>
-          <div className="hero-proof"><p><strong>Contoh website agency</strong><br /><span>Portfolio dan hasil di bawah adalah studi konsep.</span></p></div>
+          <div className="hero-proof">
+            <div className="avatar-stack" aria-hidden="true"><span>R</span><span>A</span><span>D</span></div>
+            <p><strong>Dipercaya 40+ bisnis</strong><br /><span>untuk tumbuh lebih cepat</span></p>
+          </div>
         </div>
         <div className="hero-art" aria-label="Ilustrasi dashboard pertumbuhan bisnis">
           <div className="art-glow" />
           <div className="growth-card">
-            <div className="card-topline"><span>Ilustrasi proses digital</span><span className="positive">Konsep</span></div>
-            <div className="chart-value">Ide <span>→ hasil</span></div>
+            <div className="card-topline"><span>Monthly growth</span><span className="positive">+24.8%</span></div>
+            <div className="chart-value">Rp 84.6<span>jt</span></div>
             <div className="chart">
               <div className="chart-grid" />
-              <svg viewBox="0 0 450 180" role="img" aria-label="Ilustrasi alur pekerjaan dari ide menuju hasil">
+              <svg viewBox="0 0 450 180" role="img" aria-label="Grafik pertumbuhan naik">
                 <defs><linearGradient id="chartFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="#baf34a" stopOpacity=".34" /><stop offset="100%" stopColor="#baf34a" stopOpacity="0" /></linearGradient></defs>
                 <path d="M0 151 C35 140 48 145 72 120 S110 130 139 99 S172 115 199 91 S236 104 263 62 S302 89 326 52 S361 65 383 31 S425 42 450 8 V180 H0Z" fill="url(#chartFill)" />
                 <path d="M0 151 C35 140 48 145 72 120 S110 130 139 99 S172 115 199 91 S236 104 263 62 S302 89 326 52 S361 65 383 31 S425 42 450 8" fill="none" stroke="#baf34a" strokeWidth="4" strokeLinecap="round" />
                 <circle cx="383" cy="31" r="6" fill="#101b20" stroke="#baf34a" strokeWidth="4" />
               </svg>
             </div>
-            <div className="chart-labels"><span>Riset</span><span>Rancang</span><span>Bangun</span><span>Uji</span><span>Rilis</span></div>
+            <div className="chart-labels"><span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span></div>
           </div>
-          <div className="floating-card floating-card-top"><span className="mini-icon">↗</span><span><strong>Riset kebutuhan</strong><small>Kenali masalahnya</small></span></div>
-          <div className="floating-card floating-card-bottom"><span className="mini-ring">✓</span><span><strong>Siap diluncurkan</strong><small>Ukur dan perbaiki</small></span></div>
+          <div className="floating-card floating-card-top"><span className="mini-icon">↗</span><span><strong>+38%</strong><small>new customers</small></span></div>
+          <div className="floating-card floating-card-bottom"><span className="mini-ring">✓</span><span><strong>Goal reached</strong><small>Keep it going!</small></span></div>
           <div className="art-tag">nexa<span>.</span></div>
         </div>
       </section>
 
-      <section className="logo-strip section-shell" aria-label="Tahapan kerja">
-        <span>Proses yang membantu bisnis <strong>melangkah lebih jauh</strong></span>
-        <div className="client-logos"><b>Riset</b><b>Desain</b><b>Bangun</b><b>Ukur</b></div>
+      <section className="logo-strip section-shell" aria-label="Klien kami">
+        <span>Dipilih oleh brand yang ingin <strong>melangkah lebih jauh</strong></span>
+        <div className="client-logos"><b>PARAS</b><b>ruang.</b><b>MONO</b><b>elara</b><b>BRIK</b></div>
       </section>
 
       <section className="services section-shell" id="services">
@@ -189,7 +192,7 @@ export default async function Home() {
                     </>
                   )}
                 </div>
-                <p>Studi konsep · {project.type}</p>
+                <p>{project.type}</p>
                 <h3>{project.title}</h3>
                 <strong>{project.result}</strong>
               </article>
@@ -208,13 +211,13 @@ export default async function Home() {
       </section>
 
       <section className="pricing section-shell" id="pricing">
-        <div className="section-heading centered-heading"><p className="eyebrow">Contoh cakupan layanan</p><h2>Pilih langkah <em>pertamamu.</em></h2><p>Ini contoh paket untuk memulai diskusi. Harga dan waktu pengerjaan ditentukan setelah kebutuhan disepakati.</p></div>
+        <div className="section-heading centered-heading"><p className="eyebrow">Investasi untuk bertumbuh</p><h2>Pilih langkah <em>pertamamu.</em></h2><p>Semua paket bisa disesuaikan. Ceritakan saja apa yang ingin kamu capai.</p></div>
         <div className="pricing-grid">
           {plans.map((plan) => (
             <article className={`pricing-card ${plan.featured ? "featured" : ""}`} key={plan.name}>
-              {plan.featured && <span className="popular-badge">Contoh paket</span>}
+              {plan.featured && <span className="popular-badge">Paling populer</span>}
               <h3>{plan.name}</h3><p>{plan.description}</p>
-              <div className="price">{plan.price}</div>
+              <div className="price">{plan.price !== "Let's talk" && <small>Rp </small>}{plan.price}{plan.price !== "Let's talk" && <small> jt</small>}</div>
               <ul>{plan.features.map((feature) => <li key={feature}>✓ <span>{feature}</span></li>)}</ul>
               <a className={`button ${plan.featured ? "button-primary" : "button-outline"}`} href="#contact">Pilih paket <ArrowIcon /></a>
             </article>
@@ -244,7 +247,7 @@ export default async function Home() {
           {whatsappUrl && <a href={whatsappUrl} target="_blank" rel="noreferrer">WhatsApp ↗</a>}
           <Link href="/privacy">Pemrosesan data kontak</Link>
         </div>
-        <small>© {new Date().getFullYear()} Nexa Studio. Studi konsep website agency.</small>
+        <small>© {new Date().getFullYear()} Nexa Studio. Made with intention.</small>
       </footer>
     </main>
   );
