@@ -34,10 +34,10 @@ Belum ada jangka retensi produk yang disetujui; saat ini tidak ada penghapusan o
 
 ```bash
 CONTACT_RETENTION_DAYS=90 node scripts/contact-retention.mjs
-CONTACT_RETENTION_DAYS=90 node scripts/contact-retention.mjs --apply --confirm-database=nama_database
+CONTACT_RETENTION_DAYS=90 node scripts/contact-retention.mjs --apply --confirm-target=host:port/nama_database?schema=public
 ```
 
-Perintah pertama hanya menghitung row. Perintah kedua menghapus row lebih tua dari batas tanggal. Catat count, target database, waktu, dan hasil backup sebelum menjalankannya. Untuk volume besar, ubah ke batch terukur dan uji waktu/lock di staging.
+Perintah pertama hanya menghitung row dan mencetak target `host:port/database?schema=...` tanpa kredensial. Salin target persis dari output dry run untuk konfirmasi perintah kedua. Perintah kedua menghapus row lebih tua dari batas tanggal. Catat count, target database, waktu, dan hasil backup sebelum menjalankannya. Untuk volume besar, ubah ke batch terukur dan uji waktu/lock di staging.
 
 ## Keputusan yang masih diperlukan
 

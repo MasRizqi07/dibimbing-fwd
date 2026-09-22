@@ -43,3 +43,9 @@ test("service search and reduced motion retain usable feedback", async ({ page }
   const duration = await page.locator(".button-primary").first().evaluate((element) => getComputedStyle(element).transitionDuration);
   expect(duration.split(",").every((value) => parseFloat(value) <= 0.001)).toBe(true);
 });
+
+test("site navigation remains visible after scrolling", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await expect(page.locator(".site-nav")).toBeInViewport();
+});

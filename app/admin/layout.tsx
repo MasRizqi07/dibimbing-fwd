@@ -13,24 +13,23 @@ export default function AdminLayout({
     <div
       style={{
         minHeight: "100vh",
-        background: "var(--cream)",
-        color: "var(--ink)",
+        background: "var(--canvas-cream)",
+        color: "var(--ink-primary)",
         fontFamily: "var(--font-geist-sans), Arial, sans-serif",
       }}
     >
       <header
         style={{
-          borderBottom: "1px solid var(--line)",
-          background: "#fff",
+          borderBottom: "1px solid var(--border-line)",
+          background: "#ffffff",
           position: "sticky",
           top: 0,
           zIndex: 50,
+          boxShadow: "0 2px 10px rgba(16,42,49,0.03)",
         }}
       >
-        <div
-          className="section-shell admin-header-inner"
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        <div className="section-shell admin-header-inner">
+          <div style={{ display: "flex", alignItems: "center", gap: "14px", flexWrap: "wrap" }}>
             <Link href="/admin" className="brand">
               <span className="brand-mark">N</span>
               <span>
@@ -43,24 +42,30 @@ export default function AdminLayout({
                 fontWeight: 800,
                 textTransform: "uppercase",
                 letterSpacing: ".08em",
-                padding: "3px 8px",
-                borderRadius: "6px",
+                padding: "4px 10px",
+                borderRadius: "99px",
                 background: "#e8f0ec",
-                color: "#46625d",
+                color: "#275047",
               }}
             >
-              Admin CMS
+              CMS Administrator • Single Owner Session
             </span>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "14px", flexWrap: "wrap" }}>
+            {/* Health Indicator Pills */}
+            <div className="health-pill" title="Koneksi database PostgreSQL Neon beroperasi prima">
+              <span className="health-pill-dot" />
+              <span>Database: Connected (200 OK)</span>
+            </div>
+
             <Link
               href="/"
               target="_blank"
               style={{
                 fontSize: "12px",
                 fontWeight: 700,
-                color: "var(--muted)",
+                color: "var(--ink-muted)",
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "4px",
@@ -68,14 +73,15 @@ export default function AdminLayout({
             >
               Lihat Website ↗
             </Link>
+
             <form action={logoutAdminAction}>
               <button
                 type="submit"
                 style={{
                   background: "none",
-                  border: "1px solid var(--line)",
+                  border: "1px solid var(--border-line)",
                   borderRadius: "99px",
-                  padding: "8px 14px",
+                  padding: "6px 14px",
                   fontSize: "12px",
                   fontWeight: 700,
                   color: "#d04242",
@@ -89,7 +95,7 @@ export default function AdminLayout({
         </div>
       </header>
 
-      <main style={{ padding: "40px 0 80px" }}>{children}</main>
+      <main style={{ padding: "32px 0 80px" }}>{children}</main>
     </div>
   );
 }

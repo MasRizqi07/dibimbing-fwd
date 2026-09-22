@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-tint":"#49626a","on-secondary-fixed-variant":"#384e00","inverse-surface":"#2e312f","on-tertiary-fixed-variant":"#3a494f","primary":"#00151a","surface-container-low":"#f3f4f0","tertiary-fixed-dim":"#b8c9d0","surface-bright":"#f9faf6","on-secondary-fixed":"#141f00","inverse-on-surface":"#f0f1ed","secondary-container":"#c3f35b","surface-container-highest":"#e2e3df","on-primary-fixed":"#031f26","tertiary-container":"#1a292e","on-tertiary":"#ffffff","surface-container-high":"#e7e9e5","primary-fixed-dim":"#b0cbd4","surface-container-lowest":"#ffffff","on-tertiary-fixed":"#0e1e23","on-primary-container":"#78929a","primary-container":"#102a31","on-secondary":"#ffffff","secondary-fixed-dim":"#a8d641","on-background":"#1a1c1a","on-secondary-container":"#506e00","secondary-fixed":"#c3f35b","on-surface":"#1a1c1a","on-tertiary-container":"#809197","tertiary-fixed":"#d4e5ec","outline-variant":"#c2c7ca","tertiary":"#051419","background":"#f9faf6","primary-fixed":"#cce7f0","on-error":"#ffffff","outline":"#72787a","surface-variant":"#e2e3df","on-primary":"#ffffff","on-primary-fixed-variant":"#324a52","surface-dim":"#d9dad7","secondary":"#4b6700","error":"#ba1a1a","surface":"#f9faf6","on-surface-variant":"#42484a","error-container":"#ffdad6","inverse-primary":"#b0cbd4","on-error-container":"#93000a","surface-container":"#edeeea"},borderRadius:{DEFAULT:"0.25rem",lg:"0.5rem",xl:"0.75rem",full:"9999px"},spacing:{"gutter-mobile":"1rem","space-lg":"1.5rem","space-xl":"2.5rem",gutter:"1.5rem","space-xs":"0.25rem","space-md":"1rem","margin-mobile":"1.25rem","space-sm":"0.5rem",margin:"2rem"},fontFamily:{"body-sm":["Geist"],"label-md":["Geist"],"headline-lg":["Geist"],"headline-sm":["Geist"],eyebrow:["Geist"],"label-sm":["Geist"],"display-mobile":["Geist"],display:["Geist"],"body-md":["Geist"],"headline-md":["Geist"],"body-lg":["Geist"],"headline-lg-mobile":["Geist"]},fontSize:{"body-sm":["13px",{lineHeight:"21px",letterSpacing:"0.005em",fontWeight:"400"}],"label-md":["14px",{lineHeight:"20px",letterSpacing:"-0.01em",fontWeight:"500"}],"headline-lg":["40px",{lineHeight:"48px",letterSpacing:"-0.025em",fontWeight:"600"}],"headline-sm":["20px",{lineHeight:"28px",letterSpacing:"-0.015em",fontWeight:"600"}],eyebrow:["11px",{lineHeight:"16px",letterSpacing:"0.08em",fontWeight:"600"}],"label-sm":["12px",{lineHeight:"16px",letterSpacing:"0em",fontWeight:"500"}],"display-mobile":["38px",{lineHeight:"44px",letterSpacing:"-0.025em",fontWeight:"600"}],display:["56px",{lineHeight:"64px",letterSpacing:"-0.03em",fontWeight:"600"}],"body-md":["15px",{lineHeight:"25px",letterSpacing:"0em",fontWeight:"400"}],"headline-md":["28px",{lineHeight:"36px",letterSpacing:"-0.02em",fontWeight:"600"}],"body-lg":["18px",{lineHeight:"30px",letterSpacing:"-0.005em",fontWeight:"400"}],"headline-lg-mobile":["28px",{lineHeight:"34px",letterSpacing:"-0.02em",fontWeight:"600"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface min-h-screen"><header class="fixed top-0 left-0 right-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-[#DFE6E4]"><div class="h-20 max-w-[1160px] mx-auto px-margin-mobile md:px-margin flex items-center justify-between gap-gutter"><div class="flex items-center gap-space-sm"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1Vg74OwEnPUeL-lbqVtsbKFiuUDSlDaGXA76W2huyAs79FDXROuxqTBfkyQXhdBUiFQKN13Iv_qVCzy5_DZvcDKFHwdZEzg5QwRBWNYWqYgJAI6ogXjz_7cURTIJn9labGKF15FtyrIixyrd2NYmQlAgSZ0Qj0h_1xUw3qV08Y7myRfNNNZsTvQ7xD47rnzDulU1ap34_9Z8o_nU8uWBbrWOHhZ2QniEZ6f8UH8Z1wFRuTmh5EQUtHG-Y5X"/><span class="font-headline-sm text-headline-sm tracking-tight text-on-surface">Nexa Studio</span></div><nav class="hidden md:flex items-center gap-space-lg" data-active-classes="text-on-surface font-semibold"><a aria-current="page" class="transition-colors text-on-surface font-semibold" data-path="home" href="#">Beranda</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="layanan" href="#">Layanan</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="portofolio" href="#">Portofolio</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="proses" href="#">Proses</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="harga" href="#">Harga</a></nav><div class="flex items-center gap-space-md"><a class="hidden sm:inline-flex items-center justify-center h-[44px] px-space-lg rounded-full bg-primary-container text-on-primary font-label-md text-label-md shadow-sm hover:bg-tertiary-container transition-colors" data-path="konsultasi" href="#">Konsultasi Sekarang</a><button class="md:hidden flex items-center justify-center w-[44px] h-[44px] text-on-surface"><span class="material-symbols-outlined">menu</span></button></div></div></header><main class="w-full pt-20 bg-surface min-h-[calc(100vh-20rem)]"><div class="flex flex-col w-full">
+<!-- Main Container constrained to 1160px with generous vertical cadence -->
+<div class="max-w-[1160px] mx-auto px-margin-mobile md:px-margin w-full flex flex-col gap-space-xl">
+<!-- 1. HERO SECTION -->
+<section class="flex flex-col gap-space-lg pt-space-md">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center">
+<!-- Hero Left / Content Block -->
+<div class="lg:col-span-7 flex flex-col gap-space-md">
+<div class="inline-flex items-center gap-space-xs self-start px-space-sm py-1 rounded-full bg-surface-container-high text-on-surface-variant font-eyebrow text-eyebrow tracking-wider uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed"></span>
+            DIGITAL AGENCY FOR GROWTH-READY BUSINESSES
+          </div>
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">
+            Transformasi Digital Terukur untuk Bisnis yang Siap Tumbuh
+          </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
+            Kami merancang website performa tinggi, identitas visual distingtif, dan strategi konten terarah yang mengubah pengunjung menjadi klien loyal bagi UMKM dan brand berkembang.
+          </p>
+<div class="flex flex-wrap items-center gap-space-md pt-space-xs">
+<a class="inline-flex items-center justify-center min-h-[44px] px-6 rounded-full bg-secondary-fixed text-primary font-label-md text-label-md hover:opacity-95 transition-opacity" href="#konsultasi">
+              Mulai Diskusi Proyek
+            </a>
+<a class="inline-flex items-center justify-center min-h-[44px] px-space-md font-label-md text-label-md text-primary hover:text-surface-tint transition-colors gap-1" href="#portofolio">
+              Lihat Hasil Kerja <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+<!-- Trust Metric Strip -->
+<div class="grid grid-cols-3 gap-space-sm pt-space-sm mt-space-xs">
+<div class="flex flex-col p-space-sm rounded-xl bg-surface-container-low">
+<span class="font-headline-sm text-headline-sm text-primary tracking-tight">40+</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Bisnis Terbantu</span>
+</div>
+<div class="flex flex-col p-space-sm rounded-xl bg-surface-container-low">
+<span class="font-headline-sm text-headline-sm text-primary tracking-tight">99.8%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Uptime Sistem</span>
+</div>
+<div class="flex flex-col p-space-sm rounded-xl bg-surface-container-low">
+<span class="font-headline-sm text-headline-sm text-primary tracking-tight">3.2x</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Kenaikan Lead</span>
+</div>
+</div>
+</div>
+<!-- Hero Right / Visual Card & Floating Badges -->
+<div class="lg:col-span-5 relative mt-space-md lg:mt-0">
+<div class="relative rounded-2xl overflow-hidden bg-surface-container shadow-xl">
+<img alt="Dashboard Pertumbuhan Nexa Studio" class="w-full h-auto object-cover rounded-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTNXkTdU5FvhYoro3P8f7AF2E-KzdhkR6w10LxJX98LM1MDCJwQunV-P4gCpWgqY1lQyZZ_KiF3Yse2DHMGqgF0ffo4HJ7BngO_KdJwDMeuKxL5_onkbmakQCB-Hca2jV-qP2S_6vDlRKXcVM2RpfLZfB2tS-vTo0t8l5d5VNJyYWyH4IPcXb_JxwqLhjZyf_Gw0eF6j75qhdZFj39f6MRN3Ns1rOoVTyYJurFkH6x3uEpRT4-EV_wOw"/>
+<!-- Floating Badge Top Left -->
+<div class="absolute top-4 left-4 bg-primary-container/90 backdrop-blur-md px-3.5 py-2 rounded-xl text-on-primary shadow-lg flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary-fixed"></span>
+<div class="flex flex-col">
+<span class="font-eyebrow text-eyebrow tracking-wide text-secondary-fixed uppercase">Tingkat Retensi</span>
+<span class="font-label-md text-label-md text-surface-bright font-semibold">+28.4% Rata-rata Konversi</span>
+</div>
+</div>
+<!-- Floating Badge Bottom Right -->
+<div class="absolute bottom-4 right-4 bg-surface-container-lowest/95 backdrop-blur-md px-3.5 py-2 rounded-xl text-on-surface shadow-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">verified</span>
+<div class="flex flex-col">
+<span class="font-eyebrow text-eyebrow text-on-surface-variant uppercase">Standar Kecepatan</span>
+<span class="font-label-md text-label-md text-primary font-semibold">SLA 99.8% Optimal</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 2. CLIENT PROOF BAR -->
+<section class="py-space-md rounded-2xl bg-surface-container-low px-space-lg flex flex-col items-center gap-space-sm">
+<span class="font-eyebrow text-eyebrow uppercase text-on-surface-variant tracking-wider text-center">
+        Dipercaya oleh brand dan bisnis ambisius di Indonesia
+      </span>
+<div class="flex flex-wrap items-center justify-center gap-space-lg md:gap-16 opacity-75 grayscale hover:grayscale-0 transition-all duration-300">
+<span class="font-headline-sm text-headline-sm tracking-widest text-primary font-semibold">PARAS</span>
+<span class="font-headline-sm text-headline-sm tracking-tight text-primary font-medium">ruang.</span>
+<span class="font-headline-sm text-headline-sm tracking-widest text-primary font-bold">MONO</span>
+<span class="font-headline-sm text-headline-sm lowercase tracking-wider text-primary font-serif">elara</span>
+<span class="font-headline-sm text-headline-sm tracking-widest text-primary font-mono">BRIK</span>
+</div>
+</section>
+<!-- 3. SERVICE CATALOG SECTION -->
+<section class="flex flex-col gap-space-lg scroll-mt-24" id="layanan">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<span class="font-eyebrow text-eyebrow text-on-surface-variant uppercase tracking-wider">Katalog Layanan</span>
+<h2 class="font-headline-md text-headline-md text-primary max-w-xl">
+            Solusi Digital Terpadu untuk Akselerasi Bisnis Anda
+          </h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-sm">
+          Dirancang modular, berkinerja tinggi, dan terhubung langsung dengan sasaran penjualan Anda.
+        </p>
+</div>
+<!-- Search & Filters -->
+<div class="flex flex-col md:flex-row items-center gap-space-sm">
+<div class="relative w-full md:w-80">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+<input class="w-full h-11 pl-10 pr-9 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-secondary-fixed shadow-sm" id="serviceSearch" placeholder="Cari website, branding, atau konten..." type="text"/>
+<button class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface font-label-sm text-label-sm" id="clearSearch">✕</button>
+</div>
+<div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto py-1" id="filterPills">
+<button class="cat-filter-btn px-4 h-9 rounded-full bg-secondary-fixed text-primary font-label-md text-label-md whitespace-nowrap" data-cat="all">Semua</button>
+<button class="cat-filter-btn px-4 h-9 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-label-md text-label-md whitespace-nowrap transition-colors" data-cat="web">Web Development</button>
+<button class="cat-filter-btn px-4 h-9 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-label-md text-label-md whitespace-nowrap transition-colors" data-cat="brand">Branding & Identity</button>
+<button class="cat-filter-btn px-4 h-9 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-label-md text-label-md whitespace-nowrap transition-colors" data-cat="content">Content Strategy</button>
+</div>
+</div>
+<!-- Service Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter" id="serviceGrid">
+<!-- Card 1 -->
+<div class="service-card flex flex-col justify-between p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow" data-category="web">
+<div class="flex flex-col gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[24px]">terminal</span>
+</div>
+<span class="font-eyebrow text-eyebrow text-on-surface-variant uppercase tracking-wider">Web Development</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">High-Performance Web & App</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Website responsif, cepat, dan teroptimasi SEO dengan Next.js dan Tailwind CSS modern.</p>
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[16px]">check_circle</span> Jamstack Architecture
+              </div>
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[16px]">check_circle</span> Core Web Vitals < 1.2s
+              </div>
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[16px]">check_circle</span> CMS Integration
+              </div>
+</div>
+</div>
+<a class="mt-space-lg inline-flex items-center font-label-md text-label-md text-primary font-semibold hover:text-surface-tint gap-1" href="#konsultasi">
+            Konsultasi Website <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+<!-- Card 2 -->
+<div class="service-card flex flex-col justify-between p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow" data-category="brand">
+<div class="flex flex-col gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[24px]">palette</span>
+</div>
+<span class="font-eyebrow text-eyebrow text-on-surface-variant uppercase tracking-wider">Branding & Identity</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Brand Strategy & Visual Identity</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Membangun identitas visual premium yang membedakan bisnis Anda dari kompetitor di pasar.</p>
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[16px]">check_circle</span> Logo & Brand Guidelines
+              </div>
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[16px]">check_circle</span> Typography & Color System
+              </div>
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[16px]">check_circle</span> Collateral Design Pack
+              </div>
+</div>
+</div>
+<a class="mt-space-lg inline-flex items-center font-label-md text-label-md text-primary font-semibold hover:text-surface-tint gap-1" href="#konsultasi">
+            Konsultasi Branding <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+<!-- Card 3 -->
+<div class="service-card flex flex-col justify-between p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow" data-category="content">
+<div class="flex flex-col gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[24px]">edit_note</span>
+</div>
+<span class="font-eyebrow text-eyebrow text-on-surface-variant uppercase tracking-wider">Content Strategy</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Content Engine & Conversion Copy</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Narasi dan copywriting tajam yang mengedepankan conversion rate dan kredibilitas jangka panjang.</p>
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[16px]">check_circle</span> Conversion Copywriting
+              </div>
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[16px]">check_circle</span> Editorial Content Calendar
+              </div>
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[16px]">check_circle</span> SEO Strategic Positioning
+              </div>
+</div>
+</div>
+<a class="mt-space-lg inline-flex items-center font-label-md text-label-md text-primary font-semibold hover:text-surface-tint gap-1" href="#konsultasi">
+            Konsultasi Konten <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</section>
+<!-- 4. SELECTED WORK / PORTFOLIO SECTION -->
+<section class="flex flex-col gap-space-lg scroll-mt-24" id="portofolio">
+<div class="flex flex-col gap-space-xs">
+<span class="font-eyebrow text-eyebrow text-on-surface-variant uppercase tracking-wider">Portofolio Terpilih</span>
+<h2 class="font-headline-md text-headline-md text-primary">Karya Nyata dengan Dampak Bisnis Terukur</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Showcase Card 1 -->
+<div class="flex flex-col rounded-2xl bg-surface-container-lowest overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+<div class="relative overflow-hidden aspect-[4/3]">
+<img alt="Nomad Coffee Roasters Brand & E-Commerce" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaMyJtmFxE2GijDkGiawnU1Rtu8m4ORdwYeOacL3japNf8xQ9I0N88Btd3WwFG5EYm3OeVq3dUPAOhtayoMknHJDtN6zGn2_aGrGEmKSIrZKCLIn51cf2aqFlRTpSRNo65vKFw1ze1BomdwCJYJLNUjCBIECUsNKpSf6sncSiYQ1nOaqF5KsBF-DrA2UZ_unk2WfRHKFLRTdCtomcihuafBjGPMreZoHHkma2HObFVtxtFBIRR6IJPJA"/>
+<div class="absolute top-3 left-3 bg-primary-container text-on-primary px-3 py-1 rounded-full font-eyebrow text-eyebrow tracking-wide">
+              Branding & E-Commerce
+            </div>
+<div class="absolute bottom-3 right-3 bg-secondary-fixed text-primary px-3 py-1 rounded-full font-label-sm text-label-sm font-semibold shadow-sm">
+              +140% Penjualan Online
+            </div>
+</div>
+<div class="p-space-lg flex flex-col gap-space-xs">
+<h3 class="font-headline-sm text-headline-sm text-primary">Nomad Coffee Roasters</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Rebranding menyeluruh dan web storefront headless dengan alur checkout instan yang memangkas waktu pemesanan.</p>
+</div>
+</div>
+<!-- Showcase Card 2 -->
+<div class="flex flex-col rounded-2xl bg-surface-container-lowest overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+<div class="relative overflow-hidden aspect-[4/3]">
+<img alt="Aura Studio Fashion Lookbook" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNluVziXClWBCD5smCUFQ3DuXeMYnPKlOnVUatNzAhJsY79viLnl_uZIiuQ6WKapi3K6if1SH_qDDVcFho1tMF6YLOLRMuOWQldUY-XADUJ0uIYVrjvQEedyVLyE7ylGTZMvOOilfsJHWtlI1xV2RRbiMSPqjybkstSb6yZVAO9G8Br6Hdlb0wJn1GHNL20QHf0tyQF7j1AQaaXrpEwAYSsxTvMDidH_WQq_fNWO8MVS9u1vBlWRaNHw"/>
+<div class="absolute top-3 left-3 bg-primary-container text-on-primary px-3 py-1 rounded-full font-eyebrow text-eyebrow tracking-wide">
+              Web Experience
+            </div>
+<div class="absolute bottom-3 right-3 bg-secondary-fixed text-primary px-3 py-1 rounded-full font-label-sm text-label-sm font-semibold shadow-sm">
+              3.4x Durasi Sesi Pengguna
+            </div>
+</div>
+<div class="p-space-lg flex flex-col gap-space-xs">
+<h3 class="font-headline-sm text-headline-sm text-primary">Aura Studio Fashion</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Lookbook interaktif minimalis dengan pengalaman belanja editorial yang seamless dari katalog hingga keranjang.</p>
+</div>
+</div>
+<!-- Showcase Card 3 -->
+<div class="flex flex-col rounded-2xl bg-surface-container-lowest overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+<div class="relative overflow-hidden aspect-[4/3]">
+<img alt="Ruang Pulih Holistic Spa Platform" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYQzD9lojOb5ckd7GIYhLylTImTLrGIIa2e2dRGkj6WaznTedptbwPd51xJFNbCY0zFsNFZpxKfaTtdPiFOB9rPfOm7bnZGmyLVElnJCmdOoO_of5Vcq7U0suXPUczdDT-kuozSvGQMkvYXn4CHk14LiNXIEVYWNKr14kI2DJMS2k8ivNPrAs_2KUX7mQYgNxyeijm0Dmxbu9htyBOd8lmK5yS3Od1YBjTmrnrXdKeNB3RyXQ5qlXC-Q"/>
+<div class="absolute top-3 left-3 bg-primary-container text-on-primary px-3 py-1 rounded-full font-eyebrow text-eyebrow tracking-wide">
+              Digital Platform
+            </div>
+<div class="absolute bottom-3 right-3 bg-secondary-fixed text-primary px-3 py-1 rounded-full font-label-sm text-label-sm font-semibold shadow-sm">
+              +85% Booking Konsultasi
+            </div>
+</div>
+<div class="p-space-lg flex flex-col gap-space-xs">
+<h3 class="font-headline-sm text-headline-sm text-primary">Ruang Pulih Holistic Spa</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Sistem reservasi perawatan terpadu dengan antarmuka menenangkan dan optimasi penuh pada perangkat bergerak.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- 5. PROCESS SECTION -->
+<section class="flex flex-col gap-space-lg scroll-mt-24" id="proses">
+<div class="flex flex-col gap-space-xs">
+<span class="font-eyebrow text-eyebrow text-on-surface-variant uppercase tracking-wider">Metodologi Kerja</span>
+<h2 class="font-headline-md text-headline-md text-primary">Alur Terstruktur dari Gagasan hingga Peluncuran</h2>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<div class="p-space-lg rounded-2xl bg-surface-container-low flex flex-col gap-space-sm relative">
+<span class="font-headline-md text-headline-md text-secondary font-mono">01</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Discovery & Audit</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Analisis komprehensif target audiens, audit aset brand, dan perumusan objektif bisnis kuantitatif.</p>
+</div>
+<div class="p-space-lg rounded-2xl bg-surface-container-low flex flex-col gap-space-sm relative">
+<span class="font-headline-md text-headline-md text-secondary font-mono">02</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Strategy & UI/UX</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Arsitektur informasi, wireframing presisi, dan visual prototype interaktif sebelum penulisan kode.</p>
+</div>
+<div class="p-space-lg rounded-2xl bg-surface-container-low flex flex-col gap-space-sm relative">
+<span class="font-headline-md text-headline-md text-secondary font-mono">03</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Scalable Engineering</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Pengembangan kode bersih menggunakan Next.js, performa render optimal, serta standar aksesibilitas web.</p>
+</div>
+<div class="p-space-lg rounded-2xl bg-surface-container-low flex flex-col gap-space-sm relative">
+<span class="font-headline-md text-headline-md text-secondary font-mono">04</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Launch & Optimize</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Deployment stabil, automated QA, dan penyiapan sistem pelacakan analitik untuk konversi berkelanjutan.</p>
+</div>
+</div>
+</section>
+<!-- 6. PRICING MATRIX -->
+<section class="flex flex-col gap-space-lg scroll-mt-24" id="harga">
+<div class="flex flex-col gap-space-xs text-center max-w-xl mx-auto">
+<span class="font-eyebrow text-eyebrow text-on-surface-variant uppercase tracking-wider">Paket Investasi</span>
+<h2 class="font-headline-md text-headline-md text-primary">Investasi Transparan Sesuai Tahap Pertumbuhan</h2>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter items-stretch">
+<!-- Starter Tier -->
+<div class="flex flex-col justify-between p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm">
+<div class="flex flex-col gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-md text-label-md text-on-surface-variant">Paket Starter</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg text-primary tracking-tight">IDR 8.5M</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Solusi ideal bagi brand rintisan yang membutuhkan kehadiran online yang profesional dan terpercaya.</p>
+</div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[18px]">check</span> Single-page Landing Web Launch
+              </div>
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[18px]">check</span> Core Brand Identity Guide
+              </div>
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[18px]">check</span> Estimasi 14 Hari Pengerjaan
+              </div>
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[18px]">check</span> Setup Standar On-Page SEO
+              </div>
+</div>
+</div>
+<a class="mt-space-lg inline-flex items-center justify-center min-h-[44px] w-full rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-primary font-label-md text-label-md transition-colors" href="#konsultasi">
+            Pilih Paket Starter
+          </a>
+</div>
+<!-- Growth Tier (Featured Navy Card) -->
+<div class="flex flex-col justify-between p-space-lg rounded-2xl bg-primary-container text-on-primary shadow-xl relative scale-100 lg:-translate-y-2">
+<div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-secondary-fixed text-primary px-3.5 py-0.5 rounded-full font-eyebrow text-eyebrow font-semibold uppercase tracking-wider">
+            Paling Populer
+          </div>
+<div class="flex flex-col gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-md text-label-md text-surface-tint">Paket Growth</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg text-surface-bright tracking-tight">IDR 18.0M</span>
+</div>
+<p class="font-body-sm text-body-sm text-outline-variant">Akselerator penuh untuk bisnis berkembang yang butuh konversi tinggi dan identitas terpadu.</p>
+</div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-surface-bright">
+<span class="material-symbols-outlined text-secondary-fixed text-[18px]">check</span> Full Website 5+ Halaman Responsif
+              </div>
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-surface-bright">
+<span class="material-symbols-outlined text-secondary-fixed text-[18px]">check</span> Complete Visual Identity System
+              </div>
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-surface-bright">
+<span class="material-symbols-outlined text-secondary-fixed text-[18px]">check</span> Full Copywriting & Content Strategy
+              </div>
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-surface-bright">
+<span class="material-symbols-outlined text-secondary-fixed text-[18px]">check</span> Integrasi CRM & Otomasi WhatsApp
+              </div>
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-surface-bright">
+<span class="material-symbols-outlined text-secondary-fixed text-[18px]">check</span> Estimasi 21 Hari Pengerjaan
+              </div>
+</div>
+</div>
+<a class="mt-space-lg inline-flex items-center justify-center min-h-[44px] w-full rounded-xl bg-secondary-fixed text-primary font-label-md text-label-md font-semibold hover:opacity-95 transition-opacity" href="#konsultasi">
+            Pilih Paket Growth
+          </a>
+</div>
+<!-- Custom / Scale Tier -->
+<div class="flex flex-col justify-between p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm">
+<div class="flex flex-col gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-md text-label-md text-on-surface-variant">Paket Scale & Enterprise</span>
+<div class="flex items-baseline gap-1">
+<span class="font-body-md text-body-md text-on-surface-variant">Mulai</span>
+<span class="font-headline-lg text-headline-lg text-primary tracking-tight">IDR 35.0M</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Solusi bespoke dengan rekayasa teknologi kustom dan integrasi platform kompleks.</p>
+</div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[18px]">check</span> Tailored Enterprise Scope
+              </div>
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[18px]">check</span> Custom Next.js Platform & API
+              </div>
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[18px]">check</span> Dedicated Design Sprint
+              </div>
+<div class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[18px]">check</span> SLA Dukungan Teknis Prioritas
+              </div>
+</div>
+</div>
+<a class="mt-space-lg inline-flex items-center justify-center min-h-[44px] w-full rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-primary font-label-md text-label-md transition-colors" href="#konsultasi">
+            Hubungi Kami
+          </a>
+</div>
+</div>
+</section>
+<!-- 7. CONTACT SECTION (DARK CONVERSION ANCHOR) -->
+<section class="p-space-lg md:p-space-xl rounded-2xl bg-primary-container text-on-primary shadow-xl scroll-mt-24 mb-space-lg" id="konsultasi">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Contact Information (Left) -->
+<div class="lg:col-span-5 flex flex-col justify-between gap-space-lg">
+<div class="flex flex-col gap-space-sm">
+<span class="font-eyebrow text-eyebrow text-secondary-fixed uppercase tracking-wider">Konsultasi Terarah</span>
+<h2 class="font-headline-lg text-headline-lg text-surface-bright tracking-tight">
+              Siap Meningkatkan Standar Digital Bisnis Anda?
+            </h2>
+<p class="font-body-md text-body-md text-outline-variant">
+              Konsultasi awal gratis 30 menit tanpa komitmen. Kami membedah peluang konversi dan strategi implementasi dalam waktu maksimal 24 jam kerja.
+            </p>
+</div>
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="w-10 h-10 rounded-xl bg-surface-tint/20 flex items-center justify-center text-secondary-fixed">
+<span class="material-symbols-outlined text-[20px]">chat</span>
+</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline-variant">WhatsApp Bisnis</span>
+<a class="font-label-md text-label-md text-surface-bright hover:underline" href="https://wa.me/6281234567890" rel="noopener noreferrer" target="_blank">+62 812-3456-7890</a>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="w-10 h-10 rounded-xl bg-surface-tint/20 flex items-center justify-center text-secondary-fixed">
+<span class="material-symbols-outlined text-[20px]">mail</span>
+</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline-variant">Surat Elektronik</span>
+<a class="font-label-md text-label-md text-surface-bright hover:underline" href="mailto:hello@nexastudio.id">hello@nexastudio.id</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Contact Form (Right) -->
+<div class="lg:col-span-7 bg-surface-container-lowest text-on-surface p-space-lg rounded-xl shadow-lg flex flex-col gap-space-md">
+<!-- Notification Alert Placeholder -->
+<div class="hidden p-space-sm rounded-lg bg-secondary-container text-on-secondary-container font-body-sm text-body-sm flex items-center gap-2" id="formSuccessAlert">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+<span>Terima kasih! Pesan Anda telah diterima. Tim strategi kami akan menghubungi via WhatsApp/Email dalam 24 jam.</span>
+</div>
+<form class="flex flex-col gap-space-sm" id="consultationForm">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-on-surface" for="fullName">Nama Lengkap</label>
+<input class="h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-secondary-fixed" id="fullName" placeholder="mis. Budi Pratama" required="" type="text"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-on-surface" for="businessEmail">Email Bisnis</label>
+<input class="h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-secondary-fixed" id="businessEmail" placeholder="budi@perusahaan.id" required="" type="email"/>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-on-surface" for="projectCategory">Kategori Kebutuhan</label>
+<select class="h-11 px-3 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-secondary-fixed" id="projectCategory">
+<option value="web">Web Development (Landing Page / Web App)</option>
+<option value="branding">Branding & Visual Identity System</option>
+<option value="content">Content Strategy & Conversion Copy</option>
+<option value="full">Integrasi Menyeluruh (End-to-End)</option>
+</select>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-on-surface" for="projectBrief">Deskripsi Kebutuhan & Target</label>
+<textarea class="p-3 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-secondary-fixed" id="projectBrief" placeholder="Ceritakan singkat tujuan bisnis, tantangan saat ini, atau referensi desain yang diinginkan..." required="" rows="3"></textarea>
+</div>
+<button class="mt-2 min-h-[44px] px-6 rounded-xl bg-secondary-fixed text-primary font-label-md text-label-md font-semibold hover:opacity-95 transition-opacity flex items-center justify-center gap-2" type="submit">
+<span>Kirim Pesan Konsultasi</span>
+<span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-center pt-1">
+              Data Anda terlindungi dan hanya digunakan untuk keperluan komunikasi proyek. Sesuai ketentuan <a class="underline hover:text-primary" href="#">Kebijakan Privasi</a>.
+            </p>
+</form>
+</div>
+</div>
+</section>
+</div>
+</div>
+<script>
+  (function() {
+    // Service Filter & Search Logic
+    const searchInput = document.getElementById('serviceSearch');
+    const clearBtn = document.getElementById('clearSearch');
+    const filterBtns = document.querySelectorAll('.cat-filter-btn');
+    const serviceCards = document.querySelectorAll('.service-card');
+
+    let currentCategory = 'all';
+
+    function filterServices() {
+      const query = (searchInput.value || '').toLowerCase().trim();
+      if (query.length > 0) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+
+      serviceCards.forEach(card => {
+        const cat = card.getAttribute('data-category');
+        const text = card.textContent.toLowerCase();
+        const matchesCat = (currentCategory === 'all' || cat === currentCategory);
+        const matchesSearch = query === '' || text.includes(query);
+
+        if (matchesCat && matchesSearch) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    }
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => {
+          b.className = 'cat-filter-btn px-4 h-9 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-label-md text-label-md whitespace-nowrap transition-colors';
+        });
+        btn.className = 'cat-filter-btn px-4 h-9 rounded-full bg-secondary-fixed text-primary font-label-md text-label-md whitespace-nowrap';
+        currentCategory = btn.getAttribute('data-cat');
+        filterServices();
+      });
+    });
+
+    searchInput.addEventListener('input', filterServices);
+
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      filterServices();
+      searchInput.focus();
+    });
+
+    // Form Submission Interactive Mock
+    const form = document.getElementById('consultationForm');
+    const successAlert = document.getElementById('formSuccessAlert');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      successAlert.classList.remove('hidden');
+      form.reset();
+      setTimeout(() => {
+        successAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 50);
+    });
+  })();
+</script></main><footer class="w-full bg-surface-container-low border-t border-[#DFE6E4] mt-space-xl"><div class="max-w-[1160px] mx-auto px-margin-mobile md:px-margin py-space-xl"><div class="grid grid-cols-1 md:grid-cols-12 gap-gutter mb-space-xl"><div class="md:col-span-5 flex flex-col gap-space-sm"><div class="flex items-center gap-space-sm"><span class="font-headline-sm text-headline-sm text-on-surface">Nexa Studio</span></div><p class="font-body-sm text-body-sm text-on-surface-variant max-w-sm">Mitra strategis transformasi digital dan akselerator pertumbuhan jenama modern Indonesia melalui keunggulan desain dan rekayasa teknologi presisi.</p></div><div class="md:col-span-3 flex flex-col gap-space-sm"><span class="font-eyebrow text-eyebrow uppercase text-on-surface-variant tracking-wider">Navigasi</span><div class="flex flex-col gap-space-xs"><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="layanan" href="#">Layanan</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="portofolio" href="#">Portofolio</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="proses" href="#">Proses</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="harga" href="#">Harga</a></div></div><div class="md:col-span-4 flex flex-col gap-space-sm"><span class="font-eyebrow text-eyebrow uppercase text-on-surface-variant tracking-wider">Koneksi & Regulasi</span><div class="flex flex-col gap-space-xs"><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors inline-flex items-center gap-space-xs" href="https://instagram.com" rel="noopener noreferrer" target="_blank">Instagram</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="kebijakan-privasi" href="#">Kebijakan Privasi</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="konsultasi" href="#">Jadwalkan Diskusi</a></div></div></div><div class="pt-space-md border-t border-[#DFE6E4] flex flex-col sm:flex-row items-center justify-between gap-space-sm"><p class="font-body-sm text-body-sm text-on-surface-variant">© 2024 Nexa Studio. Seluruh hak cipta dilindungi undang-undang.</p><div class="flex items-center gap-space-md"><span class="font-eyebrow text-eyebrow uppercase text-on-surface-variant">Jakarta • Bali • Bandung</span></div></div></div></footer></body></html>

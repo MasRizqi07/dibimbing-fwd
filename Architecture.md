@@ -2,185 +2,202 @@
 
 ## 1. Architecture overview
 
-Nexa Studio menggunakan Next.js App Router dengan boundary sederhana:
+Nexa Studio menggunakan Next.js 16 App Router dengan pemisahan boundary yang tegas dan modular:
 
 ```mermaid
 flowchart LR
-  Browser[Visitor browser] --> Next[Next.js App Router]
-  Next --> RSC[Homepage Server Component]
-  RSC --> Prisma[Prisma Client]
-  Prisma --> DB[(PostgreSQL / Neon)]
-  Browser --> Catalog[ServiceCatalog Client Component]
-  Browser --> Contact[POST /api/contact]
-  Contact --> Validate[Zod + abuse checks]
-  Validate --> Prisma
-  Validate --> Outbox[Database notification state]
-  Cron[Authenticated scheduled retry] --> Outbox
-  Outbox --> Resend[Resend optional email]
-  Admin[Admin browser] --> Proxy[Next.js proxy]
-  Proxy --> Session[Signed session verification]
-  Admin --> Actions[Authorized Server Actions]
-  Actions --> Prisma
+  subgraph Public_Surfaces [Public & Visitor Surfaces]
+    Browser[Visitor Browser] --> Next[Next.js 16 App Router]
+    Next --> i18n[LanguageProvider: useSyncExternalStore]
+    i18n --> RSC[Homepage Server Component]
+    RSC --> Prisma[Prisma Client v6]
+    Prisma --> DB[(PostgreSQL / Neon)]
+    Browser --> Catalog[ServiceCatalog Client Component]
+    Browser --> Contact[POST /api/contact]
+  end
+
+  subgraph Ingestion_Pipeline [Contact & Notification Pipeline]
+    Contact --> Validate[Zod Schema + Anti-Spam Tokens]
+    Validate --> DBWrite[Atomically Upsert ContactSubmission]
+    DBWrite --> Outbox[Database Notification State]
+    DBWrite -.-> Webhook[Async Webhook Dispatcher: Slack/Discord/CRM]
+    Cron[Vercel Scheduled Cron] --> Outbox
+    Outbox --> Resend[Resend Email Service]
+  end
+
+  subgraph Admin_Surfaces [Admin CMS & Management]
+    Admin[Admin Browser] --> Login[Admin Login: Bcrypt + RFC 6238 TOTP 2FA]
+    Login --> Session[HMAC Signed Session Cookie]
+    Session --> CMS[Admin Dashboard]
+    CMS --> Actions[Authorized Server Actions]
+    Actions --> Prisma
+    CMS --> Upload[POST /api/admin/upload: Magic-Byte Binary Validator]
+    Upload --> Disk[(/public/uploads/ Storage)]
+  end
 ```
 
 ## 2. Repository boundaries
 
 ```text
-app/          presentation, routes, server actions, metadata
-components/   interactive UI components
-lib/          infrastructure and reusable domain validation
-prisma/       schema, migration, seed, CLI config
-public/       static assets
-__tests__/    unit and route-level regression tests
+app/          Presentation, routes, API endpoints, server actions, metadata
+components/   Interactive UI components & client islands
+lib/          Domain validation, security engines, TOTP, i18n, and infrastructure
+prisma/       Schema, migrations, seed, CLI config
+public/       Static branding assets & uploaded media (/public/uploads/)
+__tests__/    14 Vitest unit and route-level regression test suites
+e2e/          Playwright end-to-end browser & accessibility test suites
+Design/       Visual design prototypes (*.png) and markup specifications (code.html)
 ```
 
-Project belum dipecah menjadi banyak feature package. Scope saat ini cukup kecil
-sehingga `app`, `components`, `lib`, dan `prisma` memberikan boundary yang jelas
-tanpa indirection yang tidak perlu.
+Boundary ini memberikan pemisahan tanggung jawab yang jelas tanpa overhead indirection yang tidak perlu:
+- Logika domain & security terletak di `lib/`.
+- UI reaktif yang membutuhkan event browser terletak di `components/`.
+- Halaman editorial dan SSG tetap murni Server Components di `app/`.
 
-## 3. Rendering model
+## 3. Rendering and State Model
 
-- `app/page.tsx` adalah dynamic Server Component karena membaca project terurut
-  dari Prisma.
-- `components/ServiceCatalog.tsx` adalah Client Component karena state
-  search/filter harus berubah tanpa server round trip.
-- `components/ContactForm.tsx` adalah Client Component karena memiliki form
-  state, timeout, validation feedback, dan submission lifecycle.
-- Admin mutation menggunakan Server Actions dan revalidate path terkait.
-- Root metadata dan JSON-LD didefinisikan di `app/layout.tsx`.
+- **Server Components (RSC)**: `app/page.tsx` adalah dynamic Server Component yang membaca data proyek dari database dengan fallback aman ke concept card jika database mengalami cold start. `app/work/[slug]/page.tsx` menggunakan Static Site Generation (`generateStaticParams`). Halaman legal (`/privacy`, `/terms`) sepenuhnya statis.
+- **Client Islands (`'use client'`)**:
+  - `components/SiteNav.tsx`: Mengelola mobile drawer, focus trapping, dan selector bahasa.
+  - `components/ServiceCatalog.tsx`: Filter kategori dan pencarian instan dengan debounce.
+  - `components/ContactForm.tsx`: Form state, pengambilan anti-spam token, idempotensi payload, dan umpan balik kesalahan.
+  - `app/start/page.tsx`: Wizard 4 langkah interaktif untuk brief proyek klien.
+  - `components/admin/*`: Manajemen proyek, drawer inspeksi lead CRM, dan modal upload gambar.
+- **Dynamic Internationalization (i18n)**:
+  - Menggunakan React 19 `useSyncExternalStore` pada `lib/i18n/context.tsx`.
+  - Mengeliminasi cascading re-renders dan mencegah isu hydration mismatch antara SSR dan client.
+  - Menyinkronkan preferensi bahasa lintas tab melalui event `storage` browser.
+- **Server Actions**: Mutasi data admin dieksekusi melalui Server Actions terotentikasi yang memicu `revalidatePath`.
 
-## 4. Data model
+## 4. Data Model
 
 ### `Project`
-
-Menyimpan portfolio publik:
-
-- `title`, `type`, `result` — display content.
-- `imagePath`, `className` — visual presentation.
-- `order` — stable public sorting dan indexed query.
-- `createdAt`, `updatedAt` — operational timestamps.
+Menyimpan portfolio publik studio:
+- `title`, `type`, `result`: Konten tampilan dan pencapaian metrik.
+- `imagePath`, `className`: Presentasi visual (mendukung aset katalog vetted maupun upload lokal `/uploads/...`).
+- `order`: Pengurutan terindeks untuk query publik yang stabil.
+- `createdAt`, `updatedAt`: Jejak audit operasional.
 
 ### `ContactSubmission`
+Menyimpan data prospek klien dengan jaminan zero-loss:
+- `name`, `email`, `message`: Input terverifikasi Zod.
+- `emailSent`: Status pengiriman email notifikasi.
+- `idempotencyKey`, `payloadHash`: Mencegah duplikasi submission; konflik `409` terjadi bila key yang sama digunakan dengan payload berbeda.
+- `notificationStatus`, `notificationAttempts`, `notificationLeaseAt`, `notificationNextAt`: Pola atomic outbox lease untuk pengiriman email berkala dengan exponential backoff.
+- `createdAt`: Pengurutan submission dan query terindeks.
 
-Menyimpan lead brief:
+## 5. Request & Data Pipelines
 
-- `name`, `email`, `message` — validated user input.
-- `emailSent` — hasil delivery Resend optional.
-- `idempotencyKey` dan `payloadHash` — satu payload per key, konflik `409` untuk isi berbeda.
-- `notificationStatus`, `notificationAttempts`, lease, dan next-attempt — klaim atomik dan retry email.
-- `createdAt` — submission ordering dan indexed query.
-
-Tidak ada payment atau client-account entity pada scope produk sekarang.
-
-## 5. Request flows
-
-### Contact submission
-
+### Contact Submission & Outbox
 ```text
 Browser JSON
- -> stream size check (32 KB)
+ -> Stream size check (maksimal 32 KB)
  -> JSON parse
- -> rate limit
- -> honeypot + signed server token (minimum wait dan expiry)
- -> Zod validation + payload fingerprint
- -> Prisma find/create dengan unique key
- -> atomic email claim dan notifikasi opsional
- -> safe JSON response
+ -> Rate limit check (Upstash Redis / bounded local fallback)
+ -> Honeypot check & signed HMAC token validation (age > 2s & < 1hr)
+ -> Zod validation & SHA-256 payload fingerprinting
+ -> Prisma find/create dengan unique idempotencyKey
+ -> Database write commit (data dijamin tersimpan)
+ -> Asynchronous webhook dispatch (Slack/Discord/CRM, non-blocking 5s timeout)
+ -> Respon 200 OK ke browser
+ -> Worker cron memproses outbox atomik untuk pengiriman email Resend
 ```
 
-Database write dipertahankan walaupun optional email delivery gagal agar lead
-tidak hilang secara diam-diam.
+### Secure Image Upload Pipeline
+```text
+Admin FormData
+ -> Verifikasi sesi admin HMAC (isAuthenticatedAdmin)
+ -> Pembatasan ukuran berkas (maksimal 5 MB)
+ -> Verifikasi MIME type whitelist (JPEG, PNG, WebP, AVIF)
+ -> Verifikasi binary signature (Magic Bytes) pada buffer awal
+ -> Penamaan aman dengan crypto.randomUUID()
+ -> Penyimpanan ke disk /public/uploads/
+ -> Respon URL publik /uploads/{uuid}.{ext}
+```
 
-### Admin authorization
+### Admin Multi-Factor Authentication (TOTP 2FA)
+```text
+Login Admin Form
+ -> Rate limit per IP
+ -> Verifikasi password bcrypt terhadap hash ADMIN_PASSWORD
+ -> Evaluasi ADMIN_TOTP_SECRET (jika dikonfigurasi)
+     -> Hitung RFC 6238 HMAC-SHA1 untuk window T-1, T, T+1 (toleransi pergeseran 30 detik)
+     -> Verifikasi konstan waktu (crypto.timingSafeEqual)
+ -> Pembuatan sesi cookie bertanda tangan HMAC dengan timestamp
+ -> Set cookie HTTP-only, Secure, SameSite=Lax
+```
+
+## 6. Security Controls
+
+- **Autentikasi & Sesi**: Cookie sesi bertanda tangan HMAC-SHA256, HTTP-only, SameSite Lax, dan secure di production. Verifikasi menggunakan `crypto.timingSafeEqual`.
+- **Multi-Factor Authentication**: RFC 6238 TOTP 2FA untuk login admin, toleransi clock-drift ±1 step, proteksi timing-attack.
+- **Proteksi Upload Berkas**: Pemeriksaan Magic Bytes (binary signatures) mencegah serangan polyglot file dan ekstensi palsu. Ukuran dibatasi 5MB.
+- **Anti-Spam & Abuse**: Token bertanda tangan HMAC dengan jendela waktu interaksi minimum (2 detik) dan batas kedaluwarsa (1 jam), disertai perangkap honeypot transparan.
+- **Distributed Rate Limiting**: Upstash Redis sliding window dengan fallback memori per proses. Header IP hanya dipercaya dari proxy tepercaya yang dikonfigurasi (`TRUSTED_PROXY_IP_HEADER` atau `x-vercel-forwarded-for`).
+- **Idempotensi Transaksional**: Kombinasi UUID idempotency key dan SHA-256 payload hash mencegah duplicate submission maupun race condition pada jaringan tidak stabil.
+- **Validasi Input Ketat**: Schema Zod memvalidasi semua payload publik dan admin. Ukuran body dibatasi dari total byte aliran data (`actual bytes`), bukan hanya header `Content-Length`.
+- **Aksesibilitas & Keamanan UI**: Lulus audit otomatis Axe-core WCAG 2.1 AA/AAA tanpa violation, kontras warna tinggi, dan target klik minimal 44px.
+
+## 7. Error & Readiness Model
+
+- **Error Boundaries**: Tersedia global error boundary (`app/error.tsx`) dengan pelacakan ID insiden dan tombol reset, serta branded 404 (`app/not-found.tsx`).
+- **Readiness & Liveness Probes**:
+  - `/api/health`: Memeriksa kesiapan koneksi database (`SELECT 1`). Mengembalikan `200 OK` atau `503 Service Unavailable` tanpa membocorkan detail internal database.
+  - `/api/live`: Memeriksa ketersediaan proses aplikasi Next.js.
+  - `/api/cron/notifications`: Memerlukan otorisasi Bearer `CRON_SECRET`.
+
+## 8. Deployment Topology
 
 ```text
-Request /admin
- -> proxy membaca signed cookie
- -> invalid/missing session redirect login
- -> page/action menjalankan authorization guard sendiri
- -> authorized operation mencapai Prisma
+Vercel / Cloud Edge
+  ├── Next.js Application (App Router Server Components & API routes)
+  ├── Static Assets & Uploads (/public/)
+  ├── Upstash Redis (Distributed Rate Limiting)
+  └── Neon PostgreSQL (Serverless Database)
+       └── Prisma Schema & Migrations
 ```
 
-Proxy adalah routing guard optimistis, bukan satu-satunya security boundary.
+Integrasi pihak ketiga:
+- **Resend**: Pengiriman email transaksional terjadwal.
+- **External Webhooks**: Pengiriman notifikasi lead instan ke Slack, Discord, atau CRM.
 
-## 6. Security controls
+## 9. Environment Contract
 
-- Production membutuhkan `ADMIN_SESSION_SECRET`.
-- Production membutuhkan `ADMIN_PASSWORD` berformat bcrypt.
-- Session cookie HTTP-only, SameSite Lax, dan secure di production.
-- HMAC-SHA256 menandatangani timestamped session token.
-- Login dan contact request memakai Upstash Redis jika dikonfigurasi, dengan fallback memori terikat per proses. Header IP hanya dipercaya dari proxy yang dikonfigurasi.
-- Contact body size dicek dari actual bytes, bukan hanya `Content-Length`.
-- Project image path dibatasi ke katalog aset lokal yang direview.
-- Zod memvalidasi public dan admin mutation payload.
-- Internal error dilog server-side tetapi tidak dikembalikan ke client.
+| Variable | Scope | Required? | Purpose |
+| :--- | :--- | :---: | :--- |
+| `DATABASE_URL` | Server | **Yes** | Koneksi PostgreSQL runtime dan Prisma CLI |
+| `ADMIN_PASSWORD` | Server | **Yes** | Hash bcrypt password admin owner |
+| `ADMIN_SESSION_SECRET` | Server | **Yes** | Secret acak penandatangan cookie sesi & token anti-spam |
+| `ADMIN_TOTP_SECRET` | Server | Optional | Secret RFC 6238 untuk multi-factor authentication (2FA) |
+| `NOTIFICATION_WEBHOOK_URL` | Server | Optional | Webhook tujuan alert instan (Slack / Discord / CRM) |
+| `RESEND_API_KEY` | Server | Optional | API key Resend untuk notifikasi email |
+| `CONTACT_EMAIL_TO` | Server | Optional | Alamat email tujuan penerima notifikasi lead |
+| `RESEND_FROM_EMAIL` | Server | Optional | Identitas pengirim email terverifikasi |
+| `CRON_SECRET` | Server | Optional | Bearer secret otorisasi endpoint cron outbox |
+| `UPSTASH_REDIS_REST_URL` | Server | Optional | REST URL Upstash Redis untuk rate limiter terdistribusi |
+| `UPSTASH_REDIS_REST_TOKEN`| Server | Optional | Token Upstash Redis |
+| `TRUSTED_PROXY_IP_HEADER` | Server | Optional | Header IP reverse proxy (kosongkan di Vercel) |
+| `NEXT_PUBLIC_SITE_URL` | Public | Optional | URL kanonikal untuk metadata Open Graph dan sitemap |
+| `NEXT_PUBLIC_WHATSAPP_NUMBER` | Public | Optional | Nomor kontak WhatsApp untuk konsultasi |
 
-### Known scale limitation
-
-Saat Redis tidak tersedia, limiter kembali ke memori per instance, sehingga batas global melemah. Cron harian dengan batch maksimal 20 row tidak menjamin notifikasi cepat. Sesi admin masih shared owner tanpa audit per operator atau revocation individual.
-
-## 7. Error and readiness model
-
-- Loading boundaries tersedia global dan admin.
-- Error boundaries tersedia global dan admin.
-- Contact API mengembalikan `400` untuk malformed/invalid input, `413` untuk
-  oversized body, `429` untuk rate limit, dan `500` untuk unexpected failure.
-- `/api/health` mengembalikan `200` saat `SELECT 1` berhasil dan `503` saat
-  database tidak tersedia.
-- `/api/live` hanya memeriksa proses hidup. `/api/cron/notifications` memerlukan Bearer `CRON_SECRET`.
-
-## 8. Deployment topology
-
-```text
-Vercel
-  ├── Next.js application
-  ├── Environment variables
-  └── Neon PostgreSQL
-       └── Prisma migrations via deploy step
-```
-
-Resend adalah external notification dependency. Static asset dilayani aplikasi
-Next.js dan dioptimalkan melalui `next/image`.
-
-## 9. Environment contract
-
-| Variable | Scope | Purpose |
-| --- | --- | --- |
-| `DATABASE_URL` | Server | PostgreSQL connection |
-| `RESEND_API_KEY` | Server | Optional email notification |
-| `CONTACT_EMAIL_TO` | Server | Notification destination |
-| `RESEND_FROM_EMAIL` | Server | Sender identity |
-| `ADMIN_PASSWORD` | Server | Bcrypt admin credential |
-| `ADMIN_SESSION_SECRET` | Server | Session signing secret |
-| `CRON_SECRET` | Server | Scheduled notification authorization |
-| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Server | Distributed limiter |
-| `TRUSTED_PROXY_IP_HEADER` | Server | Trusted reverse proxy IP header if applicable |
-| `NEXT_PUBLIC_WHATSAPP_NUMBER` | Public | WhatsApp CTA destination |
-| `NEXT_PUBLIC_CONTACT_EMAIL` | Public | Footer contact |
-| `NEXT_PUBLIC_SITE_URL` | Public/build | Canonical URL and metadata |
-| `NEXT_PUBLIC_INSTAGRAM_URL` | Public | Optional social link |
-
-Jangan expose server-only secrets melalui `NEXT_PUBLIC_*`.
-
-## 10. Verification gates
+## 10. Verification Gates
 
 ```bash
-npm test
-npm run typecheck
+# 1. Static code analysis & linting
 npm run lint
+
+# 2. TypeScript compilation check
+npx tsc --noEmit
+
+# 3. Unit & integration test suites
+npm test
+
+# 4. Production Turbopack build
 npm run build
-node ./node_modules/prisma/build/index.js validate
-node ./node_modules/prisma/build/index.js migrate status
-git diff --check
+
+# 5. Automated WCAG accessibility audit
+npx playwright test e2e/accessibility.spec.ts
+
+# 6. End-to-end browser test suites
+npx playwright test
 ```
-
-Sebelum deployment, smoke-test `/`, `/api/health`, redirect `/admin`, contact
-validation, dan responsive widths dari 320px sampai 1440px.
-
-## 11. Evolution guidelines
-
-1. Ekstrak definisi layanan ke modul data bila masuk CMS.
-2. Pindahkan admin ke identitas per orang bila multi-operator disetujui.
-3. Ukur backlog notifikasi dan kapasitas cron; tingkatkan frekuensi/worker bila dibutuhkan.
-4. Terapkan cache portofolio hanya setelah pengukuran dan pengujian invalidasi mutation.
-5. Ikuti gerbang staging dan backup/restore pada `OPERATIONS.md`.
