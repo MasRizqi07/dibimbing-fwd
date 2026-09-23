@@ -1,8 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useSyncExternalStore, useMemo } from "react";
+import React, { createContext, useContext, useSyncExternalStore, useMemo, useCallback } from "react";
 import type { Dictionary, Locale } from "./types";
 import { dictionaries } from "./dictionaries";
+import { useRouter } from "next/navigation";
 
 interface LanguageContextValue {
   lang: Locale;
@@ -32,7 +33,7 @@ let cachedLocale: Locale = "ID";
 
 function getSnapshot(): Locale {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = document.cookie.split("; ").find((item) => item.startsWith("nexa_locale="))?.split("=")[1];
     if (saved === "ID" || saved === "EN") {
       cachedLocale = saved;
       return saved;
@@ -43,28 +44,27 @@ function getSnapshot(): Locale {
   return cachedLocale;
 }
 
-function getServerSnapshot(): Locale {
-  return "ID";
-}
-
 const LanguageContext = createContext<LanguageContextValue>({
   lang: "ID",
   setLang: () => {},
   t: dictionaries.ID,
 });
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const lang = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+export function LanguageProvider({ children, initialLocale }: { children: React.ReactNode; initialLocale: Locale }) {
+  const router = useRouter();
+  const lang = useSyncExternalStore(subscribe, getSnapshot, () => initialLocale);
 
-  const setLang = (nextLocale: Locale) => {
+  const setLang = useCallback((nextLocale: Locale) => {
     cachedLocale = nextLocale;
     try {
+      document.cookie = `nexa_locale=${nextLocale}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
       localStorage.setItem(STORAGE_KEY, nextLocale);
     } catch {
       // Ignore
     }
     listeners.forEach((listener) => listener());
-  };
+    router.refresh();
+  }, [router]);
 
   const value = useMemo(
     () => ({
@@ -72,7 +72,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       setLang,
       t: dictionaries[lang] || dictionaries.ID,
     }),
-    [lang]
+    [lang, setLang]
   );
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;

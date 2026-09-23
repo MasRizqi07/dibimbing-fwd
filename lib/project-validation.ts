@@ -7,6 +7,7 @@ const assetPaths = projectAssets.map((asset) => asset.path) as [
 ];
 
 const uploadPathRegex = /^\/uploads\/[a-zA-Z0-9_\-\.]+\.(jpg|jpeg|png|webp|avif)$/;
+const mediaPathRegex = /^\/api\/media\/[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.webp$/i;
 
 export const projectFormSchema = z.object({
   title: z.string().trim().min(2).max(120),
@@ -14,7 +15,7 @@ export const projectFormSchema = z.object({
   result: z.string().trim().min(2).max(240),
   className: z.enum(["project-coffee", "project-fashion", "project-wellness"]).nullable(),
   imagePath: z
-    .union([z.enum(assetPaths), z.string().regex(uploadPathRegex)])
+    .union([z.enum(assetPaths), z.string().refine((path) => uploadPathRegex.test(path) || mediaPathRegex.test(path))])
     .nullable(),
   order: z.number().int().min(0).max(100_000),
 });

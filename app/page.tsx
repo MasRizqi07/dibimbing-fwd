@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import ContactForm from "@/components/ContactForm";
 import ServiceCatalog, { type ServiceItem } from "@/components/ServiceCatalog";
 import SiteNav from "@/components/SiteNav";
+import { getRequestLocale } from "@/lib/i18n/server";
+import { homeCopy } from "@/lib/i18n/home";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +25,7 @@ const services: ServiceItem[] = [
       "Website responsif, cepat, dan teroptimasi SEO dengan Next.js dan Tailwind CSS modern yang mengubah pengunjung menjadi pelanggan loyal.",
     icon: "↗",
     category: "Web Development",
-    deliverables: ["Jamstack Architecture", "Core Web Vitals < 1.2s", "CMS Integration"],
+    deliverables: ["Jamstack Architecture", "Performance Review", "CMS Integration"],
   },
   {
     number: "02",
@@ -50,20 +52,20 @@ const plans: Plan[] = [
     name: "Starter",
     price: "3,5",
     description: "Solusi ideal bagi brand rintisan yang membutuhkan kehadiran online yang profesional.",
-    features: ["One-page website", "Copywriting dasar", "Mobile responsive", "7 hari pengerjaan"],
+    features: ["One-page website", "Copywriting dasar", "Mobile responsive", "Estimasi jadwal dalam proposal"],
   },
   {
     name: "Growth",
     price: "7,5",
     description: "Akselerator penuh untuk bisnis berkembang yang butuh konversi tinggi dan identitas terpadu.",
-    features: ["Website hingga 5 halaman", "Complete Visual Identity", "SEO basic setup", "14 hari pengerjaan"],
+    features: ["Website hingga 5 halaman", "Complete Visual Identity", "SEO basic setup", "Estimasi jadwal dalam proposal"],
     featured: true,
   },
   {
     name: "Custom",
     price: "Let's talk",
     description: "Solusi bespoke dengan rekayasa teknologi kustom dan integrasi platform kompleks.",
-    features: ["Strategi digital bespoke", "Arsitektur cloud & API", "Support prioritas SLA", "Timeline fleksibel"],
+    features: ["Strategi digital bespoke", "Arsitektur cloud & API", "Dukungan sesuai perjanjian", "Timeline fleksibel"],
   },
 ];
 
@@ -71,22 +73,40 @@ function ArrowIcon() {
   return <span aria-hidden="true" className="arrow-icon">↗</span>;
 }
 
-function resolveProjectSlug(title: string, index: number): string {
-  const normalized = title.toLowerCase();
-  if (normalized.includes("kopi") || normalized.includes("nomad")) {
-    return "nomad-coffee-roasters";
-  }
-  if (normalized.includes("sora") || normalized.includes("aura") || normalized.includes("fashion")) {
-    return "aura-studio-fashion";
-  }
-  if (normalized.includes("ruang") || normalized.includes("pulih") || normalized.includes("wellness")) {
-    return "ruang-pulih-holistic-spa";
-  }
-  const defaultSlugs = ["nomad-coffee-roasters", "aura-studio-fashion", "ruang-pulih-holistic-spa"];
-  return defaultSlugs[index % defaultSlugs.length];
+function resolveProjectSlug(title: string): string | null {
+  const conceptSlugs: Record<string, string> = {
+    "Nomad Coffee Roasters": "nomad-coffee-roasters",
+    "Aura Studio": "aura-studio-fashion",
+    "Ruang Pulih": "ruang-pulih-holistic-spa",
+  };
+  return conceptSlugs[title] || null;
 }
 
 export default async function Home() {
+  const locale = await getRequestLocale();
+  const copy = homeCopy[locale];
+  const visibleServices = locale === "ID" ? services : services.map((service, index) => ({
+    ...service,
+    category: index === 2 ? "Content" : service.category,
+    description: [
+      "Fast, responsive, SEO-friendly websites built with modern Next.js and Tailwind CSS to help visitors become loyal customers.",
+      "A distinctive, consistent visual identity that helps your business stand out from the first impression.",
+      "Focused stories and copy that support conversions and build long-term trust.",
+    ][index],
+  }));
+  const visiblePlans = locale === "ID" ? plans : plans.map((plan, index) => ({
+    ...plan,
+    description: [
+      "A professional online presence for an emerging brand.",
+      "A complete growth package for businesses seeking stronger conversion and a cohesive identity.",
+      "Tailored engineering and integrations for complex needs.",
+    ][index],
+    features: [
+      ["One-page website", "Basic copywriting", "Mobile responsive", "Schedule estimate in proposal"],
+      ["Up to five website pages", "Complete visual identity", "Basic SEO setup", "Schedule estimate in proposal"],
+      ["Tailored digital strategy", "Cloud and API architecture", "Support defined by agreement", "Flexible timeline"],
+    ][index],
+  }));
   let projects: Array<Awaited<ReturnType<typeof prisma.project.findMany>>[number]> = [];
   try {
     projects = await prisma.project.findMany({
@@ -110,18 +130,18 @@ export default async function Home() {
         <section className="hero section-shell" id="top">
           <div className="hero-copy">
             <p className="eyebrow">
-              <span className="status-dot" /> Digital agency for growth-ready businesses
+              <span className="status-dot" /> {copy.heroEyebrow}
             </p>
-            <h1>Transformasi Digital Terukur untuk Bisnis yang Siap Tumbuh</h1>
+            <h1>{copy.heroTitle}</h1>
             <p className="hero-description">
-              Kami merancang website performa tinggi, identitas visual distingtif, dan strategi konten terarah yang mengubah pengunjung menjadi klien loyal bagi UMKM dan brand berkembang.
+              {copy.heroDescription}
             </p>
             <div className="hero-actions">
               <Link className="button button-primary" href="/start">
-                Mulai Diskusi Proyek <ArrowIcon />
+                {copy.startDiscussion} <ArrowIcon />
               </Link>
             <a className="text-link" href="#work">
-              Lihat hasil kerja <span aria-hidden="true">↓</span>
+              {copy.seeWork} <span aria-hidden="true">↓</span>
             </a>
           </div>
           <div className="hero-proof">
@@ -131,18 +151,18 @@ export default async function Home() {
               <span>D</span>
             </div>
             <p>
-              <strong>Dipercaya 40+ bisnis</strong>
+              <strong>{copy.trusted}</strong>
               <br />
-              <span>untuk tumbuh lebih cepat</span>
+              <span>{copy.growFaster}</span>
             </p>
           </div>
         </div>
 
-        <div className="hero-art" aria-label="Ilustrasi dashboard pertumbuhan bisnis">
+        <div className="hero-art" aria-label={locale === "ID" ? "Ilustrasi dashboard pertumbuhan bisnis" : "Business growth dashboard illustration"}>
           <div className="art-glow" />
           <div className="growth-card">
             <div className="card-topline">
-              <span>Monthly growth</span>
+              <span>{copy.growth}</span>
               <span className="positive">+24.8%</span>
             </div>
             <div className="chart-value">
@@ -150,7 +170,7 @@ export default async function Home() {
             </div>
             <div className="chart">
               <div className="chart-grid" />
-              <svg viewBox="0 0 450 180" role="img" aria-label="Grafik pertumbuhan naik">
+              <svg viewBox="0 0 450 180" role="img" aria-label={copy.chartLabel}>
                 <defs>
                   <linearGradient id="chartFill" x1="0" x2="0" y1="0" y2="1">
                     <stop offset="0%" stopColor="#c3f35b" stopOpacity=".34" />
@@ -183,14 +203,14 @@ export default async function Home() {
             <span className="mini-icon">↗</span>
             <span>
               <strong>+38%</strong>
-              <small>new customers</small>
+              <small>{copy.newCustomers}</small>
             </span>
           </div>
           <div className="floating-card floating-card-bottom">
             <span className="mini-ring">✓</span>
             <span>
-              <strong>Goal reached</strong>
-              <small>Keep it going!</small>
+              <strong>{copy.goalReached}</strong>
+              <small>{copy.keepGoing}</small>
             </span>
           </div>
           <div className="art-tag">
@@ -200,9 +220,9 @@ export default async function Home() {
       </section>
 
       {/* 2. CLIENT PROOF BAR */}
-      <section className="logo-strip section-shell" aria-label="Klien kami">
+      <section className="logo-strip section-shell" aria-label={locale === "ID" ? "Contoh wordmark" : "Wordmark concepts"}>
         <span>
-          Dipercaya oleh brand yang ingin <strong>melangkah lebih jauh</strong>
+          {copy.clients} <strong>{copy.clientsStrong}</strong>
         </span>
         <div className="client-logos">
           <b>PARAS</b>
@@ -216,28 +236,28 @@ export default async function Home() {
       {/* 3. SERVICE CATALOG */}
       <section className="services section-shell" id="services">
         <div className="section-heading">
-          <p className="eyebrow">Yang kami kerjakan</p>
+          <p className="eyebrow">{copy.servicesEyebrow}</p>
           <h2>
-            Semua yang kamu butuhkan untuk <em>naik level.</em>
+            {copy.servicesTitle} <em>{copy.servicesAccent}</em>
           </h2>
           <p>
-            Tanpa jargon ribet. Tanpa proses berbelit. Hanya strategi dan eksekusi yang benar-benar relevan buat bisnismu.
+            {copy.servicesDescription}
           </p>
         </div>
-        <ServiceCatalog services={services} whatsappUrl={whatsappUrl || "#contact"} />
+        <ServiceCatalog services={visibleServices} whatsappUrl={whatsappUrl || "#contact"} />
       </section>
 
       {/* 4. SELECTED WORK / PORTFOLIO */}
       <section className="work section-shell" id="work">
         <div className="section-heading work-heading">
           <div>
-            <p className="eyebrow">Selected work</p>
+            <p className="eyebrow">{copy.workEyebrow}</p>
             <h2>
-              Kerja bagus berbicara <em>lebih keras.</em>
+              {copy.workTitle} <em>{copy.workAccent}</em>
             </h2>
           </div>
           <Link className="text-link" href="/start">
-            Mulai proyek Anda <ArrowIcon />
+            {copy.startProject} <ArrowIcon />
           </Link>
         </div>
         <div className="project-grid">
@@ -255,42 +275,26 @@ export default async function Home() {
                 fontSize: "14px",
               }}
             >
-              Belum ada project yang ditampilkan.
+              {copy.noProjects}
             </div>
           ) : (
-            projects.map((project, index) => {
-              const slug = resolveProjectSlug(project.title, index);
+            projects.map((project) => {
+              const slug = resolveProjectSlug(project.title);
+              const visual = (
+                <div className="project-visual">
+                  {project.imagePath ? (
+                    <Image src={project.imagePath} alt={`${project.title} — ${project.type}`} fill sizes="(max-width: 800px) 100vw, 360px" style={{ objectFit: "cover" }} priority={project.order <= 2} />
+                  ) : (
+                    <><div className="visual-window"><span /><span /><span /></div><div className="visual-title">{project.title}</div><div className="visual-shape" /></>
+                  )}
+                </div>
+              );
               return (
                 <article className={`project-card ${project.className || ""}`} key={project.id}>
-                  <Link href={`/work/${slug}`} style={{ display: "block" }}>
-                    <div className="project-visual">
-                      {project.imagePath ? (
-                        <Image
-                          src={project.imagePath}
-                          alt={`Showcase portfolio ${project.title} — ${project.type}`}
-                          fill
-                          sizes="(max-width: 800px) 100vw, 360px"
-                          style={{ objectFit: "cover" }}
-                          priority={project.order <= 2}
-                        />
-                      ) : (
-                        <>
-                          <div className="visual-window">
-                            <span />
-                            <span />
-                            <span />
-                          </div>
-                          <div className="visual-title">{project.title}</div>
-                          <div className="visual-shape" />
-                        </>
-                      )}
-                    </div>
-                  </Link>
+                  {slug ? <Link href={`/work/${slug}`} style={{ display: "block" }}>{visual}</Link> : visual}
                   <p>{project.type}</p>
-                  <Link href={`/work/${slug}`}>
-                    <h3>{project.title}</h3>
-                  </Link>
-                  <strong>{project.result}</strong>
+                  {slug ? <Link href={`/work/${slug}`}><h3>{project.title}</h3></Link> : <h3>{project.title}</h3>}
+                  <strong>{["Kopi Koma", "Sora Studio", "Ruang Pulih", "Nomad Coffee Roasters", "Aura Studio"].includes(project.title) ? (locale === "ID" ? "Konsep visual" : "Visual concept") : project.result}</strong>
                 </article>
               );
             })
@@ -301,19 +305,19 @@ export default async function Home() {
       {/* 5. PROCESS SECTION */}
       <section className="process section-shell" id="process">
         <div className="process-intro">
-          <p className="eyebrow">Metodologi Kerja</p>
+          <p className="eyebrow">{copy.processEyebrow}</p>
           <h2>
             Simple process.
             <br />
             <em>Serious results.</em>
           </h2>
-          <p>Kamu tetap fokus menjalankan bisnis. Kami yang bantu mengurus bagaimana bisnis itu terlihat dan ditemukan.</p>
+          <p>{copy.processDescription}</p>
         </div>
         <div className="process-list">
           {[
             { step: "01", title: "Discovery & Audit", desc: "Analisis target audiens & objektif bisnis" },
             { step: "02", title: "Strategy & UI/UX", desc: "Arsitektur informasi & visual prototype presisi" },
-            { step: "03", title: "Scalable Engineering", desc: "Kode Next.js bersih dengan performa sub-detik" },
+            { step: "03", title: "Scalable Engineering", desc: "Kode Next.js terstruktur dengan fokus pada performa" },
             { step: "04", title: "Launch & Optimize", desc: "Deployment stabil, QA, dan pelacakan konversi" },
           ].map((item) => (
             <div className="process-step" key={item.step}>
@@ -330,16 +334,16 @@ export default async function Home() {
       {/* 6. PRICING MATRIX */}
       <section className="pricing section-shell" id="pricing">
         <div className="section-heading centered-heading">
-          <p className="eyebrow">Investasi untuk bertumbuh</p>
+          <p className="eyebrow">{copy.pricingEyebrow}</p>
           <h2>
-            Pilih langkah <em>pertamamu.</em>
+            {copy.pricingTitle} <em>{copy.pricingAccent}</em>
           </h2>
-          <p>Semua paket bisa disesuaikan. Ceritakan saja apa yang ingin kamu capai.</p>
+          <p>{copy.pricingDescription}</p>
         </div>
         <div className="pricing-grid">
-          {plans.map((plan) => (
+          {visiblePlans.map((plan) => (
             <article className={`pricing-card ${plan.featured ? "featured" : ""}`} key={plan.name}>
-              {plan.featured && <span className="popular-badge">Paling populer</span>}
+              {plan.featured && <span className="popular-badge">{copy.popular}</span>}
               <h3>{plan.name}</h3>
               <p>{plan.description}</p>
               <div className="price">
@@ -355,7 +359,7 @@ export default async function Home() {
                 ))}
               </ul>
               <Link className={`button ${plan.featured ? "button-primary" : "button-outline"}`} href="/start">
-                Pilih paket <ArrowIcon />
+                {copy.choosePlan} <ArrowIcon />
               </Link>
             </article>
           ))}
@@ -365,19 +369,19 @@ export default async function Home() {
       {/* 7. CONTACT SECTION */}
       <section className="contact section-shell" id="contact">
         <div>
-          <p className="eyebrow">Konsultasi Terarah</p>
+          <p className="eyebrow">{copy.contactEyebrow}</p>
           <h2>
-            Bisnis besar dimulai dari <em>langkah kecil.</em>
+            {copy.contactTitle} <em>{copy.contactAccent}</em>
           </h2>
           <p style={{ marginTop: "20px", color: "#b4c5c3", fontSize: "14px", lineHeight: "1.65" }}>
-            Konsultasi awal gratis tanpa komitmen. Kami membedah peluang konversi dan strategi implementasi dalam waktu maksimal 24 jam kerja.
+            {copy.contactDescription}
           </p>
           <div style={{ marginTop: "28px", display: "flex", flexDirection: "column", gap: "12px" }}>
             {whatsappUrl && (
               <div style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "13px" }}>
                 <span style={{ color: "var(--accent-lime)" }}>WhatsApp:</span>
                 <a href={whatsappUrl} target="_blank" rel="noreferrer" style={{ color: "#ffffff", fontWeight: 700, textDecoration: "underline" }}>
-                  Hubungi Langsung ↗
+                  {copy.contactDirect} ↗
                 </a>
               </div>
             )}
@@ -405,9 +409,7 @@ export default async function Home() {
           </span>
         </Link>
         <p>
-          Designing digital experiences
-          <br />
-          that move businesses forward.
+          {copy.footer}
         </p>
         <div className="footer-links">
           {contactEmail && <a href={`mailto:${contactEmail}`}>{contactEmail}</a>}
@@ -421,8 +423,8 @@ export default async function Home() {
               WhatsApp ↗
             </a>
           )}
-          <Link href="/privacy">Kebijakan Privasi</Link>
-          <Link href="/terms">Syarat & Ketentuan</Link>
+          <Link href="/privacy">{copy.privacy}</Link>
+          <Link href="/terms">{copy.terms}</Link>
         </div>
         <small>© {new Date().getFullYear()} Nexa Studio. Made with intention.</small>
       </footer>

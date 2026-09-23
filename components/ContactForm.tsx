@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useLanguage } from "@/lib/i18n/context";
 
 async function fetchAntiSpamToken(): Promise<string> {
   try {
@@ -14,6 +15,7 @@ async function fetchAntiSpamToken(): Promise<string> {
 }
 
 export default function ContactForm({ whatsappUrl }: { whatsappUrl: string | null }) {
+  const { lang, t } = useLanguage();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -67,7 +69,7 @@ export default function ContactForm({ whatsappUrl }: { whatsappUrl: string | nul
       const token = antiSpamToken || await fetchAntiSpamToken();
       if (!token) {
         setStatus("error");
-        setErrorMessage("Validasi formulir belum siap. Periksa koneksi lalu coba lagi.");
+        setErrorMessage(lang === "ID" ? "Validasi formulir belum siap. Periksa koneksi lalu coba lagi." : "The form is not ready. Check your connection and try again.");
         return;
       }
       setAntiSpamToken(token);
@@ -88,7 +90,7 @@ export default function ContactForm({ whatsappUrl }: { whatsappUrl: string | nul
 
       if (!res.ok) {
         setStatus("error");
-        setErrorMessage(data.error || "Gagal mengirim pesan. Silakan coba lagi.");
+        setErrorMessage(lang === "ID" && typeof data.error === "string" ? data.error : lang === "ID" ? "Gagal mengirim pesan. Silakan coba lagi." : "Unable to send your message. Please try again.");
         if (data.details) {
           setFieldErrors(data.details);
         }
@@ -108,8 +110,8 @@ export default function ContactForm({ whatsappUrl }: { whatsappUrl: string | nul
       setStatus("error");
       setErrorMessage(
         error instanceof DOMException && error.name === "AbortError"
-          ? "Permintaan terlalu lama. Silakan coba lagi."
-          : "Terjadi masalah jaringan. Silakan periksa koneksi Anda."
+          ? (lang === "ID" ? "Permintaan terlalu lama. Silakan coba lagi." : "The request timed out. Please try again.")
+          : (lang === "ID" ? "Terjadi masalah jaringan. Silakan periksa koneksi Anda." : "Network error. Please check your connection.")
       );
     } finally {
       window.clearTimeout(timeoutId);
@@ -130,9 +132,9 @@ export default function ContactForm({ whatsappUrl }: { whatsappUrl: string | nul
     return (
       <div className="contact-form-success" role="status">
         <div className="success-icon" aria-hidden="true">✓</div>
-        <h3>Pesan Tersimpan!</h3>
+        <h3>{lang === "ID" ? "Pesan Tersimpan!" : "Message received!"}</h3>
         <p>
-          Terima kasih sudah menghubungi Nexa Studio. Pesan kamu telah kami terima dan akan ditinjau oleh tim.
+          {lang === "ID" ? "Terima kasih sudah menghubungi Nexa Studio. Pesan kamu telah kami terima dan akan ditinjau oleh tim." : "Thank you for contacting Nexa Studio. Our team has received your message and will review it."}
         </p>
         <button
           type="button"
@@ -140,7 +142,7 @@ export default function ContactForm({ whatsappUrl }: { whatsappUrl: string | nul
           className="button button-lime"
           style={{ cursor: "pointer", border: "none", marginTop: "16px" }}
         >
-          Kirim Pesan Lain
+          {lang === "ID" ? "Kirim Pesan Lain" : "Send another message"}
         </button>
       </div>
     );
@@ -163,7 +165,7 @@ export default function ContactForm({ whatsappUrl }: { whatsappUrl: string | nul
       </div>
 
       <div className="form-group">
-        <label htmlFor="name">Nama Lengkap</label>
+        <label htmlFor="name">{t.contact.nameLabel}</label>
         <input
           id="name"
           name="name"
@@ -171,7 +173,7 @@ export default function ContactForm({ whatsappUrl }: { whatsappUrl: string | nul
           required
           minLength={2}
           maxLength={100}
-          placeholder="Nama Anda atau Brand"
+          placeholder={t.contact.namePlaceholder}
           value={formData.name}
           onChange={handleChange}
           disabled={status === "loading"}
@@ -187,14 +189,14 @@ export default function ContactForm({ whatsappUrl }: { whatsappUrl: string | nul
       </div>
 
       <div className="form-group">
-        <label htmlFor="email">Alamat Email</label>
+        <label htmlFor="email">{t.contact.emailLabel}</label>
         <input
           id="email"
           name="email"
           type="email"
           required
           maxLength={255}
-          placeholder="email@bisnis.com"
+          placeholder={t.contact.emailPlaceholder}
           value={formData.email}
           onChange={handleChange}
           disabled={status === "loading"}
@@ -210,7 +212,7 @@ export default function ContactForm({ whatsappUrl }: { whatsappUrl: string | nul
       </div>
 
       <div className="form-group">
-        <label htmlFor="message">Ceritakan Kebutuhan Proyek</label>
+        <label htmlFor="message">{t.contact.messageLabel}</label>
         <textarea
           id="message"
           name="message"
@@ -218,7 +220,7 @@ export default function ContactForm({ whatsappUrl }: { whatsappUrl: string | nul
           required
           minLength={10}
           maxLength={2000}
-          placeholder="Ceritakan tentang bisnis kamu, tantangan yang dihadapi, atau hasil yang ingin dicapai..."
+          placeholder={t.contact.messagePlaceholder}
           value={formData.message}
           onChange={handleChange}
           disabled={status === "loading"}
@@ -245,20 +247,20 @@ export default function ContactForm({ whatsappUrl }: { whatsappUrl: string | nul
         className="button button-lime contact-submit-btn"
         style={{ cursor: status === "loading" ? "not-allowed" : "pointer", border: "none" }}
       >
-        {status === "loading" ? "Mengirim pesan..." : "Kirim Pesan Sekarang ↗"}
+        {status === "loading" ? t.contact.sendingBtn : `${t.contact.submitBtn} ↗`}
       </button>
 
-      <p className="form-disclosure">Nama, email, dan pesan kamu disimpan agar tim kami dapat menindaklanjuti pertanyaanmu. Jangan kirim informasi sensitif. <Link href="/privacy">Cara data diproses</Link>.</p>
+      <p className="form-disclosure">{lang === "ID" ? "Nama, email, dan pesan kamu disimpan agar tim kami dapat menindaklanjuti pertanyaanmu. Jangan kirim informasi sensitif." : "We store your name, email, and message to respond to your inquiry. Do not send sensitive information."} <Link href="/privacy">{lang === "ID" ? "Cara data diproses" : "How we process data"}</Link>.</p>
 
       {whatsappUrl && <div className="whatsapp-fallback">
-        <span>Atau lebih suka chat langsung? </span>
+        <span>{lang === "ID" ? "Atau lebih suka chat langsung? " : "Prefer to chat directly? "}</span>
         <a
           href={whatsappUrl}
           target="_blank"
           rel="noreferrer"
           className="wa-link"
         >
-          Hubungi via WhatsApp ↗
+          {lang === "ID" ? "Hubungi via WhatsApp" : "Contact us on WhatsApp"} ↗
         </a>
       </div>}
     </form>

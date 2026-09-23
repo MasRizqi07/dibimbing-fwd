@@ -160,6 +160,7 @@ export async function POST(request: Request) {
             idempotencyKey,
             payloadHash,
             emailSent: false,
+            webhookStatus: process.env.NOTIFICATION_WEBHOOK_URL && process.env.NOTIFICATION_WEBHOOK_SECRET ? "pending" : "disabled",
           },
         });
       } catch (err: unknown) {

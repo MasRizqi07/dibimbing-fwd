@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { PrismaClient } from "@prisma/client";
+import { generateTOTP } from "../lib/totp";
 
 test.describe("E2E — Admin Login & CMS Protection", () => {
   test("should redirect unauthenticated user to login page when accessing /admin", async ({ page }) => {
@@ -28,10 +29,35 @@ test.describe("E2E — Admin Login & CMS Protection", () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });
 
-  test("project create, edit, image selection and delete persist after reload", async ({ page }) => {
+  test("rejects reuse of an accepted admin TOTP code", async ({ page }) => {
     test.skip(process.env.E2E_TEST_MODE !== "1", "Isolated test database required");
+    await page.setExtraHTTPHeaders({ "x-real-ip": "203.0.113.201" });
+    const db = new PrismaClient({ datasources: { db: { url: process.env.TEST_DATABASE_URL! } } });
+    await db.adminTotpState.deleteMany();
+    await db.$disconnect();
+    const code = generateTOTP("JBSWY3DPEHPK3PXP");
     await page.goto("/admin/login");
     await page.getByLabel("Password Admin").fill("ci-e2e-password");
+    await page.getByLabel(/Kode 2FA/).fill(code);
+    await page.getByRole("button", { name: /Masuk ke Dashboard/ }).click();
+    await expect(page).toHaveURL(/\/admin$/);
+    await page.context().clearCookies();
+    await page.goto("/admin/login");
+    await page.getByLabel("Password Admin").fill("ci-e2e-password");
+    await page.getByLabel(/Kode 2FA/).fill(code);
+    await page.getByRole("button", { name: /Masuk ke Dashboard/ }).click();
+    await expect(page.getByRole("alert").filter({ hasText: "2FA tidak valid" })).toBeVisible();
+  });
+
+  test("project create, edit, image selection and delete persist after reload", async ({ page }) => {
+    test.skip(process.env.E2E_TEST_MODE !== "1", "Isolated test database required");
+    await page.setExtraHTTPHeaders({ "x-real-ip": "203.0.113.202" });
+    const db = new PrismaClient({ datasources: { db: { url: process.env.TEST_DATABASE_URL! } } });
+    await db.adminTotpState.deleteMany();
+    await db.$disconnect();
+    await page.goto("/admin/login");
+    await page.getByLabel("Password Admin").fill("ci-e2e-password");
+    await page.getByLabel(/Kode 2FA/).fill(generateTOTP("JBSWY3DPEHPK3PXP"));
     await page.getByRole("button", { name: /Masuk ke Dashboard/ }).click();
     await expect(page).toHaveURL(/\/admin$/);
 
@@ -65,7 +91,9 @@ test.describe("E2E — Admin Login & CMS Protection", () => {
 
   test("editing a legacy project keeps an image outside the current catalog", async ({ page }) => {
     test.skip(process.env.E2E_TEST_MODE !== "1", "Isolated test database required");
+    await page.setExtraHTTPHeaders({ "x-real-ip": "203.0.113.203" });
     const db = new PrismaClient({ datasources: { db: { url: process.env.TEST_DATABASE_URL! } } });
+    await db.adminTotpState.deleteMany();
     const project = await db.project.create({
       data: {
         title: `Legacy E2E ${crypto.randomUUID().slice(0, 8)}`,
@@ -79,6 +107,7 @@ test.describe("E2E — Admin Login & CMS Protection", () => {
     try {
       await page.goto("/admin/login");
       await page.getByLabel("Password Admin").fill("ci-e2e-password");
+      await page.getByLabel(/Kode 2FA/).fill(generateTOTP("JBSWY3DPEHPK3PXP"));
       await page.getByRole("button", { name: /Masuk ke Dashboard/ }).click();
       const row = page.locator(".admin-project-list li").filter({ hasText: project.title });
       await row.getByRole("button", { name: "Edit" }).click();

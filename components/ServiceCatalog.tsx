@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { useLanguage } from "@/lib/i18n/context";
 
 export interface ServiceItem {
   number: string;
@@ -21,12 +22,13 @@ function ArrowIcon() {
 }
 
 export default function ServiceCatalog({ services, whatsappUrl }: ServiceCatalogProps) {
+  const { t, lang } = useLanguage();
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("Semua");
+  const [category, setCategory] = useState("");
   const [, startTransition] = useTransition();
 
   const categories = useMemo(
-    () => ["Semua", ...new Set(services.map((service) => service.category))],
+    () => ["", ...new Set(services.map((service) => service.category))],
     [services],
   );
 
@@ -34,7 +36,7 @@ export default function ServiceCatalog({ services, whatsappUrl }: ServiceCatalog
     const normalizedQuery = query.trim().toLowerCase();
 
     return services.filter((service) => {
-      const matchesCategory = category === "Semua" || service.category === category;
+      const matchesCategory = category === "" || service.category === category;
       const matchesQuery =
         normalizedQuery.length === 0 ||
         `${service.title} ${service.description} ${service.category} ${service.deliverables?.join(" ") || ""}`
@@ -58,16 +60,16 @@ export default function ServiceCatalog({ services, whatsappUrl }: ServiceCatalog
 
   return (
     <>
-      <div className="service-explorer" role="search" aria-label="Cari layanan Nexa Studio">
+      <div className="service-explorer" role="search" aria-label={t.services.searchLabel}>
         <div className="service-search-field">
           <span className="search-icon" aria-hidden="true">⌕</span>
-          <label className="sr-only" htmlFor="service-search">Cari layanan</label>
+          <label className="sr-only" htmlFor="service-search">{t.services.searchLabel}</label>
           <input
             id="service-search"
             type="search"
             value={query}
             onChange={handleSearchChange}
-            placeholder="Cari website, branding, atau konten..."
+            placeholder={t.services.searchPlaceholder}
             autoComplete="off"
           />
           {query && (
@@ -75,13 +77,13 @@ export default function ServiceCatalog({ services, whatsappUrl }: ServiceCatalog
               type="button"
               className="search-clear"
               onClick={handleClear}
-              aria-label="Hapus pencarian"
+              aria-label={lang === "ID" ? "Hapus pencarian" : "Clear search"}
             >
               ×
             </button>
           )}
         </div>
-        <div className="service-filters" aria-label="Filter kategori layanan">
+        <div className="service-filters" aria-label={lang === "ID" ? "Filter kategori layanan" : "Service categories"}>
           {categories.map((item) => (
             <button
               type="button"
@@ -90,14 +92,14 @@ export default function ServiceCatalog({ services, whatsappUrl }: ServiceCatalog
               onClick={() => setCategory(item)}
               aria-pressed={category === item}
             >
-              {item}
+              {item || t.services.allCategory}
             </button>
           ))}
         </div>
       </div>
 
       <p className="service-result-count" aria-live="polite">
-        {filteredServices.length} layanan tersedia
+        {filteredServices.length} {t.services.availableSuffix}
       </p>
 
       {filteredServices.length > 0 ? (
@@ -135,17 +137,17 @@ export default function ServiceCatalog({ services, whatsappUrl }: ServiceCatalog
                 rel={whatsappUrl.startsWith("https://") ? "noreferrer" : undefined}
                 style={{ marginTop: "16px", display: "inline-block" }}
               >
-                Diskusikan kebutuhan <ArrowIcon />
+                {lang === "ID" ? "Diskusikan kebutuhan" : "Discuss your needs"} <ArrowIcon />
               </a>
             </article>
           ))}
         </div>
       ) : (
         <div className="service-empty-state" role="status">
-          <strong>Belum menemukan layanan yang cocok.</strong>
-          <span>Coba kata kunci lain atau pilih kategori Semua.</span>
-          <button type="button" onClick={() => { setQuery(""); setCategory("Semua"); }}>
-            Reset pencarian
+          <strong>{t.services.noResults}</strong>
+          <span>{lang === "ID" ? "Coba kata kunci lain atau pilih kategori Semua." : "Try another keyword or select All."}</span>
+          <button type="button" onClick={() => { setQuery(""); setCategory(""); }}>
+            {t.services.resetSearch}
           </button>
         </div>
       )}

@@ -30,7 +30,7 @@ describe("i18n Dictionaries & Localization", () => {
     const idKeys = Object.keys(dictionaries.ID.contact).sort();
     const enKeys = Object.keys(dictionaries.EN.contact).sort();
     expect(idKeys).toEqual(enKeys);
-    expect(dictionaries.ID.contact.submitBtn).toBe("Kirim Pesan");
+    expect(dictionaries.ID.contact.submitBtn).toBe("Kirim Pesan Sekarang");
     expect(dictionaries.EN.contact.submitBtn).toBe("Send Message");
   });
 

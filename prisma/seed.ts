@@ -4,27 +4,27 @@ const prisma = new PrismaClient();
 
 const initialProjects = [
   {
-    title: "Kopi Koma",
+    title: "Nomad Coffee Roasters",
     type: "F&B · Branding + Website",
-    result: "+38% online orders",
+    result: "Konsep visual",
     className: "project-coffee",
-    imagePath: "/projects/kopi-koma.jpg",
+    imagePath: "/projects/nomad-coffee.png",
     order: 1,
   },
   {
-    title: "Sora Studio",
+    title: "Aura Studio",
     type: "Fashion · E-commerce",
-    result: "2.4x conversion rate",
+    result: "Konsep visual",
     className: "project-fashion",
-    imagePath: "/projects/sora-studio.jpg",
+    imagePath: "/projects/aura-studio.png",
     order: 2,
   },
   {
     title: "Ruang Pulih",
     type: "Wellness · Landing page",
-    result: "Booked out in 12 days",
+    result: "Konsep visual",
     className: "project-wellness",
-    imagePath: "/projects/ruang-pulih.jpg",
+    imagePath: "/projects/ruang-pulih.png",
     order: 3,
   },
 ];

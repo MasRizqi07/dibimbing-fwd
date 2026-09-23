@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import { useLanguage } from "@/lib/i18n/context";
 
 export default function GlobalError({
   error,
@@ -10,6 +11,8 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const { lang } = useLanguage();
+  const tr = (id: string, en: string) => lang === "EN" ? en : id;
   useEffect(() => {
     // Log error securely
     console.error("Global Error Boundary caught:", error);
@@ -37,17 +40,17 @@ export default function GlobalError({
         Incident ID: {incidentId}
       </span>
       <h1 style={{ fontSize: "32px", fontWeight: 800, color: "var(--surface-navy)", margin: "0 0 12px" }}>
-        Terjadi Kendala Sistem
+        {tr("Terjadi Kendala Sistem", "Something Went Wrong")}
       </h1>
       <p style={{ maxWidth: "480px", color: "var(--ink-muted)", fontSize: "14px", lineHeight: 1.6, margin: "0 auto 24px" }}>
-        Aplikasi mengalami kendala tak terduga. Basis data dan pesan brief yang telah dikirim tetap aman. Silakan muat ulang halaman atau kembali ke beranda.
+        {tr("Aplikasi mengalami kendala tak terduga. Silakan coba lagi atau kembali ke beranda.", "The application encountered an unexpected error. Please try again or return home.")}
       </p>
       <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
         <button type="button" className="button button-primary" onClick={reset}>
-          Muat Ulang Halaman ↻
+          {tr("Coba Lagi ↻", "Try Again ↻")}
         </button>
         <Link href="/" className="button button-outline">
-          Kembali ke Beranda
+          {tr("Kembali ke Beranda", "Back to Home")}
         </Link>
       </div>
     </main>

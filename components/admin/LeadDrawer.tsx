@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import type { SubmissionItem } from "./types";
 import type { SubmissionStatus } from "@/lib/submission-status";
+import { useLanguage } from "@/lib/i18n/context";
 
 interface LeadDrawerProps {
   submission: SubmissionItem | null;
@@ -17,6 +18,8 @@ export default function LeadDrawer({
   onStatusChange,
   pending,
 }: LeadDrawerProps) {
+  const { lang } = useLanguage();
+  const tr = (id: string, en: string) => lang === "EN" ? en : id;
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -40,10 +43,10 @@ export default function LeadDrawer({
   const phoneMatch = submission.message.match(/(?:WhatsApp|WA|No(?:\s+WhatsApp)?):\s*([+\d\s-]+)/i);
   const cleanPhone = phoneMatch ? phoneMatch[1].replace(/\D/g, "") : null;
   const whatsappTarget = cleanPhone
-    ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Halo ${submission.name}, terima kasih telah menghubungi Nexa Studio.`)}`
+    ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(tr(`Halo ${submission.name}, terima kasih telah menghubungi Nexa Studio.`, `Hello ${submission.name}, thank you for contacting Nexa Studio.`))}`
     : null;
 
-  const mailtoTarget = `mailto:${submission.email}?subject=${encodeURIComponent("Tanggapan Brief Proyek — Nexa Studio")}&body=${encodeURIComponent(`Halo ${submission.name},\n\nTerima kasih telah membagikan parameter kebutuhan proyek Anda.`)}`;
+  const mailtoTarget = `mailto:${submission.email}?subject=${encodeURIComponent(tr("Tanggapan Brief Proyek — Nexa Studio", "Project Brief Response — Nexa Studio"))}&body=${encodeURIComponent(tr(`Halo ${submission.name},\n\nTerima kasih telah membagikan parameter kebutuhan proyek Anda.`, `Hello ${submission.name},\n\nThank you for sharing your project requirements.`))}`;
 
   return (
     <div className="drawer-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="drawer-lead-name">
@@ -70,7 +73,7 @@ export default function LeadDrawer({
                 marginBottom: "8px",
               }}
             >
-              Status: {submission.status}
+              {tr("Status", "Status")}: {submission.status}
             </span>
             <h2 id="drawer-lead-name" style={{ fontSize: "22px", fontWeight: 800, margin: 0, color: "var(--surface-navy)" }}>
               {submission.name}
@@ -86,7 +89,7 @@ export default function LeadDrawer({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Tutup detail lead"
+            aria-label={tr("Tutup detail lead", "Close lead details")}
             style={{
               width: "36px",
               height: "36px",
@@ -114,7 +117,7 @@ export default function LeadDrawer({
               className="button button-lime"
               style={{ flex: 1, textAlign: "center", fontSize: "12px" }}
             >
-              Hubungi via WhatsApp ↗
+              {tr("Hubungi via WhatsApp ↗", "Contact via WhatsApp ↗")}
             </a>
           )}
           <a
@@ -122,14 +125,14 @@ export default function LeadDrawer({
             className="button button-primary"
             style={{ flex: 1, textAlign: "center", fontSize: "12px" }}
           >
-            Kirim Email Balasan ✉
+            {tr("Kirim Email Balasan ✉", "Send Email Reply ✉")}
           </a>
         </div>
 
         {/* Message Content */}
         <div>
           <strong style={{ display: "block", fontSize: "12px", textTransform: "uppercase", letterSpacing: ".06em", color: "var(--ink-muted)", marginBottom: "8px" }}>
-            Isi Pesan / Parameter Brief:
+            {tr("Isi Pesan / Parameter Brief:", "Message / Brief Details:")}
           </strong>
           <div
             style={{
@@ -153,16 +156,15 @@ export default function LeadDrawer({
         {/* Change Status Controls */}
         <div>
           <strong style={{ display: "block", fontSize: "12px", textTransform: "uppercase", letterSpacing: ".06em", color: "var(--ink-muted)", marginBottom: "8px" }}>
-            Ubah Status Lead:
+            {tr("Ubah Status Lead:", "Change Lead Status:")}
           </strong>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
             {(["new", "read", "replied", "archived"] as const).map((st) => {
               const isCurrent = submission.status === st;
-              const labelMap: Record<string, string> = {
-                new: "Baru",
-                read: "Dibaca",
-                replied: "Dibalas",
-                archived: "Arsip",
+              const labelMap: Record<string, string> = lang === "EN" ? {
+                new: "New", read: "Read", replied: "Replied", archived: "Archived",
+              } : {
+                new: "Baru", read: "Dibaca", replied: "Dibalas", archived: "Arsip",
               };
               return (
                 <button
@@ -202,8 +204,8 @@ export default function LeadDrawer({
           }}
         >
           <div><strong>ID:</strong> {submission.id}</div>
-          <div><strong>Diterima Pada:</strong> {new Date(submission.createdAt).toLocaleString("id-ID")}</div>
-          <div><strong>Status Pengiriman Email:</strong> {submission.notificationStatus || (submission.emailSent ? "sent" : "pending")}</div>
+          <div><strong>{tr("Diterima Pada", "Received At")}:</strong> {new Date(submission.createdAt).toLocaleString(lang === "EN" ? "en-US" : "id-ID")}</div>
+          <div><strong>{tr("Status Pengiriman Email", "Email Delivery Status")}:</strong> {submission.notificationStatus || (submission.emailSent ? "sent" : "pending")}</div>
         </div>
       </div>
     </div>

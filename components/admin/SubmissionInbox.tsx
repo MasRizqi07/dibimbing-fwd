@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { SubmissionStatus } from "@/lib/submission-status";
 import type { SubmissionItem } from "./types";
 import LeadDrawer from "./LeadDrawer";
+import { useLanguage } from "@/lib/i18n/context";
 
 interface Props {
   submissions: SubmissionItem[];
@@ -23,15 +24,6 @@ const filters = [
   { id: "archived", label: "Arsip" },
 ];
 
-function notificationLabel(status: string, emailSent: boolean): string {
-  if (emailSent || status === "sent") return "terkirim";
-  if (status === "sending") return "diproses";
-  if (status === "retryable_failed") return "menunggu percobaan ulang";
-  if (status === "failed") return "gagal, perlu ditinjau";
-  if (status === "review") return "perlu ditinjau";
-  return "menunggu pengiriman";
-}
-
 function getInitials(name: string): string {
   return name
     .split(/\s+/)
@@ -50,6 +42,19 @@ export default function SubmissionInbox({
   pending,
   onStatusChange,
 }: Props) {
+  const { lang } = useLanguage();
+  const tr = (id: string, en: string) => lang === "EN" ? en : id;
+  const filterLabels: Record<string, string> = lang === "EN"
+    ? { all: "All", new: "New", read: "Read", replied: "Replied", archived: "Archived" }
+    : Object.fromEntries(filters.map((item) => [item.id, item.label]));
+  const notificationLabel = (status: string, emailSent: boolean): string => {
+    if (emailSent || status === "sent") return tr("terkirim", "sent");
+    if (status === "sending") return tr("diproses", "sending");
+    if (status === "retryable_failed") return tr("menunggu percobaan ulang", "waiting to retry");
+    if (status === "failed") return tr("gagal, perlu ditinjau", "failed, review required");
+    if (status === "review") return tr("perlu ditinjau", "review required");
+    return tr("menunggu pengiriman", "pending delivery");
+  };
   const [activeLead, setActiveLead] = useState<SubmissionItem | null>(null);
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const activeFilter = filters.some((item) => item.id === filter) ? filter : "all";
@@ -64,20 +69,20 @@ export default function SubmissionInbox({
       <div className="admin-panel-header">
         <div>
           <h2 id="inbox-heading" style={{ margin: 0 }}>
-            Pesan Kontak Masuk ({total})
+            {tr("Pesan Kontak Masuk", "Incoming Inquiries")} ({total})
           </h2>
           <small style={{ color: "var(--ink-muted)" }}>
-            Inquiry dan brief proyek yang dikirimkan calon mitra.
+            {tr("Inquiry dan brief proyek yang dikirimkan calon mitra.", "Inquiries and project briefs from prospective partners.")}
           </small>
         </div>
-        <nav className="admin-filters" aria-label="Filter pesan">
+        <nav className="admin-filters" aria-label={tr("Filter pesan", "Inquiry filters")}>
           {filters.map((item) => (
             <a
               key={item.id}
               href={`/admin?status=${item.id}&page=1`}
               aria-current={activeFilter === item.id ? "page" : undefined}
             >
-              {item.label}
+              {filterLabels[item.id]}
             </a>
           ))}
         </nav>
@@ -85,7 +90,7 @@ export default function SubmissionInbox({
 
       {submissions.length === 0 ? (
         <p style={{ margin: "24px 0", color: "var(--ink-muted)" }}>
-          Belum ada pesan untuk filter ini.
+          {tr("Belum ada pesan untuk filter ini.", "No inquiries match this filter.")}
         </p>
       ) : (
         <ul className="admin-submission-list">
@@ -130,19 +135,19 @@ export default function SubmissionInbox({
                   >
                     {submission.status}
                   </span>{" "}
-                  <small>{new Date(submission.createdAt).toLocaleString("id-ID")}</small>
+                  <small>{new Date(submission.createdAt).toLocaleString(lang === "EN" ? "en-US" : "id-ID")}</small>
                 </div>
               </div>
 
               <p>{submission.message}</p>
               <small>
-                Notifikasi email:{" "}
+                {tr("Notifikasi email", "Email notification")}: {" "}
                 {notificationLabel(submission.notificationStatus, submission.emailSent)}
               </small>
 
               <div
                 className="admin-row-actions"
-                aria-label={`Ubah status pesan dari ${submission.name}`}
+                aria-label={`${tr("Ubah status pesan dari", "Change inquiry status for")} ${submission.name}`}
               >
                 <button
                   type="button"
@@ -153,7 +158,7 @@ export default function SubmissionInbox({
                     borderColor: "var(--surface-navy)",
                   }}
                 >
-                  Detail CRM Drawer ↗
+                  {tr("Detail CRM Drawer ↗", "Open CRM Details ↗")}
                 </button>
                 {(["new", "read", "replied", "archived"] as const).map((status) => (
                   <button
@@ -162,13 +167,7 @@ export default function SubmissionInbox({
                     disabled={pending || submission.status === status}
                     onClick={() => onStatusChange(submission.id, status)}
                   >
-                    {status === "new"
-                      ? "Baru"
-                      : status === "read"
-                        ? "Dibaca"
-                        : status === "replied"
-                          ? "Dibalas"
-                          : "Arsip"}
+                    {filterLabels[status]}
                   </button>
                 ))}
               </div>
@@ -178,19 +177,19 @@ export default function SubmissionInbox({
       )}
 
       {total > 0 && (
-        <nav className="admin-pagination" aria-label="Halaman pesan">
+        <nav className="admin-pagination" aria-label={tr("Halaman pesan", "Inquiry pages")}>
           <span>
-            Halaman {Math.min(page, totalPages)} dari {totalPages}
+            {tr("Halaman", "Page")} {Math.min(page, totalPages)} {tr("dari", "of")} {totalPages}
           </span>
           <div>
             {page > 1 && (
               <a href={`/admin?status=${activeFilter}&page=${page - 1}`}>
-                ← Sebelumnya
+                ← {tr("Sebelumnya", "Previous")}
               </a>
             )}
             {page < totalPages && (
               <a href={`/admin?status=${activeFilter}&page=${page + 1}`}>
-                Selanjutnya →
+                {tr("Selanjutnya", "Next")} →
               </a>
             )}
           </div>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { generateTOTP, verifyTOTP } from "@/lib/totp";
+import { generateTOTP, matchTOTP, verifyTOTP } from "@/lib/totp";
 
 describe("TOTP 2FA Utility", () => {
   const secret = "JBSWY3DPEHPK3PXP"; // Standard base32 test key
@@ -23,6 +23,13 @@ describe("TOTP 2FA Utility", () => {
   it("tolerates time drift within allowable window", () => {
     const pastToken = generateTOTP(secret, Date.now() - 25 * 1000);
     expect(verifyTOTP(pastToken, secret, 1)).toBe(true);
+  });
+
+  it("rejects malformed secrets and detects the exact accepted step", () => {
+    expect(() => generateTOTP("abc!def")).toThrow();
+    const timestamp = 1_700_000_000_000;
+    const token = generateTOTP(secret, timestamp);
+    expect(matchTOTP(token, secret, timestamp)).toBe(Math.floor(timestamp / 30_000));
   });
 });
 

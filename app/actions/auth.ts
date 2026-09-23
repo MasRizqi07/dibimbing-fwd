@@ -52,10 +52,14 @@ export async function loginAdminAction(
   }
 
   const totpSecret = process.env.ADMIN_TOTP_SECRET;
+  if (process.env.NODE_ENV === "production" && !totpSecret) {
+    console.error("admin_totp_not_configured");
+    return { error: "Autentikasi admin belum tersedia." };
+  }
   if (totpSecret) {
     const totpCode = formData.get("totpCode");
-    const { verifyTOTP } = await import("@/lib/totp");
-    if (typeof totpCode !== "string" || !verifyTOTP(totpCode, totpSecret)) {
+    const { verifyAndConsumeAdminTOTP } = await import("@/lib/admin-totp");
+    if (typeof totpCode !== "string" || !(await verifyAndConsumeAdminTOTP(totpCode, totpSecret))) {
       return { error: "Kode autentikasi 2FA tidak valid atau kedaluwarsa." };
     }
   }

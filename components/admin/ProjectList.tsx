@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import type { ProjectItem } from "./types";
+import { useLanguage } from "@/lib/i18n/context";
 
 interface Props {
   projects: ProjectItem[];
@@ -11,15 +12,17 @@ interface Props {
 }
 
 export default function ProjectList({ projects, pending, onEdit, onDelete }: Props) {
+  const { lang } = useLanguage();
+  const tr = (id: string, en: string) => lang === "EN" ? en : id;
   return (
     <section className="admin-panel" aria-labelledby="project-list-heading">
       <div className="admin-panel-header" style={{ marginBottom: "16px" }}>
         <div>
           <h2 id="project-list-heading" style={{ margin: 0 }}>
-            Katalog Portfolio Publik ({projects.length})
+            {tr("Katalog Portofolio Publik", "Public Portfolio Catalog")} ({projects.length})
           </h2>
           <small style={{ color: "var(--ink-muted)" }}>
-            Urutan menentukan posisi kartu showcase pada beranda utama.
+            {tr("Urutan menentukan posisi kartu pada beranda utama.", "Order determines each card's position on the homepage.")}
           </small>
         </div>
         <span
@@ -32,12 +35,12 @@ export default function ProjectList({ projects, pending, onEdit, onDelete }: Pro
             color: "#275047",
           }}
         >
-          ● Live Sync Terhubung
+          ● {tr("Data Aktif", "Live Data")}
         </span>
       </div>
 
       {projects.length === 0 ? (
-        <p style={{ margin: "20px 0", color: "var(--ink-muted)" }}>Belum ada project.</p>
+        <p style={{ margin: "20px 0", color: "var(--ink-muted)" }}>{tr("Belum ada proyek.", "No projects yet.")}</p>
       ) : (
         <ul className="admin-project-list">
           {projects.map((project) => (
@@ -94,7 +97,7 @@ export default function ProjectList({ projects, pending, onEdit, onDelete }: Pro
                       flexShrink: 0,
                     }}
                   >
-                    No Img
+                    {tr("Tanpa Gambar", "No Image")}
                   </div>
                 )}
 
@@ -106,7 +109,7 @@ export default function ProjectList({ projects, pending, onEdit, onDelete }: Pro
                   <span style={{ fontSize: "12px", color: "var(--ink-muted)", display: "block" }}>
                     {project.type}
                   </span>
-                  <small style={{ fontSize: "11px", color: "#668300", fontWeight: 700 }}>
+                  <small style={{ fontSize: "11px", color: "#465b00", fontWeight: 700 }}>
                     {project.result}
                   </small>
                 </div>
@@ -120,7 +123,7 @@ export default function ProjectList({ projects, pending, onEdit, onDelete }: Pro
                   onClick={() => onEdit(project)}
                   style={{ fontWeight: 700 }}
                 >
-                  Edit
+                  {tr("Edit", "Edit")}
                 </button>
                 <button
                   type="button"
@@ -129,7 +132,7 @@ export default function ProjectList({ projects, pending, onEdit, onDelete }: Pro
                   className="danger"
                   style={{ fontWeight: 700 }}
                 >
-                  Hapus
+                  {tr("Hapus", "Delete")}
                 </button>
               </div>
             </li>

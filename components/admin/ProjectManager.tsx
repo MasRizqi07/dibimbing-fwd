@@ -12,6 +12,7 @@ import ProjectForm from "./ProjectForm";
 import ProjectList from "./ProjectList";
 import SubmissionInbox from "./SubmissionInbox";
 import type { ProjectItem, SubmissionItem } from "./types";
+import { useLanguage } from "@/lib/i18n/context";
 
 interface Props {
   initialProjects: ProjectItem[];
@@ -30,6 +31,8 @@ export default function ProjectManager({
   pageSize,
   currentStatusFilter,
 }: Props) {
+  const { lang } = useLanguage();
+  const tr = (id: string, en: string) => lang === "EN" ? en : id;
   const [pending, startTransition] = useTransition();
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<ProjectItem | null>(null);
@@ -59,19 +62,19 @@ export default function ProjectManager({
         setEditing(null);
         setAdding(false);
       } catch (cause) {
-        setError(cause instanceof Error ? cause.message : "Project gagal disimpan.");
+        setError(lang === "ID" && cause instanceof Error ? cause.message : tr("Project gagal disimpan.", "Unable to save project."));
       }
     });
   }
 
   function deleteProject(project: ProjectItem) {
-    if (!window.confirm(`Hapus project "${project.title}"?`)) return;
+    if (!window.confirm(tr(`Hapus project "${project.title}"?`, `Delete project "${project.title}"?`))) return;
     setError("");
     startTransition(async () => {
       try {
         await deleteProjectAction(project.id);
       } catch (cause) {
-        setError(cause instanceof Error ? cause.message : "Project gagal dihapus.");
+        setError(lang === "ID" && cause instanceof Error ? cause.message : tr("Project gagal dihapus.", "Unable to delete project."));
       }
     });
   }
@@ -82,7 +85,7 @@ export default function ProjectManager({
       try {
         await updateSubmissionStatusAction(id, status);
       } catch (cause) {
-        setError(cause instanceof Error ? cause.message : "Status pesan gagal diperbarui.");
+        setError(lang === "ID" && cause instanceof Error ? cause.message : tr("Status pesan gagal diperbarui.", "Unable to update inquiry status."));
       }
     });
   }
@@ -111,24 +114,24 @@ export default function ProjectManager({
       >
         <div className="admin-panel" style={{ padding: "20px" }}>
           <span style={{ fontSize: "11px", fontWeight: 800, textTransform: "uppercase", letterSpacing: ".08em", color: "var(--ink-muted)", display: "block", marginBottom: "4px" }}>
-            Total Proyek Publik
+            {tr("Total Proyek Publik", "Public Projects")}
           </span>
           <div style={{ fontSize: "28px", fontWeight: 800, color: "var(--surface-navy)", display: "flex", alignItems: "baseline", gap: "6px" }}>
             {initialProjects.length}
-            <span style={{ fontSize: "14px", fontWeight: 600, color: "#668300" }}>Aktif</span>
+            <span style={{ fontSize: "14px", fontWeight: 600, color: "#465b00" }}>{tr("Aktif", "Active")}</span>
           </div>
-          <small style={{ color: "var(--ink-muted)", fontSize: "12px" }}>Tampil langsung di homepage</small>
+          <small style={{ color: "var(--ink-muted)", fontSize: "12px" }}>{tr("Tampil langsung di homepage", "Shown on the homepage")}</small>
         </div>
 
         <div className="admin-panel" style={{ padding: "20px" }}>
           <span style={{ fontSize: "11px", fontWeight: 800, textTransform: "uppercase", letterSpacing: ".08em", color: "var(--ink-muted)", display: "block", marginBottom: "4px" }}>
-            Lead Masuk
+            {tr("Lead Masuk", "Incoming Leads")}
           </span>
           <div style={{ fontSize: "28px", fontWeight: 800, color: "var(--surface-navy)", display: "flex", alignItems: "baseline", gap: "6px" }}>
             {totalSubmissions}
             <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--ink-muted)" }}>Inquiry</span>
           </div>
-          <small style={{ color: "#668300", fontSize: "12px", fontWeight: 700 }}>+32% dari bulan lalu</small>
+          <small style={{ color: "var(--ink-muted)", fontSize: "12px" }}>{tr("Total tersimpan di database", "Total stored in the database")}</small>
         </div>
 
         <div
@@ -141,12 +144,12 @@ export default function ProjectManager({
           }}
         >
           <span style={{ fontSize: "11px", fontWeight: 800, textTransform: "uppercase", letterSpacing: ".08em", color: "rgba(255,255,255,0.7)", display: "block", marginBottom: "4px" }}>
-            Tingkat Konversi Lead
+            {tr("Pesan Baru di Halaman Ini", "New Messages on This Page")}
           </span>
           <div style={{ fontSize: "28px", fontWeight: 800, color: "var(--accent-lime)" }}>
-            14.2%
+            {unreadCount}
           </div>
-          <small style={{ color: "rgba(255,255,255,0.7)", fontSize: "12px" }}>Target kuartalan 12.0% tercapai</small>
+          <small style={{ color: "rgba(255,255,255,0.7)", fontSize: "12px" }}>{tr("Dihitung dari halaman inbox aktif", "Calculated from the active inbox page")}</small>
         </div>
       </div>
 
@@ -180,7 +183,7 @@ export default function ProjectManager({
               gap: "8px",
             }}
           >
-            <span>Manajemen Proyek</span>
+            <span>{tr("Manajemen Proyek", "Project Management")}</span>
             <span
               style={{
                 fontSize: "10px",
@@ -210,7 +213,7 @@ export default function ProjectManager({
               gap: "8px",
             }}
           >
-            <span>Pesan Masuk / Inbox</span>
+            <span>{tr("Pesan Masuk / Inbox", "Inquiries / Inbox")}</span>
             {unreadCount > 0 && (
               <span
                 style={{
@@ -222,7 +225,7 @@ export default function ProjectManager({
                   fontWeight: 800,
                 }}
               >
-                {unreadCount} Baru
+                {unreadCount} {tr("Baru", "New")}
               </span>
             )}
           </button>
@@ -236,7 +239,7 @@ export default function ProjectManager({
             setEditing(null);
           }}
         >
-          {adding ? "Tutup Form" : "+ Tambah Project"}
+          {adding ? tr("Tutup Form", "Close Form") : tr("+ Tambah Project", "+ Add Project")}
         </button>
       </div>
 
