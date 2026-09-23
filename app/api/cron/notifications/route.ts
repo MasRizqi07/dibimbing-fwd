@@ -1,5 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { processPendingNotifications } from "@/lib/contact-notification";
+import { processPendingWebhooks } from "@/lib/contact-webhook";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,8 @@ export async function GET(request: Request) {
   if (!authorized(request)) {
     return new Response("Unauthorized", { status: 401 });
   }
-  const result = await processPendingNotifications();
+  const [email, webhook] = await Promise.all([processPendingNotifications(5), processPendingWebhooks(5)]);
+  const result = { email, webhook };
   console.info("contact_notification_batch", result);
   return Response.json(result, { headers: { "Cache-Control": "no-store" } });
 }

@@ -11,6 +11,8 @@
     "build": "prisma generate && next build",
     "typecheck": "tsc --noEmit",
     "db:migrate": "prisma migrate deploy",
+    "phase2:check-config": "node scripts/check-phase2-config.mjs",
+    "phase2:enroll-totp": "node scripts/generate-admin-totp.mjs",
     "verify": "npm audit --audit-level=high && npm run lint && npm run typecheck && npm test && npm run build",
     "postinstall": "prisma generate",
     "start": "next start",
@@ -19,6 +21,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1137.0",
     "@prisma/client": "^6.19.3",
     "@upstash/redis": "^1.38.4",
     "bcryptjs": "^3.0.3",
@@ -26,6 +29,7 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "resend": "^6.28.1",
+    "sharp": "^0.35.4",
     "zod": "^4.6.5"
   },
   "devDependencies": {

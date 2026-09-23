@@ -21,6 +21,11 @@ model Project {
   @@index([order])
 }
 
+model AdminTotpState {
+  id       String @id
+  lastStep BigInt
+}
+
 model ContactSubmission {
   id             String   @id @default(cuid())
   name           String
@@ -34,10 +39,15 @@ model ContactSubmission {
   notificationAttempts    Int      @default(0)
   notificationLeaseUntil  DateTime?
   notificationNextAttempt DateTime?
+  webhookStatus           String   @default("pending")
+  webhookAttempts         Int      @default(0)
+  webhookLeaseUntil       DateTime?
+  webhookNextAttempt      DateTime?
   createdAt      DateTime @default(now())
 
   @@index([createdAt])
   @@index([status])
   @@index([notificationStatus, notificationNextAttempt])
+  @@index([webhookStatus, webhookNextAttempt])
 }
 

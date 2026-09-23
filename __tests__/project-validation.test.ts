@@ -23,4 +23,9 @@ describe("projectFormSchema", () => {
       }).success
     ).toBe(false);
   });
+
+  it("accepts only the generated media URL shape", () => {
+    expect(projectFormSchema.safeParse({ ...validProject, imagePath: "/api/media/550e8400-e29b-41d4-a716-446655440000.webp" }).success).toBe(true);
+    expect(projectFormSchema.safeParse({ ...validProject, imagePath: "/api/media/../../secret.webp" }).success).toBe(false);
+  });
 });

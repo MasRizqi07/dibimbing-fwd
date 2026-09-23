@@ -1,8 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { GET } from "@/app/api/cron/notifications/route";
 import { processPendingNotifications } from "@/lib/contact-notification";
+import { processPendingWebhooks } from "@/lib/contact-webhook";
 
 vi.mock("@/lib/contact-notification", () => ({ processPendingNotifications: vi.fn() }));
+vi.mock("@/lib/contact-webhook", () => ({ processPendingWebhooks: vi.fn() }));
 
 const priorSecret = process.env.CRON_SECRET;
 afterEach(() => {
@@ -22,8 +24,9 @@ describe("notification cron authorization", () => {
   it("processes authorized batch", async () => {
     process.env.CRON_SECRET = "test-cron-key";
     vi.mocked(processPendingNotifications).mockResolvedValue({ attempted: 2 });
+    vi.mocked(processPendingWebhooks).mockResolvedValue({ attempted: 1 });
     const response = await GET(new Request("http://localhost/api/cron/notifications", { headers: { authorization: "Bearer test-cron-key" } }));
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ attempted: 2 });
+    expect(await response.json()).toEqual({ email: { attempted: 2 }, webhook: { attempted: 1 } });
   });
 });

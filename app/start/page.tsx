@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import SiteNav from "@/components/SiteNav";
+import { useLanguage } from "@/lib/i18n/context";
 
 interface StepData {
   scopes: string[];
@@ -21,53 +22,53 @@ interface StepData {
 
 const AVAILABLE_SCOPES = [
   {
-    id: "web-app",
-    label: "Web App & Headless Storefront",
-    desc: "Next.js, Tailwind, integrasi Payment Gateway & ERP lokal.",
+    id: "web-development",
+    label: "Web Development",
+    desc: "Website cepat, responsif, dan mudah dikelola.",
   },
   {
     id: "branding",
-    label: "Rebranding & Visual Identity",
-    desc: "Design system, guideline tipografi, icon set enterprise.",
+    label: "Brand Identity",
+    desc: "Identitas visual, logo, dan panduan merek.",
   },
   {
-    id: "audit",
-    label: "Product Architecture Audit",
-    desc: "Review keamanan ISO, latency database, dan refactor code.",
+    id: "content",
+    label: "Content Engine",
+    desc: "Strategi konten, copywriting, dan posisi SEO.",
   },
   {
-    id: "retainer",
-    label: "Dedicated Squad Retainer",
-    desc: "1 Principal Architect, 2 Senior Dev, 1 UI/UX Specialist.",
+    id: "ui-ux-audit",
+    label: "UI/UX Audit",
+    desc: "Tinjauan pengalaman pengguna dan peluang perbaikan.",
   },
 ];
 
 const BUDGET_TIERS = [
   {
     id: "tier-a",
-    tier: "Starter Sprint",
-    bracket: "IDR 15M – 25M",
-    desc: "Sprint terfokus 2–4 minggu. Sangat cocok untuk validasi MVP atau perombakan modul kunci.",
+    tier: "Starter",
+    bracket: "Rp 3,5 jt – 7,5 jt",
+    desc: "Untuk kehadiran online profesional dan kebutuhan awal.",
   },
   {
     id: "tier-b",
-    tier: "Rekomendasi Bisnis",
-    bracket: "IDR 25M – 50M",
-    desc: "Komprehensif: Full App + Branding + SLA Kinerja. Solusi ideal scale-up dan UMKM berkembang.",
+    tier: "Growth",
+    bracket: "Rp 7,5 jt – 15 jt",
+    desc: "Untuk website dan identitas merek yang lebih lengkap.",
     recommended: true,
   },
   {
     id: "tier-c",
-    tier: "Enterprise Core",
-    bracket: "IDR 50M+",
-    desc: "Arsitektur multi-region, audit kepatuhan khusus, microservices & dedicated engineering squads.",
+    tier: "Custom",
+    bracket: "> Rp 15 jt",
+    desc: "Untuk kebutuhan khusus dan integrasi yang lebih kompleks.",
   },
 ];
 
 const TIMELINE_OPTIONS = [
   { id: "urgent", label: "Segera (< 3 minggu)" },
   { id: "ideal", label: "4 – 8 Minggu (Ideal)" },
-  { id: "flexible", label: "Fleksibel / Q4 2026" },
+  { id: "flexible", label: "Fleksibel" },
 ];
 
 async function fetchAntiSpamToken(): Promise<string> {
@@ -81,10 +82,12 @@ async function fetchAntiSpamToken(): Promise<string> {
 }
 
 export default function StartProjectPage() {
+  const { lang } = useLanguage();
+  const tr = (id: string, en: string) => lang === "ID" ? id : en;
   const [step, setStep] = useState<number>(1);
   const [data, setData] = useState<StepData>({
-    scopes: ["Web App & Headless Storefront", "Rebranding & Visual Identity"],
-    budget: "IDR 25M – 50M",
+    scopes: ["Web Development"],
+    budget: "Rp 7,5 jt – 15 jt",
     timeline: "4 – 8 Minggu (Ideal)",
     companyName: "",
     companyUrl: "",
@@ -130,28 +133,28 @@ export default function StartProjectPage() {
 
     if (step === 1) {
       if (data.scopes.length === 0) {
-        setErrorMsg("Silakan pilih minimal 1 cakupan layanan.");
+        setErrorMsg(tr("Silakan pilih minimal 1 cakupan layanan.", "Select at least one service."));
         return false;
       }
     } else if (step === 3) {
       if (!data.companyName.trim()) {
-        setFieldErrors({ companyName: ["Nama perusahaan atau brand wajib diisi."] });
+        setFieldErrors({ companyName: [tr("Nama perusahaan atau brand wajib diisi.", "Company or brand name is required.")] });
         return false;
       }
       if (data.brief.trim().length < 10) {
-        setFieldErrors({ brief: ["Deskripsi kebutuhan minimal 10 karakter."] });
+        setFieldErrors({ brief: [tr("Deskripsi kebutuhan minimal 10 karakter.", "Describe your project in at least 10 characters.")] });
         return false;
       }
     } else if (step === 4) {
       const errors: Record<string, string[]> = {};
       if (data.fullName.trim().length < 2) {
-        errors.fullName = ["Nama minimal 2 karakter."];
+        errors.fullName = [tr("Nama minimal 2 karakter.", "Name must have at least 2 characters.")];
       }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.businessEmail.trim())) {
-        errors.businessEmail = ["Format email tidak valid."];
+        errors.businessEmail = [tr("Format email tidak valid.", "Enter a valid email address.")];
       }
       if (data.whatsappNumber.trim().length < 8) {
-        errors.whatsappNumber = ["Nomor WhatsApp minimal 8 digit."];
+        errors.whatsappNumber = [tr("Nomor WhatsApp minimal 8 digit.", "WhatsApp number must have at least 8 digits.")];
       }
       if (Object.keys(errors).length > 0) {
         setFieldErrors(errors);
@@ -204,7 +207,7 @@ export default function StartProjectPage() {
     try {
       const token = antiSpamToken || (await fetchAntiSpamToken());
       if (!token) {
-        setErrorMsg("Validasi formulir belum siap. Silakan periksa koneksi Anda.");
+        setErrorMsg(tr("Validasi formulir belum siap. Silakan periksa koneksi Anda.", "The form is not ready. Check your connection."));
         setSubmitting(false);
         return;
       }
@@ -224,7 +227,7 @@ export default function StartProjectPage() {
 
       const resData = await res.json();
       if (!res.ok) {
-        setErrorMsg(resData.error || "Gagal mengirim brief. Silakan coba lagi.");
+        setErrorMsg(lang === "ID" && typeof resData.error === "string" ? resData.error : tr("Gagal mengirim brief. Silakan coba lagi.", "Unable to send the brief. Please try again."));
         if (resData.details) setFieldErrors(resData.details);
         setSubmitting(false);
         return;
@@ -233,7 +236,7 @@ export default function StartProjectPage() {
       setIsSuccess(true);
       window.scrollTo({ top: 80, behavior: "smooth" });
     } catch {
-      setErrorMsg("Terjadi gangguan koneksi jaringan. Coba lagi dalam beberapa saat.");
+      setErrorMsg(tr("Terjadi gangguan koneksi jaringan. Coba lagi dalam beberapa saat.", "Network error. Please try again shortly."));
     } finally {
       setSubmitting(false);
     }
@@ -261,7 +264,7 @@ export default function StartProjectPage() {
             <div style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
               <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--accent-lime)" }} />
               <span style={{ fontSize: "11px", fontWeight: 800, textTransform: "uppercase", letterSpacing: ".08em", color: "var(--ink-muted)" }}>
-                Brief Interaktif Proyek • Nexa Studio
+                {tr("Brief Interaktif Proyek", "Interactive Project Brief")} • Nexa Studio
               </span>
             </div>
             <div
@@ -278,7 +281,7 @@ export default function StartProjectPage() {
                 color: "var(--surface-navy)",
               }}
             >
-              🔒 Kerahasiaan Dokumen ISO/IEC 27001 Terjamin
+              {tr("Jangan kirim informasi sensitif dalam brief awal", "Do not include sensitive information in the initial brief")}
             </div>
           </div>
 
@@ -325,20 +328,20 @@ export default function StartProjectPage() {
                   marginBottom: "12px",
                 }}
               >
-                Brief Diterima
+                {tr("Brief Diterima", "Brief Received")}
               </span>
               <h1 style={{ fontSize: "28px", fontWeight: 800, color: "var(--surface-navy)", margin: "0 0 12px" }}>
-                Terima kasih, {data.fullName}!
+                {tr("Terima kasih", "Thank you")}, {data.fullName}!
               </h1>
               <p style={{ color: "var(--ink-muted)", fontSize: "15px", lineHeight: 1.6, maxWidth: "480px", margin: "0 auto 28px" }}>
-                Parameter proyek untuk <strong>{data.companyName}</strong> telah kami amankan. Principal Architect kami akan meninjau kelayakan teknis dan menghubungi Anda dalam kurun 24 jam kerja.
+                {tr("Brief proyek untuk", "We received the project brief for")} <strong>{data.companyName}</strong>. {tr("Tim kami akan meninjau kebutuhan Anda dan menghubungi Anda melalui detail kontak yang diberikan.", "Our team will review your requirements and contact you using the details provided.")}
               </p>
               <div style={{ display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
                 <Link href="/" className="button button-primary">
-                  Kembali ke Beranda
+                  {tr("Kembali ke Beranda", "Back to Home")}
                 </Link>
                 <Link href="/work/nomad-coffee-roasters" className="button button-outline">
-                  Lihat Studi Kasus ↗
+                  {tr("Lihat Konsep Visual", "View Visual Concept")} ↗
                 </Link>
               </div>
             </div>
@@ -357,10 +360,10 @@ export default function StartProjectPage() {
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
                     <span style={{ fontSize: "11px", fontWeight: 800, textTransform: "uppercase", letterSpacing: ".08em", color: "var(--ink-muted)" }}>
-                      Langkah {step} dari 4
+                      {tr("Langkah", "Step")} {step} {tr("dari", "of")} 4
                     </span>
                     <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--surface-navy)" }}>
-                      {progressPercent}% Lengkap
+                      {progressPercent}% {tr("Lengkap", "Complete")}
                     </span>
                   </div>
 
@@ -375,7 +378,7 @@ export default function StartProjectPage() {
                   </div>
 
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px", marginTop: "14px" }}>
-                    {["Cakupan", "Anggaran", "Spesifikasi", "Kontak"].map((label, idx) => {
+                    {(lang === "ID" ? ["Cakupan", "Anggaran", "Spesifikasi", "Kontak"] : ["Scope", "Budget", "Details", "Contact"]).map((label, idx) => {
                       const sNum = idx + 1;
                       const isActive = sNum === step;
                       const isDone = sNum < step;
@@ -441,28 +444,32 @@ export default function StartProjectPage() {
                   {step === 1 && (
                     <div>
                       <span style={{ fontSize: "11px", fontWeight: 800, textTransform: "uppercase", letterSpacing: ".1em", color: "#668300" }}>
-                        Langkah 1
+                        {tr("Langkah 1", "Step 1")}
                       </span>
                       <h2 style={{ fontSize: "24px", fontWeight: 800, color: "var(--surface-navy)", margin: "4px 0 8px" }}>
-                        Pilih Cakupan Rekayasa & Desain
+                        {tr("Pilih Cakupan Layanan", "Choose Your Services")}
                       </h2>
                       <p style={{ color: "var(--ink-muted)", fontSize: "14px", margin: "0 0 24px" }}>
-                        Pilih satu atau beberapa modul layanan spesifik yang ingin dialokasikan ke tim Nexa Studio.
+                        {tr("Pilih satu atau beberapa layanan yang ingin Anda diskusikan bersama tim Nexa Studio.", "Choose one or more services you would like to discuss with Nexa Studio.")}
                       </p>
 
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "12px" }}>
                         {AVAILABLE_SCOPES.map((item) => {
                           const selected = data.scopes.includes(item.label);
                           return (
-                            <div
+                            <button
                               key={item.id}
+                              type="button"
                               onClick={() => toggleScope(item.label)}
+                              aria-pressed={selected}
                               style={{
                                 padding: "18px",
                                 borderRadius: "14px",
                                 border: selected ? "2px solid var(--surface-navy)" : "1px solid var(--border-line)",
                                 background: selected ? "rgba(195, 243, 91, 0.12)" : "var(--canvas-cream)",
                                 cursor: "pointer",
+                                textAlign: "left",
+                                fontFamily: "inherit",
                                 transition: "all .2s ease",
                               }}
                             >
@@ -486,9 +493,9 @@ export default function StartProjectPage() {
                                 </span>
                               </div>
                               <p style={{ margin: 0, fontSize: "12px", color: "var(--ink-muted)", lineHeight: 1.5 }}>
-                                {item.desc}
+                                {lang === "ID" ? item.desc : ["Fast, responsive websites that are easy to manage.", "Visual identity, logo, and brand guidelines.", "Content strategy, copywriting, and SEO positioning.", "A review of user experience and improvement opportunities."][AVAILABLE_SCOPES.indexOf(item)]}
                               </p>
-                            </div>
+                            </button>
                           );
                         })}
                       </div>
@@ -499,25 +506,27 @@ export default function StartProjectPage() {
                   {step === 2 && (
                     <div>
                       <span style={{ fontSize: "11px", fontWeight: 800, textTransform: "uppercase", letterSpacing: ".1em", color: "#668300" }}>
-                        Langkah 2
+                        {tr("Langkah 2", "Step 2")}
                       </span>
                       <h2 style={{ fontSize: "24px", fontWeight: 800, color: "var(--surface-navy)", margin: "4px 0 8px" }}>
-                        Estimasi Alokasi Investasi & Target Waktu
+                        {tr("Kisaran Anggaran & Target Waktu", "Budget Range and Timeline")}
                       </h2>
                       <p style={{ color: "var(--ink-muted)", fontSize: "14px", margin: "0 0 24px" }}>
-                        Bantu kami memahami skala kapabilitas dan kecepatan sprint yang Anda targetkan.
+                        {tr("Bantu kami memahami kisaran anggaran dan waktu yang Anda rencanakan.", "Tell us your planned budget range and timeline.")}
                       </p>
 
                       <strong style={{ display: "block", fontSize: "13px", color: "var(--surface-navy)", marginBottom: "12px" }}>
-                        Kisaran Alokasi Investasi (IDR)
+                        {tr("Kisaran Anggaran (IDR)", "Budget Range (IDR)")}
                       </strong>
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px", marginBottom: "28px" }}>
                         {BUDGET_TIERS.map((tier) => {
                           const isSel = data.budget === tier.bracket;
                           return (
-                            <div
+                            <button
                               key={tier.id}
+                              type="button"
                               onClick={() => setData((p) => ({ ...p, budget: tier.bracket }))}
+                              aria-pressed={isSel}
                               style={{
                                 padding: "18px",
                                 borderRadius: "14px",
@@ -525,6 +534,8 @@ export default function StartProjectPage() {
                                 background: isSel ? "var(--surface-navy)" : "var(--canvas-cream)",
                                 color: isSel ? "#ffffff" : "var(--ink-primary)",
                                 cursor: "pointer",
+                                textAlign: "left",
+                                fontFamily: "inherit",
                                 transition: "all .2s ease",
                               }}
                             >
@@ -546,15 +557,15 @@ export default function StartProjectPage() {
                               </div>
                               <strong style={{ display: "block", fontSize: "16px", marginBottom: "6px" }}>{tier.bracket}</strong>
                               <p style={{ margin: 0, fontSize: "11px", lineHeight: 1.5, color: isSel ? "#cfdbd9" : "var(--ink-muted)" }}>
-                                {tier.desc}
+                                {lang === "ID" ? tier.desc : ["For a professional online presence and initial needs.", "For a more complete website and brand identity.", "For custom needs and more complex integrations."][BUDGET_TIERS.indexOf(tier)]}
                               </p>
-                            </div>
+                            </button>
                           );
                         })}
                       </div>
 
                       <strong style={{ display: "block", fontSize: "13px", color: "var(--surface-navy)", marginBottom: "12px" }}>
-                        Target Peluncuran ke Publik
+                        {tr("Target Peluncuran", "Target Launch")}
                       </strong>
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "10px" }}>
                         {TIMELINE_OPTIONS.map((opt) => {
@@ -575,7 +586,7 @@ export default function StartProjectPage() {
                                 cursor: "pointer",
                               }}
                             >
-                              {opt.label}
+                              {lang === "ID" ? opt.label : ["Soon (under 3 weeks)", "4–8 weeks (ideal)", "Flexible"][TIMELINE_OPTIONS.indexOf(opt)]}
                             </button>
                           );
                         })}
@@ -587,26 +598,26 @@ export default function StartProjectPage() {
                   {step === 3 && (
                     <div>
                       <span style={{ fontSize: "11px", fontWeight: 800, textTransform: "uppercase", letterSpacing: ".1em", color: "#668300" }}>
-                        Langkah 3
+                        {tr("Langkah 3", "Step 3")}
                       </span>
                       <h2 style={{ fontSize: "24px", fontWeight: 800, color: "var(--surface-navy)", margin: "4px 0 8px" }}>
-                        Spesifikasi Proyek & Latar Belakang
+                        {tr("Konteks Proyek & Latar Belakang", "Project Context")}
                       </h2>
                       <p style={{ color: "var(--ink-muted)", fontSize: "14px", margin: "0 0 24px" }}>
-                        Deskripsikan entitas bisnis Anda dan sasaran yang ingin dicapai melalui inisiatif ini.
+                        {tr("Ceritakan bisnis dan tujuan yang ingin Anda capai.", "Tell us about your business and what you want to achieve.")}
                       </p>
 
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px", marginBottom: "18px" }}>
                         <div>
                           <label htmlFor="companyName" style={{ display: "block", fontSize: "12px", fontWeight: 700, marginBottom: "6px" }}>
-                            Nama Perusahaan / Brand *
+                            {tr("Nama Perusahaan / Brand *", "Company / Brand Name *")}
                           </label>
                           <input
                             id="companyName"
                             type="text"
                             value={data.companyName}
                             onChange={(e) => setData((p) => ({ ...p, companyName: e.target.value }))}
-                            placeholder="mis. PT Kopi Nusantara"
+                            placeholder={tr("mis. PT Kopi Nusantara", "e.g. Acme Coffee")}
                             style={{
                               width: "100%",
                               padding: "12px 14px",
@@ -625,7 +636,7 @@ export default function StartProjectPage() {
 
                         <div>
                           <label htmlFor="companyUrl" style={{ display: "block", fontSize: "12px", fontWeight: 700, marginBottom: "6px" }}>
-                            Website Saat Ini / Link Referensi
+                            {tr("Website Saat Ini / Link Referensi", "Current Website / Reference Link")}
                           </label>
                           <input
                             id="companyUrl"
@@ -648,10 +659,10 @@ export default function StartProjectPage() {
                       <div style={{ marginBottom: "20px" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
                           <label htmlFor="brief" style={{ fontSize: "12px", fontWeight: 700 }}>
-                            Deskripsi Singkat Kebutuhan Proyek *
+                            {tr("Deskripsi Singkat Kebutuhan Proyek *", "Brief Project Description *")}
                           </label>
                           <span style={{ fontSize: "11px", color: "var(--ink-muted)" }}>
-                            {data.brief.length} / 1000 Karakter
+                            {data.brief.length} / 1000 {tr("Karakter", "Characters")}
                           </span>
                         </div>
                         <textarea
@@ -660,7 +671,7 @@ export default function StartProjectPage() {
                           maxLength={1000}
                           value={data.brief}
                           onChange={(e) => setData((p) => ({ ...p, brief: e.target.value }))}
-                          placeholder="Ceritakan latar belakang, tantangan konversi saat ini, fitur yang dibutuhkan, atau target peluncuran..."
+                          placeholder={tr("Ceritakan latar belakang, tantangan konversi saat ini, fitur yang dibutuhkan, atau target peluncuran...", "Tell us about your background, current challenges, needed features, or launch target...")}
                           style={{
                             width: "100%",
                             padding: "12px 14px",
@@ -691,10 +702,10 @@ export default function StartProjectPage() {
                       >
                         <span style={{ fontSize: "28px", display: "block", marginBottom: "6px" }}>📄</span>
                         <strong style={{ fontSize: "13px", display: "block", color: "var(--surface-navy)" }}>
-                          Lampiran Dokumen RFP / Brand Guidelines (Opsional)
+                          {tr("Dokumen Pendukung (Opsional)", "Supporting Documents (Optional)")}
                         </strong>
                         <span style={{ fontSize: "11px", color: "var(--ink-muted)", display: "block", marginTop: "4px" }}>
-                          File PDF, DOCX, atau Figma link hingga 25MB dapat dibagikan saat sesi temu awal.
+                          {tr("Dokumen pendukung dapat dibagikan setelah tim kami menghubungi Anda. Form ini belum menerima unggahan berkas.", "Supporting documents can be shared after our team contacts you. This form does not accept file uploads.")}
                         </span>
                       </div>
                     </div>
@@ -704,26 +715,26 @@ export default function StartProjectPage() {
                   {step === 4 && (
                     <div>
                       <span style={{ fontSize: "11px", fontWeight: 800, textTransform: "uppercase", letterSpacing: ".1em", color: "#668300" }}>
-                        Langkah 4
+                        {tr("Langkah 4", "Step 4")}
                       </span>
                       <h2 style={{ fontSize: "24px", fontWeight: 800, color: "var(--surface-navy)", margin: "4px 0 8px" }}>
-                        Kontak Narahubung & Sesi Diskusi
+                        {tr("Kontak & Sesi Diskusi", "Contact and Discussion")}
                       </h2>
                       <p style={{ color: "var(--ink-muted)", fontSize: "14px", margin: "0 0 24px" }}>
-                        Principal Architect kami akan meninjau parameter dan menjadwalkan konsultasi arsitektur 30 menit.
+                        {tr("Tim kami akan meninjau brief dan menghubungi Anda untuk membahas langkah berikutnya.", "Our team will review your brief and contact you to discuss next steps.")}
                       </p>
 
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px", marginBottom: "20px" }}>
                         <div>
                           <label htmlFor="fullName" style={{ display: "block", fontSize: "12px", fontWeight: 700, marginBottom: "6px" }}>
-                            Nama Lengkap Penanggung Jawab *
+                            {tr("Nama Lengkap Penanggung Jawab *", "Contact Person's Full Name *")}
                           </label>
                           <input
                             id="fullName"
                             type="text"
                             value={data.fullName}
                             onChange={(e) => setData((p) => ({ ...p, fullName: e.target.value }))}
-                            placeholder="mis. Budi Pratama"
+                            placeholder={tr("mis. Budi Pratama", "e.g. Alex Morgan")}
                             style={{
                               width: "100%",
                               padding: "12px 14px",
@@ -742,7 +753,7 @@ export default function StartProjectPage() {
 
                         <div>
                           <label htmlFor="businessEmail" style={{ display: "block", fontSize: "12px", fontWeight: 700, marginBottom: "6px" }}>
-                            Email Bisnis Resmi *
+                            {tr("Email Bisnis Resmi *", "Business Email *")}
                           </label>
                           <input
                             id="businessEmail"
@@ -770,7 +781,7 @@ export default function StartProjectPage() {
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px", marginBottom: "20px" }}>
                         <div>
                           <label htmlFor="whatsappNumber" style={{ display: "block", fontSize: "12px", fontWeight: 700, marginBottom: "6px" }}>
-                            Nomor WhatsApp Aktif *
+                            {tr("Nomor WhatsApp Aktif *", "Active WhatsApp Number *")}
                           </label>
                           <input
                             id="whatsappNumber"
@@ -796,7 +807,7 @@ export default function StartProjectPage() {
 
                         <div>
                           <label htmlFor="meetingTimezone" style={{ display: "block", fontSize: "12px", fontWeight: 700, marginBottom: "6px" }}>
-                            Preferensi Waktu Diskusi (Google Meet)
+                            {tr("Preferensi Waktu Diskusi", "Preferred Discussion Time")}
                           </label>
                           <select
                             id="meetingTimezone"
@@ -811,10 +822,10 @@ export default function StartProjectPage() {
                               fontSize: "13px",
                             }}
                           >
-                            <option>WIB (Jakarta) — Pagi 09:00 - 12:00</option>
-                            <option>WIB (Jakarta) — Siang 13:00 - 16:00</option>
-                            <option>WITA (Bali) — Pagi 10:00 - 13:00</option>
-                            <option>Sesi Tertulis (Asynchronous via Email)</option>
+                            <option value="WIB (Jakarta) — Pagi 09:00 - 12:00">{tr("WIB (Jakarta) — Pagi 09:00 - 12:00", "WIB (Jakarta) — Morning 09:00–12:00")}</option>
+                            <option value="WIB (Jakarta) — Siang 13:00 - 16:00">{tr("WIB (Jakarta) — Siang 13:00 - 16:00", "WIB (Jakarta) — Afternoon 13:00–16:00")}</option>
+                            <option value="WITA (Bali) — Pagi 10:00 - 13:00">{tr("WITA (Bali) — Pagi 10:00 - 13:00", "WITA (Bali) — Morning 10:00–13:00")}</option>
+                            <option value="Sesi Tertulis (Asynchronous via Email)">{tr("Sesi Tertulis (Asynchronous via Email)", "Written discussion by email")}</option>
                           </select>
                         </div>
                       </div>
@@ -838,7 +849,7 @@ export default function StartProjectPage() {
                           style={{ marginTop: "3px" }}
                         />
                         <span style={{ fontSize: "12px", lineHeight: 1.5, color: "var(--ink-primary)" }}>
-                          Kirimkan draf dokumen <strong>Mutual Non-Disclosure Agreement (MNDA)</strong> sebelum pertukaran dokumentasi arsitektur sensitif.
+                          {tr("Saya ingin membahas", "I would like to discuss a")} <strong>Mutual Non-Disclosure Agreement (MNDA)</strong> {tr("sebelum berbagi dokumen sensitif.", "before sharing sensitive documents.")}
                         </span>
                       </label>
                     </div>
@@ -875,11 +886,11 @@ export default function StartProjectPage() {
                         className="button button-outline"
                         style={{ minWidth: "140px" }}
                       >
-                        ← Langkah Sebelumnya
+                        ← {tr("Langkah Sebelumnya", "Previous Step")}
                       </button>
                     ) : (
                       <Link href="/" className="button button-outline">
-                        ← Kembali ke Beranda
+                        ← {tr("Kembali ke Beranda", "Back to Home")}
                       </Link>
                     )}
 
@@ -890,7 +901,7 @@ export default function StartProjectPage() {
                       className="button button-primary"
                       style={{ minWidth: "160px" }}
                     >
-                      {submitting ? "Mengirim Brief..." : step === 4 ? "Kirim Onboarding Brief ↗" : "Lanjutkan →"}
+                      {submitting ? tr("Mengirim Brief...", "Sending Brief...") : step === 4 ? tr("Kirim Brief ↗", "Send Brief ↗") : tr("Lanjutkan →", "Continue →")}
                     </button>
                   </div>
                 </div>
@@ -913,25 +924,25 @@ export default function StartProjectPage() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border-line)", paddingBottom: "12px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--accent-lime)" }} />
-                    <strong style={{ fontSize: "14px", color: "var(--surface-navy)" }}>Ringkasan Brief</strong>
+                    <strong style={{ fontSize: "14px", color: "var(--surface-navy)" }}>{tr("Ringkasan Brief", "Brief Summary")}</strong>
                   </div>
                   <span style={{ fontSize: "10px", fontWeight: 800, textTransform: "uppercase", padding: "2px 8px", background: "var(--canvas-cream)", borderRadius: "6px" }}>
-                    Draft Aktif
+                    {tr("Draft Aktif", "Active Draft")}
                   </span>
                 </div>
 
                 <div>
                   <span style={{ fontSize: "11px", fontWeight: 800, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--ink-muted)", display: "block", marginBottom: "4px" }}>
-                    Perusahaan
+                    {tr("Perusahaan", "Company")}
                   </span>
                   <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--surface-navy)" }}>
-                    {data.companyName || "(Belum ditentukan)"}
+                    {data.companyName || tr("(Belum ditentukan)", "(Not specified)")}
                   </span>
                 </div>
 
                 <div>
                   <span style={{ fontSize: "11px", fontWeight: 800, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--ink-muted)", display: "block", marginBottom: "4px" }}>
-                    Cakupan Terpilih
+                    {tr("Cakupan Terpilih", "Selected Services")}
                   </span>
                   <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "6px" }}>
                     {data.scopes.map((s) => (
@@ -944,7 +955,7 @@ export default function StartProjectPage() {
 
                 <div>
                   <span style={{ fontSize: "11px", fontWeight: 800, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--ink-muted)", display: "block", marginBottom: "4px" }}>
-                    Alokasi Anggaran
+                    {tr("Alokasi Anggaran", "Budget Range")}
                   </span>
                   <span style={{ fontSize: "14px", fontWeight: 800, color: "var(--surface-navy)" }}>
                     {data.budget}
@@ -953,10 +964,10 @@ export default function StartProjectPage() {
 
                 <div>
                   <span style={{ fontSize: "11px", fontWeight: 800, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--ink-muted)", display: "block", marginBottom: "4px" }}>
-                    Target Peluncuran
+                    {tr("Target Peluncuran", "Target Launch")}
                   </span>
                   <span style={{ fontSize: "12px", color: "var(--ink-primary)" }}>
-                    {data.timeline}
+                    {lang === "ID" ? data.timeline : data.timeline === TIMELINE_OPTIONS[0].label ? "Soon (under 3 weeks)" : data.timeline === TIMELINE_OPTIONS[1].label ? "4–8 weeks (ideal)" : "Flexible"}
                   </span>
                 </div>
 
@@ -970,12 +981,12 @@ export default function StartProjectPage() {
                   }}
                 >
                   <strong style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: ".06em", display: "block", color: "var(--surface-navy)", marginBottom: "4px" }}>
-                    Jaminan Layanan Nexa Studio:
+                    {tr("Langkah Kerja Nexa Studio:", "How We Work:")}
                   </strong>
                   <ul style={{ margin: 0, paddingLeft: "16px", fontSize: "11px", color: "var(--ink-muted)", lineHeight: 1.6 }}>
-                    <li>100% Hak kepemilikan kode sumber</li>
-                    <li>SLA Respon review &lt; 24 jam kerja</li>
-                    <li>Masa garansi bug paska rilis 60 hari</li>
+                    <li>{tr("Ruang lingkup disepakati sebelum pekerjaan dimulai", "Scope is agreed before work begins")}</li>
+                    <li>{tr("Jadwal dan biaya dikonfirmasi dalam proposal", "Timeline and pricing are confirmed in a proposal")}</li>
+                    <li>{tr("Dokumen kerja dibahas sebelum pertukaran data sensitif", "Working documents are discussed before sensitive data is shared")}</li>
                   </ul>
                 </div>
               </aside>

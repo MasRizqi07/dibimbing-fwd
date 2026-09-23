@@ -1,14 +1,21 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { logoutAdminAction } from "@/app/actions/auth";
+import { getRequestLocale } from "@/lib/i18n/server";
+import LanguageToggle from "@/components/LanguageToggle";
 
-export const metadata: Metadata = { robots: { index: false, follow: false } };
+export const metadata: Metadata = {
+  title: "Nexa Studio CMS",
+  description: "Nexa Studio project and inquiry management portal.",
+  robots: { index: false, follow: false },
+};
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const en = (await getRequestLocale()) === "EN";
   return (
     <div
       style={{
@@ -30,6 +37,7 @@ export default function AdminLayout({
       >
         <div className="section-shell admin-header-inner">
           <div style={{ display: "flex", alignItems: "center", gap: "14px", flexWrap: "wrap" }}>
+            <LanguageToggle />
             <Link href="/admin" className="brand">
               <span className="brand-mark">N</span>
               <span>
@@ -53,12 +61,6 @@ export default function AdminLayout({
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "14px", flexWrap: "wrap" }}>
-            {/* Health Indicator Pills */}
-            <div className="health-pill" title="Koneksi database PostgreSQL Neon beroperasi prima">
-              <span className="health-pill-dot" />
-              <span>Database: Connected (200 OK)</span>
-            </div>
-
             <Link
               href="/"
               target="_blank"
@@ -71,7 +73,7 @@ export default function AdminLayout({
                 gap: "4px",
               }}
             >
-              Lihat Website ↗
+              {en ? "View Website ↗" : "Lihat Website ↗"}
             </Link>
 
             <form action={logoutAdminAction}>
@@ -88,7 +90,7 @@ export default function AdminLayout({
                   cursor: "pointer",
                 }}
               >
-                Keluar
+                {en ? "Sign Out" : "Keluar"}
               </button>
             </form>
           </div>

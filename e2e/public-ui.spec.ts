@@ -1,17 +1,16 @@
 import { expect, test } from "@playwright/test";
 
-test("agency homepage shows approved client, performance, and package content", async ({ page }) => {
+test("agency homepage labels illustrations and shows package content", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.locator(".hero-proof")).toContainText("Dipercaya 40+ bisnis");
+  await expect(page.locator(".hero-proof")).toContainText("Ilustrasi potensi pertumbuhan");
   await expect(page.locator(".growth-card")).toContainText("+24.8%");
   await expect(page.locator(".growth-card")).toContainText("Rp 84.6jt");
   await expect(page.locator(".floating-card-top")).toContainText("+38%new customers");
-  await expect(page.locator(".client-logos")).toContainText("PARASruang.MONOelaraBRIK");
+  await expect(page.locator(".logo-strip")).toContainText("Contoh wordmark");
   await expect(page.locator(".pricing-card").nth(0)).toContainText("Rp 3,5 jt");
   await expect(page.locator(".pricing-card").nth(1)).toContainText("Rp 7,5 jt");
   await expect(page.locator(".pricing-card").nth(2)).toContainText("Let's talk");
-  await expect(page.locator("body")).not.toContainText("studi konsep");
 });
 
 test("public layout fits target widths and menu works with keyboard", async ({ page }) => {
@@ -48,4 +47,39 @@ test("site navigation remains visible after scrolling", async ({ page }) => {
   await page.goto("/");
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
   await expect(page.locator(".site-nav")).toBeInViewport();
+});
+
+test("language choice updates homepage copy and persists after reload", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.getByRole("heading", { name: "Measurable Digital Growth for Ambitious Businesses" })).toBeVisible();
+  await expect(page.getByLabel("Full Name")).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Measurable Digital Growth for Ambitious Businesses" })).toBeVisible();
+  await page.getByRole("button", { name: "ID", exact: true }).click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "id");
+  await expect(page.getByRole("heading", { name: "Transformasi Digital Terukur untuk Bisnis yang Siap Tumbuh" })).toBeVisible();
+});
+
+test("English language covers legal drafts, concept pages, and project brief", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await page.goto("/privacy");
+  await expect(page.getByRole("heading", { name: "Privacy & Data Policy" })).toBeVisible();
+  await expect(page.getByRole("note")).toContainText("Pending legal review");
+  await page.goto("/terms");
+  await expect(page.getByRole("heading", { name: "Terms & Conditions" })).toBeVisible();
+  await expect(page.getByRole("note")).toContainText("Pending legal review");
+  await page.goto("/work/nomad-coffee-roasters");
+  await expect(page.getByText("Design Exploration")).toBeVisible();
+  await expect(page.getByText(/does not establish a client engagement/)).toBeVisible();
+  await page.goto("/start");
+  await expect(page.getByRole("heading", { name: "Choose Your Services" })).toBeVisible();
+  await page.getByRole("button", { name: "Continue →" }).click();
+  await expect(page.getByRole("heading", { name: "Budget Range and Timeline" })).toBeVisible();
+  await page.goto("/admin/login");
+  await expect(page.getByLabel("Admin Password")).toBeVisible();
+  await expect(page.getByLabel("2FA / TOTP Code")).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
 });

@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { PrismaClient } from "@prisma/client";
+import { generateTOTP } from "../lib/totp";
 
 test.describe("E2E — Contact Form Flow", () => {
   test("should load landing page and display contact section", async ({ page }) => {
@@ -38,10 +39,12 @@ test.describe("E2E — Contact Form Flow", () => {
     const body = await response.json();
     expect(body.token).toBeDefined();
     expect(typeof body.token).toBe("string");
+    await page.waitForLoadState("networkidle");
   });
 
   test("submission persists, survives refresh, and status mutation persists", async ({ page }) => {
     test.skip(process.env.E2E_TEST_MODE !== "1", "Isolated test database required");
+    await page.setExtraHTTPHeaders({ "x-real-ip": "203.0.113.205" });
     const visitorName = `E2E Visitor ${crypto.randomUUID().slice(0, 8)}`;
     await page.goto("/");
     await page.getByLabel("Nama Lengkap").fill(visitorName);
@@ -51,8 +54,12 @@ test.describe("E2E — Contact Form Flow", () => {
     await page.getByRole("button", { name: /Kirim Pesan Sekarang/ }).click();
     await expect(page.getByRole("heading", { name: "Pesan Tersimpan!" })).toBeVisible();
 
+    const db = new PrismaClient({ datasources: { db: { url: process.env.TEST_DATABASE_URL! } } });
+    await db.adminTotpState.deleteMany();
+    await db.$disconnect();
     await page.goto("/admin/login");
     await page.getByLabel("Password Admin").fill("ci-e2e-password");
+    await page.getByLabel(/Kode 2FA/).fill(generateTOTP("JBSWY3DPEHPK3PXP"));
     await page.getByRole("button", { name: /Masuk ke Dashboard/ }).click();
     const row = page.locator(".admin-submission-list li").filter({ hasText: visitorName });
     await expect(row).toBeVisible();
@@ -104,7 +111,7 @@ test.describe("E2E — Contact Form Flow", () => {
       await page.getByLabel("Ceritakan Kebutuhan Proyek").fill("Pesan pertama yang tersimpan sebelum respons hilang.");
       await page.waitForTimeout(2100);
       await page.getByRole("button", { name: /Kirim Pesan Sekarang/ }).click();
-      await expect(page.getByRole("alert")).toContainText("masalah jaringan");
+      await expect(page.locator(".form-alert-error")).toContainText("masalah jaringan");
 
       await page.getByLabel("Ceritakan Kebutuhan Proyek").fill("Pesan kedua setelah respons pertama hilang.");
       await page.getByRole("button", { name: /Kirim Pesan Sekarang/ }).click();

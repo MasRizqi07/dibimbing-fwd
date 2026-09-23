@@ -38,6 +38,7 @@ export default defineConfig({
           TEST_DATABASE_URL: process.env.TEST_DATABASE_URL!,
           E2E_ADMIN_PASSWORD_HASH: bcrypt.hashSync("ci-e2e-password", 10),
           ADMIN_SESSION_SECRET: "test-only-admin-session-secret-do-not-deploy",
+          ADMIN_TOTP_SECRET: "JBSWY3DPEHPK3PXP",
           E2E_TEST_MODE: "1",
           TRUSTED_PROXY_IP_HEADER: "x-real-ip",
           RESEND_API_KEY: "",

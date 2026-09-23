@@ -2,7 +2,7 @@
 
 **Document Classification**: Technical Architecture & Quality Assurance Reference  
 **Target Audience**: Principal Reviewers, Security Auditors, QA Engineers, and Technical Leads  
-**Codebase Version**: `v2.5.0-production`  
+**Codebase Version**: historical architecture snapshot. Several route, rendering, and content descriptions below no longer match current code; see [PHASE2_STATUS.md](./PHASE2_STATUS.md) and source for the current implementation and evidence.
 **Framework**: Next.js 16.3.5 (App Router, Turbopack) • React 19 • TypeScript 5 • Prisma 6  
 
 ---
@@ -25,12 +25,12 @@ The Nexa Studio frontend was translated directly from visual references and prot
 | Prototype Reference (`Design/`) | Production Component | Rendering Paradigm | Functional Role & Implementation Notes |
 | :--- | :--- | :--- | :--- |
 | `code.html` (Header & Navigation) | [`components/SiteNav.tsx`](file:///d:/MY%20CODE/VS%20CODE/dibimbing-fwd/components/SiteNav.tsx) | Client (`'use client'`) | Translucent sticky header, mobile drawer with focus trap, keyboard navigation (Escape, Tab), and dynamic i18n switcher. |
-| `code.html` (Hero Section) | [`app/page.tsx`](file:///d:/MY%20CODE/VS%20CODE/dibimbing-fwd/app/page.tsx) (`#top`) | Server Component (RSC) | Editorial headline, action button cluster, social proof badge (`Dipercaya 40+ bisnis`), and SVG geometric badge. |
+| `code.html` (Hero Section) | [`app/page.tsx`](file:///d:/MY%20CODE/VS%20CODE/dibimbing-fwd/app/page.tsx) (`#top`) | Server Component (RSC) | Editorial headline and SVG chart; figures are labeled illustrative. |
 | `code.html` (Growth Card) | [`app/page.tsx`](file:///d:/MY%20CODE/VS%20CODE/dibimbing-fwd/app/page.tsx) (`.growth-card`) | Server Component (RSC) | Vector financial metric card (+24.8% YoY, Rp 84.6jt) with dual floating micro-cards (`+38% new customers`). |
-| `code.html` (Client Logos Strip) | [`app/page.tsx`](file:///d:/MY%20CODE/VS%20CODE/dibimbing-fwd/app/page.tsx) (`.client-proof`) | Server Component (RSC) | Monochrome partner typographic strip (PARAS, ruang., MONO, elara, BRIK) with subtle opacity transitions. |
+| `code.html` (Client Logos Strip) | [`app/page.tsx`](file:///d:/MY%20CODE/VS%20CODE/dibimbing-fwd/app/page.tsx) (`.logo-strip`) | Server Component (RSC) | Typographic wordmark concepts, without a verified client relationship claim. |
 | `code.html` (Services Catalog) | [`components/ServiceCatalog.tsx`](file:///d:/MY%20CODE/VS%20CODE/dibimbing-fwd/components/ServiceCatalog.tsx) | Client (`'use client'`) | Category filter pills, debounced live text search, ARIA live region status indicator, and reset trigger. |
-| `code.html` (Portfolio Grid) | [`app/page.tsx`](file:///d:/MY%20CODE/VS%20CODE/dibimbing-fwd/app/page.tsx) (`#work`) | Server Component (RSC) | 16:10 curated showcase cards with verified KPI badges, Neon database query with concept-card fallback. |
-| Conceptual Prototype | [`app/work/[slug]/page.tsx`](file:///d:/MY%20CODE/VS%20CODE/dibimbing-fwd/app/work/[slug]/page.tsx) | SSG (Static Site Gen) | Editorial split-view case study (Challenge, Solution, Tech Architecture, 3-column KPI grid, Testimonial, Next Rail). |
+| `code.html` (Portfolio Grid) | [`app/page.tsx`](file:///d:/MY%20CODE/VS%20CODE/dibimbing-fwd/app/page.tsx) (`#work`) | Dynamic Server Component | Database project cards; only known concept titles link to detail routes. |
+| Conceptual Prototype | [`app/work/[slug]/page.tsx`](file:///d:/MY%20CODE/VS%20CODE/dibimbing-fwd/app/work/[slug]/page.tsx) | Dynamic Server Component | Bilingual visual concept gallery with explicit provenance and no unverified outcomes. |
 | `code.html` (Process 4-Step) | [`app/page.tsx`](file:///d:/MY%20CODE/VS%20CODE/dibimbing-fwd/app/page.tsx) (`#process`) | Server Component (RSC) | 4-step delivery pipeline (Discovery, Design Architecture, Engineering & Quality, Launch & Growth). |
 | `code.html` (Pricing Matrix) | [`app/page.tsx`](file:///d:/MY%20CODE/VS%20CODE/dibimbing-fwd/app/page.tsx) (`#pricing`) | Server Component (RSC) | 3-tier pricing cards: Starter (Rp 3,5jt), Growth (Rp 7,5jt, featured navy container), and Enterprise Custom. |
 | `code.html` (Contact Section) | [`components/ContactForm.tsx`](file:///d:/MY%20CODE/VS%20CODE/dibimbing-fwd/components/ContactForm.tsx) | Client (`'use client'`) | High-conversion dark navy anchor (`#102A31`) with honeypot, anti-spam token, UUID idempotency key, and status alerts. |
@@ -48,8 +48,8 @@ graph TD
     subgraph Server_Component_Boundary [Server Components - Zero Client JS]
         Layout["app/layout.tsx<br/>(SEO, JSON-LD, Fonts)"]
         Home["app/page.tsx<br/>(Hero, Logos, Process, Pricing, Footer)"]
-        CaseStudy["app/work/[slug]/page.tsx<br/>(Static SSG Case Studies)"]
-        Legal["app/privacy & app/terms<br/>(Static Editorial Readers)"]
+        CaseStudy["app/work/[slug]/page.tsx<br/>(Dynamic Bilingual Concepts)"]
+        Legal["app/privacy & app/terms<br/>(Dynamic Bilingual Drafts)"]
         AdminLayout["app/admin/layout.tsx<br/>(Admin Wrapper)"]
     end
 
@@ -72,7 +72,7 @@ graph TD
 ```
 
 ### Architectural Rules Enforced:
-1. **Server Components by Default**: Pages, layouts, and data fetchers execute on the server. No client-side React runtime overhead for static editorial content.
+1. **Server Components by Default**: Pages, layouts, and data fetchers execute on the server. Reading the locale cookie makes public routes dynamic in the current build.
 2. **Selective Client Islands**: `'use client'` is applied exclusively to components requiring event handlers, browser storage APIs, or dynamic input state.
 3. **Hydration Isolation**: The `LanguageProvider` wraps children using React 19's `useSyncExternalStore` so client-side language switching does not trigger hydration mismatches or cascade re-renders.
 
@@ -134,8 +134,8 @@ sequenceDiagram
     participant UI as ProjectForm.tsx
     participant API as POST /api/admin/upload
     participant Auth as isAuthenticatedAdmin()
-    participant Inspector as Binary Signature Inspector
-    participant FS as File System (/public/uploads/)
+    participant Inspector as Image Decoder and ClamAV
+    participant FS as S3-compatible Object Storage
 
     Admin->>UI: Selects image file (JPEG / PNG / WebP / AVIF)
     UI->>API: Multi-part FormData (File + Admin Session Cookie)
@@ -143,16 +143,16 @@ sequenceDiagram
     alt Unauthorized Session
         Auth-->>UI: 401 Unauthorized
     end
-    API->>API: Check Content-Length & stream size (<= 5MB)
+    API->>API: Require Content-Length and check 5 MB upload limit
     alt File Size > 5MB
         API-->>UI: 413 Payload Too Large
     end
-    API->>Inspector: Inspect first 16 bytes (Magic Bytes)
-    alt Extension or Magic Byte Mismatch
-        Inspector-->>UI: 400 Invalid Image File Signature
+    API->>Inspector: Decode full image, normalize WebP, and scan
+    alt Invalid or Infected File
+        Inspector-->>UI: 400 Rejected Image
     end
-    API->>FS: Generate crypto.randomUUID() filename & write buffer
-    API-->>UI: 201 Created { url: "/uploads/uuid.ext" }
+    API->>FS: Generate crypto.randomUUID() object key and upload
+    API-->>UI: 201 Created { url: "/api/media/uuid.webp" }
     UI->>UI: Updates Project thumbnail preview immediately
 ```
 
@@ -168,7 +168,7 @@ sequenceDiagram
     participant TOTP as lib/totp.ts Engine
     participant Cookie as Session Cookie Issuer
 
-    Admin->>Login: Submits password and optional 6-digit TOTP code
+    Admin->>Login: Submits password and 6-digit TOTP code when enabled
     Login->>Action: Executes server action with payload
     Action->>Bcrypt: Compare submitted password against ADMIN_PASSWORD hash
     alt Password Mismatch
@@ -249,7 +249,7 @@ model ContactSubmission {
 
 ## 7. Automated Quality Gates & Compliance Results
 
-All quality gates are actively enforced and verified locally and in CI (`.github/workflows/verify.yml`):
+The following is a local snapshot. CI on this changed commit, staging, and production have not been verified:
 
 ```text
 ================================================================================
@@ -257,12 +257,12 @@ QUALITY GATE VERIFICATION REPORT
 ================================================================================
 1. ESLint (Code Quality & Hooks)            : PASSED (0 errors, 0 warnings)
 2. TypeScript (Strict Typecheck)            : PASSED (0 type errors)
-3. Vitest Unit & Integration Suites         : PASSED (14 suites, 51 tests)
-4. Turbopack Production Compilation         : PASSED (15 static/dynamic routes)
-5. Axe-core Automated WCAG 2.1 AA/AAA       : PASSED (0 violations detected)
-6. Playwright End-to-End Suite              : PASSED (11 passed, 6 DB-skipped)
+3. Vitest Unit & Integration Suites         : PASSED locally (20 suites, 66 tests on 2026-09-23)
+4. Turbopack Production Compilation         : PASSED locally
+5. Axe-core selected automated rules        : PASSED on tested pages
+6. Playwright with isolated local DB         : PASSED (17 tests)
 ================================================================================
-OVERALL ARCHITECTURAL HEALTH                : 100% PRODUCTION READY
+RELEASE STATUS                              : UNVERIFIED
 ================================================================================
 ```
 
@@ -309,11 +309,6 @@ npx playwright test e2e/public-ui.spec.ts
 
 ---
 
-## 9. Sign-Off & Architectural Endorsement
+## 9. Review status
 
-| Role | Responsibility | Verification Status |
-| :--- | :--- | :---: |
-| **Principal Frontend Architect** | UI/UX Fidelity, Token Mapping, i18n Engine | **ENDORSED & VERIFIED** |
-| **Lead Backend Engineer** | API Routes, Outbox Pattern, Prisma Persistence | **ENDORSED & VERIFIED** |
-| **Security & QA Auditor** | Threat Mitigation, TOTP 2FA, WCAG Compliance | **ENDORSED & VERIFIED** |
-
+No named reviewer or auditor sign-off is recorded for this Phase 2 checkout. See [PHASE2_STATUS.md](./PHASE2_STATUS.md) for remaining release checks.

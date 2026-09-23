@@ -68,13 +68,6 @@ export async function sendContactNotification(id: string): Promise<boolean> {
       },
     });
 
-    if (markedSent.count === 1) {
-      // Non-blocking external webhook dispatch (e.g. Slack/Discord/CRM)
-      dispatchWebhookNotification(submission).catch((err) => {
-        console.error("Background webhook error:", err);
-      });
-    }
-
     return markedSent.count === 1;
   } catch (error) {
     console.error("Contact notification transport error:", error instanceof Error ? error.name : "unknown");
@@ -84,7 +77,6 @@ export async function sendContactNotification(id: string): Promise<boolean> {
     return false;
   }
 }
-
 async function scheduleRetry(id: string, attempts: number): Promise<void> {
   const retryDelay = RETRY_DELAYS_MS[attempts - 1];
   await prisma.contactSubmission.updateMany({
@@ -130,49 +122,3 @@ export async function processPendingNotifications(limit = 20): Promise<{ attempt
   }
   return { attempted: due.length };
 }
-
-async function dispatchWebhookNotification(submission: {
-  id: string;
-  name: string;
-  email: string;
-  message: string;
-  createdAt: Date;
-}): Promise<void> {
-  const webhookUrl = process.env.NOTIFICATION_WEBHOOK_URL;
-  if (!webhookUrl) return;
-
-  try {
-    const payload = {
-      event: "lead.created",
-      text: `🚀 *New Lead Inbound — Nexa Studio*\n*Name*: ${submission.name}\n*Email*: ${submission.email}\n*ID*: \`${submission.id}\`\n*Message*: ${submission.message}`,
-      submission: {
-        id: submission.id,
-        name: submission.name,
-        email: submission.email,
-        message: submission.message,
-        createdAt: submission.createdAt.toISOString(),
-      },
-    };
-
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
-
-    const res = await fetch(webhookUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "User-Agent": "NexaStudio-AlertBot/1.0",
-      },
-      body: JSON.stringify(payload),
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
-
-    if (!res.ok) {
-      console.warn(`Webhook alert returned HTTP ${res.status}`);
-    }
-  } catch (err) {
-    console.error("Webhook notification dispatch error:", err instanceof Error ? err.name : "unknown");
-  }
-}
-

@@ -11,11 +11,11 @@ export default function SiteNav({ whatsappUrl }: { whatsappUrl: string | null })
   const toggleBtnRef = useRef<HTMLButtonElement>(null);
 
   const links = [
-    { href: "#services", label: t.nav.services },
-    { href: "#work", label: t.nav.portfolio },
-    { href: "#process", label: t.nav.process },
-    { href: "#pricing", label: t.nav.pricing },
-    { href: "#contact", label: t.nav.contact },
+    { href: "/#services", label: t.nav.services },
+    { href: "/#work", label: t.nav.portfolio },
+    { href: "/#process", label: t.nav.process },
+    { href: "/#pricing", label: t.nav.pricing },
+    { href: "/#contact", label: t.nav.contact },
   ];
 
   // Close on Escape & trap focus
@@ -60,11 +60,11 @@ export default function SiteNav({ whatsappUrl }: { whatsappUrl: string | null })
   }, [open]);
 
   return (
-    <nav className="site-nav" aria-label="Navigasi utama">
+    <nav className="site-nav" aria-label={lang === "ID" ? "Navigasi utama" : "Main navigation"}>
       <Link
         className="brand"
         href="/#top"
-        aria-label="Nexa Studio, kembali ke atas"
+        aria-label={t.nav.brandAria}
         onClick={() => setOpen(false)}
       >
         <span className="brand-mark">N</span>

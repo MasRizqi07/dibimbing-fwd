@@ -3,8 +3,12 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { loginAdminAction } from "@/app/actions/auth";
+import { useLanguage } from "@/lib/i18n/context";
+import LanguageToggle from "@/components/LanguageToggle";
 
 export default function AdminLoginPage() {
+  const { lang } = useLanguage();
+  const tr = (id: string, en: string) => lang === "EN" ? en : id;
   const [state, formAction, isPending] = useActionState(loginAdminAction, null);
 
   return (
@@ -32,6 +36,9 @@ export default function AdminLoginPage() {
           boxShadow: "0 20px 40px rgba(0, 0, 0, 0.25)",
         }}
       >
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+          <LanguageToggle inverse />
+        </div>
         <div
           style={{
             position: "absolute",
@@ -87,7 +94,7 @@ export default function AdminLoginPage() {
             Nexa Studio CMS
           </h1>
           <p style={{ margin: 0, color: "#8b9c9b", fontSize: "13px" }}>
-            Masuk untuk mengelola portfolio & submissions
+            {tr("Masuk untuk mengelola portofolio dan pesan", "Sign in to manage the portfolio and inquiries")}
           </p>
         </div>
 
@@ -103,14 +110,14 @@ export default function AdminLoginPage() {
                 letterSpacing: ".06em",
               }}
             >
-              Password Admin
+              {tr("Password Admin", "Admin Password")}
             </label>
             <input
               id="password"
               name="password"
               type="password"
               required
-              placeholder="Masukkan password admin"
+              placeholder={tr("Masukkan password admin", "Enter your admin password")}
               autoComplete="current-password"
               style={{
                 width: "100%",
@@ -137,16 +144,16 @@ export default function AdminLoginPage() {
                   letterSpacing: ".06em",
                 }}
               >
-                Kode 2FA / TOTP (Jika Diaktifkan)
+                {tr("Kode 2FA / TOTP", "2FA / TOTP Code")}
               </label>
-              <span style={{ fontSize: "10px", color: "#a9bcba" }}>Opsional</span>
+              <span style={{ fontSize: "10px", color: "#a9bcba" }}>{tr("Wajib jika diaktifkan", "Required when enabled")}</span>
             </div>
             <input
               id="totpCode"
               name="totpCode"
               type="text"
               maxLength={6}
-              placeholder="Contoh: 123456"
+              placeholder={tr("Contoh: 123456", "Example: 123456")}
               autoComplete="one-time-code"
               style={{
                 width: "100%",
@@ -174,7 +181,7 @@ export default function AdminLoginPage() {
                 fontSize: "12px",
               }}
             >
-              {state.error}
+            {lang === "EN" ? "Sign-in failed. Check your password and authenticator code, then try again." : state.error}
             </div>
           )}
 
@@ -192,7 +199,7 @@ export default function AdminLoginPage() {
               marginTop: "6px",
             }}
           >
-            {isPending ? "Memverifikasi..." : "Masuk ke Dashboard ↗"}
+            {isPending ? tr("Memverifikasi...", "Verifying...") : tr("Masuk ke Dashboard ↗", "Sign In to Dashboard ↗")}
           </button>
         </form>
 
@@ -209,7 +216,7 @@ export default function AdminLoginPage() {
           }}
         >
           <p style={{ margin: 0, fontSize: "11px", color: "#8b9c9b", lineHeight: 1.5 }}>
-            Akses terbatas untuk administrator resmi Nexa Studio. Sesi diamankan dengan cookie bertanda tangan HMAC.
+            {tr("Akses terbatas untuk administrator Nexa Studio. Sesi diamankan dengan cookie bertanda tangan HMAC.", "Access is restricted to Nexa Studio administrators. Sessions use HMAC-signed cookies.")}
           </p>
           <Link
             href="/"
@@ -223,7 +230,7 @@ export default function AdminLoginPage() {
               gap: "4px",
             }}
           >
-            ← Kembali ke Situs Publik
+            ← {tr("Kembali ke Situs Publik", "Back to Public Site")}
           </Link>
         </div>
       </div>
@@ -238,14 +245,7 @@ export default function AdminLoginPage() {
           fontSize: "11px",
         }}
       >
-        <span>NEXA CMS v2.4.9</span>
-        <span>•</span>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}>
-          <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--accent-lime)" }} />
-          JKT01 Gateway
-        </span>
-        <span>•</span>
-        <span>TLS 1.3 / ECH</span>
+        <span>NEXA CMS</span>
       </div>
     </div>
   );
