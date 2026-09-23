@@ -201,6 +201,8 @@ Copy `.env.example` to `.env.local` for local execution. Configure the following
 | `NEXT_PUBLIC_SITE_URL` | Public | Optional | `http://localhost:3000` | Canonical site URL for Open Graph metadata and sitemaps. |
 | `NEXT_PUBLIC_WHATSAPP_NUMBER`| Public | Optional | `6281234567890` | WhatsApp consultation destination number. |
 
+The included Vercel schedule runs once daily to remain compatible with the Hobby plan. If lead notifications must be delivered sooner, configure Vercel Pro or an external scheduler to call the same authenticated endpoint at the required interval.
+
 ---
 
 ## 🛠 Local Development & Setup

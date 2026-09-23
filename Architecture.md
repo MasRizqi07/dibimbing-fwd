@@ -166,6 +166,7 @@ Vercel / Cloud Edge
 Integrasi pihak ketiga:
 - **Resend**: Pengiriman email transaksional terjadwal.
 - **External Webhooks**: Outbox bertanda tangan HMAC dengan retry; waktu kirim bergantung jadwal cron dan konfigurasi receiver.
+- **Scheduler deployment**: `vercel.json` menjalankan outbox sekali sehari agar kompatibel dengan Vercel Hobby. Kebutuhan pengiriman lebih cepat memerlukan Vercel Pro atau scheduler eksternal yang memanggil endpoint dengan `CRON_SECRET`.
 
 ## 9. Environment Contract
 
